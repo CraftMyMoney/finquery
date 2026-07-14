@@ -38,6 +38,66 @@ uvicorn app.main:app --reload
 pytest
 ```
 
+## Data layer setup from scratch
+
+Everything below is key-independent (no OpenAI key needed) and fully
+re-runnable. Run from the repo root.
+
+```bash
+# 1. Python env + dependencies
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+# 2. Environment file (DB credentials live here)
+cp .env.example .env          # OPENAI_API_KEY can stay empty for the data layer
+
+# 3. Start Postgres (pgvector) in Docker, host port 5433
+docker compose up -d db
+# First boot auto-applies db/schema.sql via the initdb mount.
+
+# 4. Apply schema + master data (idempotent, safe to re-run any time)
+python -m ingest.apply_schema --with-master
+# schema.sql   = DDL: 12 tables (taxonomy lookups, transactions, budgets,
+#                pii_mappings, kb_*, ask_runs, llm_payload_log)
+# seed_master.sql = DML: 3 categories, 33 subcategories, 133 spend types,
+#                3 users, 59 budget rows
+
+# 5. Load synthetic transactions + build PII mappings
+python -m ingest.seed_transactions
+# Reads fake-data/user{1,2,3}_*_transactions.csv, truncates and reloads the
+# transactions and pii_mappings tables. Expected: 1050 transactions,
+# 109 PII mappings (user1: 46, user2: 26, user3: 37).
+
+# 6. Sanity check
+docker exec finquery-db psql -U finquery -d finquery \
+  -c "SELECT u.username, count(*) FROM transactions t JOIN users u ON u.id = t.user_id GROUP BY 1 ORDER BY 1;"
+```
+
+To rebuild from zero (drops all data, including the Docker volume):
+
+```bash
+docker compose down -v db
+docker compose up -d db       # waits for healthcheck, schema auto-applies
+python -m ingest.apply_schema --with-master
+python -m ingest.seed_transactions
+```
+
+### Connecting from DBeaver (or any SQL client)
+
+| Setting  | Value       |
+|----------|-------------|
+| Host     | `localhost` |
+| Port     | `5433`      |
+| Database | `finquery`  |
+| Username | `finquery`  |
+| Password | `finquery`  |
+
+JDBC URL: `jdbc:postgresql://localhost:5433/finquery`
+
+These are throwaway local-dev credentials for a synthetic-data-only database,
+set in `docker-compose.yml`. The app reads the same connection string from
+`DATABASE_URL` in `.env`.
+
 ## Repository layout
 
 ```
