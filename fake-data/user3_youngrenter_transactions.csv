@@ -1,0 +1,361 @@
+date,bank_description,amount,type,category,subcategory,spend_type
+2026-01-01,NEFT CR-ICIC0004321-QUBERT TECHNOLOGIES PVT LTD-SALARY JAN 2026-N663923321468,60000.00,credit,,,
+2026-01-01,UPI-176418457824-SOCIAL HITEC CITY-social.hitec@okhdfcbank-NYE PARTY SPLIT,2000.00,debit,Lifestyle,Events,Party
+2026-01-01,UPI-466832860334-RAPIDO BIKE TAXI-rapido@ybl-RIDE,80.00,debit,Essentials,Transport,Rapido
+2026-01-01,UPI-532916055638-APOLLO PHARMACY-apollopharmacy@icici-MEDICINES,190.00,debit,Essentials,Medical,Medicines
+2026-01-01,UPI-023359410616-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,70.00,debit,Essentials,Transport,Auto
+2026-01-01,UPI-528518405632-ZOMATO-zomato.order@hdfcbank-ORDER 99522601,320.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-01-02,UPI-819736993563-VENKAT RAO-venkatrao.landlord@oksbi-1BHK RENT MADHAPUR,15000.00,debit,Essentials,Bills,Rent
+2026-01-02,UPI-780941610477-SWIGGY-swiggy@icici-ORDER 34591449,550.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-01-02,UPI-914762497384-RAPIDO BIKE TAXI-rapido@ybl-RIDE,130.00,debit,Essentials,Transport,Rapido
+2026-01-02,UPI-338967295828-BLINKIT-blinkit.grocery@ybl-ORDER B74789535,640.00,debit,Essentials,Groceries,Staples
+2026-01-02,UPI-271582580103-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,60.00,debit,Essentials,Transport,Auto
+2026-01-03,UPI-272951817560-SLICE-slice.repay@axisb-SLICE CARD BILL,2400.00,debit,Essentials,Credit Bill,Slice
+2026-01-03,UPI-442831915034-SWIGGY-swiggy@icici-ORDER 67110313,530.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-01-03,UPI-521410565939-SWIGGY-swiggy@icici-ORDER 76688659,350.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-01-03,POS 489377XXXXXX3321 THIRD WAVE COFFEE,370.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-01-04,UPI-419006458994-RAPIDO BIKE TAXI-rapido@ybl-RIDE,90.00,debit,Essentials,Transport,Rapido
+2026-01-04,UPI-609032240429-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1350.00,debit,Lifestyle,Personal,Vices
+2026-01-05,UPI-806358178397-SIMPL-getsimpl@ybl-SIMPL DUES CLEARED,900.00,debit,Essentials,Credit Bill,Simpl
+2026-01-05,UPI-616124906528-GOLDS GYM MADHAPUR-goldsgym.madhapur@okicici-MONTHLY MEMBERSHIP,1500.00,debit,Lifestyle,Fitness,Gym
+2026-01-06,UPI-273242888133-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,500.00,debit,Lifestyle,Fitness,Badminton
+2026-01-07,UPI-523279282010-LAZYPAY-lazypay.payu@hdfcbank-LAZYPAY BILL,700.00,debit,Essentials,Credit Bill,LazyPay
+2026-01-08,UPI-979122754590-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,150.00,debit,Essentials,Transport,Auto
+2026-01-08,UPI-445656245202-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,1200.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-01-09,UPI-734341533647-TSSPDCL-billpay.tsspdcl@icici-USN 556677889900,884.00,debit,Essentials,Bills,Electricity
+2026-01-09,UPI-378015715098-ZOMATO-zomato.order@hdfcbank-ORDER 34796279,470.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-01-09,UPI-981386290569-ZOMATO-zomato.order@hdfcbank-ORDER 27423582,350.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-01-09,POS 489377XXXXXX3321 THIRD WAVE COFFEE,400.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-01-10,POS 489377XXXXXX3321 STEAMGAMES COM,2499.00,debit,Lifestyle,Shopping,Video Games
+2026-01-10,POS 489377XXXXXX3321 THIRD WAVE COFFEE,380.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-01-10,UPI-529555064938-BLINKIT-blinkit.grocery@ybl-ORDER B22048441,390.00,debit,Essentials,Groceries,Staples
+2026-01-10,UPI-351256248437-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,160.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-01-10,UPI-368824466150-UBER INDIA-uber.rides@axisb-TRIP 46222408,430.00,debit,Essentials,Transport,Uber
+2026-01-10,POS 489377XXXXXX3321 THIRD WAVE COFFEE,320.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-01-11,UPI-303748625702-SUPERTAILS-supertails@icici-CAT FOOD LITTER ORDER,1250.00,debit,Lifestyle,Pet Care,Food
+2026-01-11,UPI-665666581205-JIOFIBER-jiofiber.bill@sbi-ACCT 30011223,799.00,debit,Essentials,Bills,Internet
+2026-01-11,UPI-634212780361-RAPIDO BIKE TAXI-rapido@ybl-RIDE,180.00,debit,Essentials,Transport,Rapido
+2026-01-11,UPI-910091263699-RAPIDO BIKE TAXI-rapido@ybl-RIDE,60.00,debit,Essentials,Transport,Rapido
+2026-01-12,UPI-341521840905-JIO PREPAID-7013456789@jio-RECHARGE 7013456789,399.00,debit,Essentials,Bills,Phone
+2026-01-12,UPI-810862539992-ZOMATO-zomato.order@hdfcbank-ORDER 18382581,510.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-01-13,UPI-246365601883-SWIGGY-swiggy@icici-ORDER 99736535,280.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-01-15,SI DEBIT-AXIS BANK CC XXXXXX5566-AUTOPAY STATEMENT DUE,11000.00,debit,Essentials,Credit Bill,Credit Card
+2026-01-16,POS 489377XXXXXX3321 NETFLIX COM MUMBAI,649.00,debit,Lifestyle,Subscription,Netflix
+2026-01-16,POS 489377XXXXXX3321 THIRD WAVE COFFEE,270.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-01-16,UPI-030932622874-RAPIDO BIKE TAXI-rapido@ybl-RIDE,150.00,debit,Essentials,Transport,Rapido
+2026-01-18,POS 489377XXXXXX3321 SPOTIFY INDIA PREMIUM,119.00,debit,Lifestyle,Subscription,Others
+2026-01-18,POS 489377XXXXXX3321 MYNTRA EORS SALE,1999.00,debit,Lifestyle,Shopping,Clothes
+2026-01-19,UPI-384270633172-UBER INDIA-uber.rides@axisb-TRIP 56422906,230.00,debit,Essentials,Transport,Uber
+2026-01-21,UPI-915823973169-SWIGGY-swiggy@icici-ORDER 08671293,400.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-01-21,POS 489377XXXXXX3321 THIRD WAVE COFFEE,410.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-01-22,UPI-287346788994-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,950.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-01-23,UPI-100605304244-ZOMATO-zomato.order@hdfcbank-ORDER 66881345,300.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-01-24,UPI-576868455148-RAPIDO BIKE TAXI-rapido@ybl-RIDE,90.00,debit,Essentials,Transport,Rapido
+2026-01-24,UPI-494708204320-RAPIDO BIKE TAXI-rapido@ybl-RIDE,80.00,debit,Essentials,Transport,Rapido
+2026-01-24,UPI-381656855311-UBER INDIA-uber.rides@axisb-TRIP 25929086,220.00,debit,Essentials,Transport,Uber
+2026-01-25,IMPS-P2A-111242262385-SANDEEP SELF-XXXXXX3344-TO SAVINGS AC,5000.00,debit,Goals,Self Transfer,
+2026-01-25,UPI-583981463194-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,130.00,debit,Essentials,Transport,Auto
+2026-01-26,UPI-142661148442-SWIGGY-swiggy@icici-ORDER 53310642,450.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-01-27,POS 489377XXXXXX3321 RATNADEEP SUPER MARKET,790.00,debit,Lifestyle,Home,Toiletries
+2026-01-27,UPI-520595836428-SWIGGY-swiggy@icici-ORDER 04003965,440.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-01-28,UPI-662475227668-RAPIDO BIKE TAXI-rapido@ybl-RIDE,170.00,debit,Essentials,Transport,Rapido
+2026-02-01,NEFT CR-ICIC0004321-QUBERT TECHNOLOGIES PVT LTD-SALARY FEB 2026-N362363512001,60000.00,credit,,,
+2026-02-01,UPI-123493397043-RAPIDO BIKE TAXI-rapido@ybl-RIDE,120.00,debit,Essentials,Transport,Rapido
+2026-02-01,UPI-779827110642-RAPIDO BIKE TAXI-rapido@ybl-RIDE,170.00,debit,Essentials,Transport,Rapido
+2026-02-02,UPI-763475802869-VENKAT RAO-venkatrao.landlord@oksbi-1BHK RENT MADHAPUR,15000.00,debit,Essentials,Bills,Rent
+2026-02-02,UPI-943150011990-SWIGGY-swiggy@icici-ORDER 05067453,530.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-03,UPI-654292795277-SLICE-slice.repay@axisb-SLICE CARD BILL,2700.00,debit,Essentials,Credit Bill,Slice
+2026-02-03,UPI-397148631027-BLINKIT-blinkit.grocery@ybl-ORDER B52449033,370.00,debit,Essentials,Groceries,Staples
+2026-02-03,UPI-703686205853-ZOMATO-zomato.order@hdfcbank-ORDER 38622356,470.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-02-03,UPI-173225158461-SWIGGY-swiggy@icici-ORDER 30418196,410.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-04,UPI-797300879893-SWIGGY-swiggy@icici-ORDER 40469371,300.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-04,UPI-522675162776-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1200.00,debit,Lifestyle,Personal,Vices
+2026-02-05,UPI-278799487971-SIMPL-getsimpl@ybl-SIMPL DUES CLEARED,1250.00,debit,Essentials,Credit Bill,Simpl
+2026-02-05,UPI-868012932340-GOLDS GYM MADHAPUR-goldsgym.madhapur@okicici-MONTHLY MEMBERSHIP,1500.00,debit,Lifestyle,Fitness,Gym
+2026-02-05,UPI-803573180203-BLINKIT-blinkit.grocery@ybl-ORDER B93368746,470.00,debit,Essentials,Groceries,Staples
+2026-02-05,UPI-896404625901-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,500.00,debit,Lifestyle,Fitness,Badminton
+2026-02-05,UPI-709179995355-BLINKIT-blinkit.grocery@ybl-ORDER B08171964,360.00,debit,Essentials,Groceries,Staples
+2026-02-05,UPI-901595932362-RAPIDO BIKE TAXI-rapido@ybl-RIDE,90.00,debit,Essentials,Transport,Rapido
+2026-02-06,UPI-322619413388-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,60.00,debit,Essentials,Transport,Auto
+2026-02-06,UPI-546481961590-SWIGGY-swiggy@icici-ORDER 05541138,590.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-06,UPI-028264506828-ZOMATO-zomato.order@hdfcbank-ORDER 51126438,540.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-02-07,UPI-073157066503-LAZYPAY-lazypay.payu@hdfcbank-LAZYPAY BILL,700.00,debit,Essentials,Credit Bill,LazyPay
+2026-02-07,UPI-014339699786-BLINKIT-blinkit.grocery@ybl-ORDER B12468689,310.00,debit,Essentials,Groceries,Staples
+2026-02-08,UPI-559545462934-TSSPDCL-billpay.tsspdcl@icici-USN 556677889900,775.00,debit,Essentials,Bills,Electricity
+2026-02-08,UPI-858470072246-BLINKIT-blinkit.grocery@ybl-ORDER B74759620,510.00,debit,Essentials,Groceries,Staples
+2026-02-08,UPI-547109056434-SWIGGY-swiggy@icici-ORDER 58783967,470.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-09,UPI-364552754770-JIO PREPAID-7013456789@jio-RECHARGE 7013456789,399.00,debit,Essentials,Bills,Phone
+2026-02-10,UPI-003033933802-SUPERTAILS-supertails@icici-CAT FOOD LITTER ORDER,1250.00,debit,Lifestyle,Pet Care,Food
+2026-02-11,UPI-172383028883-SWIGGY-swiggy@icici-ORDER 78394345,500.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-12,UPI-398647844453-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,1000.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-02-13,UPI-048915106502-JIOFIBER-jiofiber.bill@sbi-ACCT 30011223,799.00,debit,Essentials,Bills,Internet
+2026-02-13,UPI-117113156533-ABHIBUS-abhibus@icici-HYD GOKARNA SLEEPER,1400.00,debit,Lifestyle,Travel,Commute
+2026-02-13,UPI-401062069153-BLINKIT-blinkit.grocery@ybl-ORDER B18271673,740.00,debit,Essentials,Groceries,Staples
+2026-02-14,UPI-028486205536-ZOSTEL GOKARNA-zostel.gokarna@okaxis-2N DORM STAY,2400.00,debit,Lifestyle,Travel,Hotel
+2026-02-14,UPI-011203111110-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1100.00,debit,Lifestyle,Personal,Vices
+2026-02-14,UPI-384738596995-ZOMATO-zomato.order@hdfcbank-ORDER 41115723,400.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-02-15,SI DEBIT-AXIS BANK CC XXXXXX5566-AUTOPAY STATEMENT DUE,8700.00,debit,Essentials,Credit Bill,Credit Card
+2026-02-15,UPI-472290020457-NAMASTE CAFE GOKARNA-9448765521@ybl-BEACH SHACK MEALS,900.00,debit,Lifestyle,Travel,Meals
+2026-02-15,UPI-202459435303-KUDLE ADVENTURES-kudle.kayak@paytm-KAYAKING SESSION,1200.00,debit,Lifestyle,Travel,Activities
+2026-02-15,UPI-573891211293-UBER INDIA-uber.rides@axisb-TRIP 97949487,430.00,debit,Essentials,Transport,Uber
+2026-02-15,UPI-298481268992-UBER INDIA-uber.rides@axisb-TRIP 23940874,320.00,debit,Essentials,Transport,Uber
+2026-02-15,UPI-402391162869-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,80.00,debit,Essentials,Transport,Auto
+2026-02-15,UPI-807680317967-SWIGGY-swiggy@icici-ORDER 74565198,290.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-16,UPI-094001900664-ZOMATO-zomato.order@hdfcbank-ORDER 41192742,680.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-02-17,POS 489377XXXXXX3321 SPOTIFY INDIA PREMIUM,119.00,debit,Lifestyle,Subscription,Others
+2026-02-17,UPI-344398917927-ZOMATO-zomato.order@hdfcbank-ORDER 45227597,470.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-02-17,UPI-367941870532-SWIGGY-swiggy@icici-ORDER 26334220,480.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-17,POS 489377XXXXXX3321 THIRD WAVE COFFEE,340.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-02-18,POS 489377XXXXXX3321 NETFLIX COM MUMBAI,649.00,debit,Lifestyle,Subscription,Netflix
+2026-02-18,UPI-746745799837-ZOMATO-zomato.order@hdfcbank-ORDER 91935796,700.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-02-19,UPI-725894719029-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,300.00,debit,Lifestyle,Fitness,Badminton
+2026-02-21,IMPS-P2A-461918209357-ROHIT KUMAR-XXXXXX8890-EMERGENCY HELP,3000.00,debit,Goals,Lent,
+2026-02-21,UPI-584918400525-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,500.00,debit,Lifestyle,Fitness,Badminton
+2026-02-22,UPI-823275178179-SWIGGY-swiggy@icici-ORDER 49799960,370.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-24,POS 489377XXXXXX3321 THIRD WAVE COFFEE,320.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-02-25,IMPS-P2A-755553407129-SANDEEP SELF-XXXXXX3344-TO SAVINGS AC,5000.00,debit,Goals,Self Transfer,
+2026-02-25,POS 489377XXXXXX3321 THIRD WAVE COFFEE,380.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-02-25,UPI-098189599002-SWIGGY-swiggy@icici-ORDER 76355024,510.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-26,UPI-929210856054-SWIGGY-swiggy@icici-ORDER 26805866,440.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-02-27,UPI-552769062738-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,130.00,debit,Essentials,Transport,Auto
+2026-02-27,UPI-730261375365-ZOMATO-zomato.order@hdfcbank-ORDER 01208505,620.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-03-01,NEFT CR-ICIC0004321-QUBERT TECHNOLOGIES PVT LTD-SALARY MAR 2026-N632204741934,60000.00,credit,,,
+2026-03-01,POS 489377XXXXXX3321 THIRD WAVE COFFEE,280.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-03-01,UPI-166121712784-BLINKIT-blinkit.grocery@ybl-ORDER B42879521,630.00,debit,Essentials,Groceries,Staples
+2026-03-02,UPI-083631738721-VENKAT RAO-venkatrao.landlord@oksbi-1BHK RENT MADHAPUR,15000.00,debit,Essentials,Bills,Rent
+2026-03-02,UPI-671311869535-UBER INDIA-uber.rides@axisb-TRIP 64212206,410.00,debit,Essentials,Transport,Uber
+2026-03-03,UPI-387163955711-SLICE-slice.repay@axisb-SLICE CARD BILL,2250.00,debit,Essentials,Credit Bill,Slice
+2026-03-04,UPI-717994368020-PLAYARENA HOLI BASH-playarena.events@okicici-HOLI PARTY PASS,1500.00,debit,Lifestyle,Events,Party
+2026-03-05,UPI-550775363766-SIMPL-getsimpl@ybl-SIMPL DUES CLEARED,950.00,debit,Essentials,Credit Bill,Simpl
+2026-03-05,UPI-128330047962-GOLDS GYM MADHAPUR-goldsgym.madhapur@okicici-MONTHLY MEMBERSHIP,1500.00,debit,Lifestyle,Fitness,Gym
+2026-03-05,UPI-845727292496-SWIGGY-swiggy@icici-ORDER 21893244,330.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-03-06,UPI-858549902303-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1600.00,debit,Lifestyle,Personal,Vices
+2026-03-07,UPI-481211925595-LAZYPAY-lazypay.payu@hdfcbank-LAZYPAY BILL,600.00,debit,Essentials,Credit Bill,LazyPay
+2026-03-07,UPI-614154104249-TSSPDCL-billpay.tsspdcl@icici-USN 556677889900,633.00,debit,Essentials,Bills,Electricity
+2026-03-08,POS 489377XXXXXX3321 THIRD WAVE COFFEE,360.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-03-08,UPI-172793157673-ZOMATO-zomato.order@hdfcbank-ORDER 40942046,320.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-03-09,UPI-245966236715-JIO PREPAID-7013456789@jio-RECHARGE 7013456789,399.00,debit,Essentials,Bills,Phone
+2026-03-10,POS 489377XXXXXX3321 RATNADEEP SUPER MARKET,730.00,debit,Lifestyle,Home,Toiletries
+2026-03-10,UPI-103787001924-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,450.00,debit,Lifestyle,Fitness,Badminton
+2026-03-10,UPI-935651811629-ZOMATO-zomato.order@hdfcbank-ORDER 69000599,540.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-03-11,UPI-793441013779-SUPERTAILS-supertails@icici-CAT FOOD LITTER ORDER,1250.00,debit,Lifestyle,Pet Care,Food
+2026-03-12,UPI-833566310851-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,250.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-03-12,UPI-746785493349-UBER INDIA-uber.rides@axisb-TRIP 38981367,380.00,debit,Essentials,Transport,Uber
+2026-03-12,POS 489377XXXXXX3321 PVR NEXUS MALL,550.00,debit,Lifestyle,Entertainment,Movies
+2026-03-13,UPI-728557202095-JIOFIBER-jiofiber.bill@sbi-ACCT 30011223,799.00,debit,Essentials,Bills,Internet
+2026-03-13,UPI-668445378540-UBER INDIA-uber.rides@axisb-TRIP 40891432,290.00,debit,Essentials,Transport,Uber
+2026-03-13,POS 489377XXXXXX3321 THIRD WAVE COFFEE,370.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-03-14,POS 489377XXXXXX3321 NIKE STORE FORUM MALL,3499.00,debit,Lifestyle,Shopping,Footwear
+2026-03-14,UPI-173353280483-ZOMATO-zomato.order@hdfcbank-ORDER 08156071,410.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-03-14,UPI-201299807011-URBAN COMPANY-urbancompany@axisb-HOME DEEP CLEAN,800.00,debit,Lifestyle,Home,Cleaning
+2026-03-15,SI DEBIT-AXIS BANK CC XXXXXX5566-AUTOPAY STATEMENT DUE,10100.00,debit,Essentials,Credit Bill,Credit Card
+2026-03-15,POS 489377XXXXXX3321 SPOTIFY INDIA PREMIUM,119.00,debit,Lifestyle,Subscription,Others
+2026-03-15,UPI-645232868798-BLINKIT-blinkit.grocery@ybl-ORDER B02736837,740.00,debit,Essentials,Groceries,Staples
+2026-03-15,UPI-295931486925-SWIGGY-swiggy@icici-ORDER 76353721,630.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-03-15,UPI-009348112686-UBER INDIA-uber.rides@axisb-TRIP 23358923,430.00,debit,Essentials,Transport,Uber
+2026-03-16,POS 489377XXXXXX3321 THIRD WAVE COFFEE,330.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-03-16,UPI-126137684083-ZOMATO-zomato.order@hdfcbank-ORDER 24387750,600.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-03-16,UPI-812374884839-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,450.00,debit,Lifestyle,Fitness,Badminton
+2026-03-17,POS 489377XXXXXX3321 NETFLIX COM MUMBAI,649.00,debit,Lifestyle,Subscription,Netflix
+2026-03-17,UPI-361054340317-ZOMATO-zomato.order@hdfcbank-ORDER 55426299,470.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-03-18,UPI-479038082150-UBER INDIA-uber.rides@axisb-TRIP 10155823,360.00,debit,Essentials,Transport,Uber
+2026-03-19,UPI-681995557120-UBER INDIA-uber.rides@axisb-TRIP 17989230,190.00,debit,Essentials,Transport,Uber
+2026-03-19,UPI-060962430105-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,150.00,debit,Essentials,Transport,Auto
+2026-03-19,UPI-149420289792-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,130.00,debit,Essentials,Transport,Auto
+2026-03-21,UPI-116654206530-SWIGGY-swiggy@icici-ORDER 32639557,450.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-03-21,UPI-216495069655-RAPIDO BIKE TAXI-rapido@ybl-RIDE,120.00,debit,Essentials,Transport,Rapido
+2026-03-22,UPI-572130708294-PAWS N CLAWS CLINIC-pawsnclaws.vet@okhdfcbank-CAT VACCINATION,800.00,debit,Lifestyle,Pet Care,Vet
+2026-03-23,UPI-711111799844-SWIGGY-swiggy@icici-ORDER 30830001,590.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-03-23,UPI-580587544160-SWIGGY-swiggy@icici-ORDER 81851818,610.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-03-24,UPI-620547600643-ZOMATO-zomato.order@hdfcbank-ORDER 99510086,450.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-03-24,UPI-497435101330-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,500.00,debit,Lifestyle,Fitness,Badminton
+2026-03-25,IMPS-P2A-660450673465-SANDEEP SELF-XXXXXX3344-TO SAVINGS AC,5000.00,debit,Goals,Self Transfer,
+2026-03-25,UPI-096229819388-BLINKIT-blinkit.grocery@ybl-ORDER B76674528,660.00,debit,Essentials,Groceries,Staples
+2026-03-26,UPI-552108843348-RAPIDO BIKE TAXI-rapido@ybl-RIDE,120.00,debit,Essentials,Transport,Rapido
+2026-03-27,UPI-966563127891-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,950.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-03-27,UPI-568496740008-RAPIDO BIKE TAXI-rapido@ybl-RIDE,100.00,debit,Essentials,Transport,Rapido
+2026-03-27,UPI-519965845893-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,130.00,debit,Essentials,Transport,Auto
+2026-03-27,UPI-807376108007-SWIGGY-swiggy@icici-ORDER 82398959,420.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-03-28,POS 489377XXXXXX3321 RATNADEEP SUPER MARKET,800.00,debit,Lifestyle,Home,Toiletries
+2026-03-28,POS 489377XXXXXX3321 THIRD WAVE COFFEE,400.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-03-28,UPI-789719241982-SWIGGY-swiggy@icici-ORDER 12874190,480.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-01,NEFT CR-ICIC0004321-QUBERT TECHNOLOGIES PVT LTD-SALARY APR 2026-N441158124266,60000.00,credit,,,
+2026-04-01,UPI-741833844242-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,250.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-04-01,UPI-225238725837-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,300.00,debit,Lifestyle,Fitness,Badminton
+2026-04-01,UPI-841618595672-UBER INDIA-uber.rides@axisb-TRIP 37515024,290.00,debit,Essentials,Transport,Uber
+2026-04-02,UPI-979286913889-VENKAT RAO-venkatrao.landlord@oksbi-1BHK RENT MADHAPUR,15000.00,debit,Essentials,Bills,Rent
+2026-04-02,UPI-983562320525-SWIGGY-swiggy@icici-ORDER 94374813,450.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-03,UPI-987349077703-SLICE-slice.repay@axisb-SLICE CARD BILL,2550.00,debit,Essentials,Credit Bill,Slice
+2026-04-03,UPI-964573863871-UBER INDIA-uber.rides@axisb-TRIP 33309857,200.00,debit,Essentials,Transport,Uber
+2026-04-03,UPI-905560507765-UBER INDIA-uber.rides@axisb-TRIP 19043459,240.00,debit,Essentials,Transport,Uber
+2026-04-03,UPI-057887647379-SWIGGY-swiggy@icici-ORDER 46227208,570.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-04,POS 489377XXXXXX3321 THIRD WAVE COFFEE,360.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-04-04,UPI-559573596444-SWIGGY-swiggy@icici-ORDER 24499597,330.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-04,UPI-013246559472-ZOMATO-zomato.order@hdfcbank-ORDER 09236873,640.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-04-05,UPI-068279385798-SIMPL-getsimpl@ybl-SIMPL DUES CLEARED,1100.00,debit,Essentials,Credit Bill,Simpl
+2026-04-05,UPI-119828452284-GOLDS GYM MADHAPUR-goldsgym.madhapur@okicici-MONTHLY MEMBERSHIP,1500.00,debit,Lifestyle,Fitness,Gym
+2026-04-05,UPI-029885644081-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1600.00,debit,Lifestyle,Personal,Vices
+2026-04-06,UPI-903160585854-ZOMATO-zomato.order@hdfcbank-ORDER 97846593,460.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-04-06,UPI-300236116159-BLINKIT-blinkit.grocery@ybl-ORDER B01514139,610.00,debit,Essentials,Groceries,Staples
+2026-04-07,UPI-321211305969-LAZYPAY-lazypay.payu@hdfcbank-LAZYPAY BILL,700.00,debit,Essentials,Credit Bill,LazyPay
+2026-04-07,UPI-959296694568-TSSPDCL-billpay.tsspdcl@icici-USN 556677889900,1322.00,debit,Essentials,Bills,Electricity
+2026-04-08,UPI-093370865086-ZOMATO-zomato.order@hdfcbank-ORDER 60759736,690.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-04-09,UPI-345314514219-JIO PREPAID-7013456789@jio-RECHARGE 7013456789,399.00,debit,Essentials,Bills,Phone
+2026-04-10,POS 489377XXXXXX3321 THIRD WAVE COFFEE,360.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-04-10,UPI-951927777278-SWIGGY-swiggy@icici-ORDER 50858377,370.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-10,POS 489377XXXXXX3321 THIRD WAVE COFFEE,330.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-04-10,UPI-623426031441-UBER INDIA-uber.rides@axisb-TRIP 67265672,300.00,debit,Essentials,Transport,Uber
+2026-04-12,UPI-471640827404-SUPERTAILS-supertails@icici-CAT FOOD LITTER ORDER,1250.00,debit,Lifestyle,Pet Care,Food
+2026-04-12,UPI-195591006829-DISTRICT TICKETS-district.paytm@paytm-IPL SRH MATCH UPPAL,1800.00,debit,Lifestyle,Entertainment,Tickets
+2026-04-12,UPI-482860016505-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,350.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-04-13,UPI-085554266353-SWIGGY-swiggy@icici-ORDER 81039938,410.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-13,POS 489377XXXXXX3321 THIRD WAVE COFFEE,330.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-04-14,UPI-852299764188-JIOFIBER-jiofiber.bill@sbi-ACCT 30011223,799.00,debit,Essentials,Bills,Internet
+2026-04-14,UPI-785562711900-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1400.00,debit,Lifestyle,Personal,Vices
+2026-04-14,UPI-001336686754-UBER INDIA-uber.rides@axisb-TRIP 50434738,300.00,debit,Essentials,Transport,Uber
+2026-04-14,UPI-700322159588-SWIGGY-swiggy@icici-ORDER 55153448,530.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-15,SI DEBIT-AXIS BANK CC XXXXXX5566-AUTOPAY STATEMENT DUE,10000.00,debit,Essentials,Credit Bill,Credit Card
+2026-04-15,POS 489377XXXXXX3321 NETFLIX COM MUMBAI,649.00,debit,Lifestyle,Subscription,Netflix
+2026-04-15,UPI-304683314178-SWIGGY-swiggy@icici-ORDER 54981416,570.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-15,UPI-285812831466-RAPIDO BIKE TAXI-rapido@ybl-RIDE,160.00,debit,Essentials,Transport,Rapido
+2026-04-15,UPI-292544309287-UBER INDIA-uber.rides@axisb-TRIP 97972502,230.00,debit,Essentials,Transport,Uber
+2026-04-15,UPI-326337642399-ZOMATO-zomato.order@hdfcbank-ORDER 78448747,480.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-04-17,UPI-458334521384-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,230.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-04-17,UPI-302307956233-SWIGGY-swiggy@icici-ORDER 62451146,310.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-18,POS 489377XXXXXX3321 SPOTIFY INDIA PREMIUM,119.00,debit,Lifestyle,Subscription,Others
+2026-04-19,UPI-052040687058-PETSPOT SPA-petspot.madhapur@ybl-CAT GROOMING,600.00,debit,Lifestyle,Pet Care,Grooming
+2026-04-19,UPI-220022793612-ZOMATO-zomato.order@hdfcbank-ORDER 06506853,430.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-04-20,POS 489377XXXXXX3321 THIRD WAVE COFFEE,300.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-04-21,UPI-639787845546-UBER INDIA-uber.rides@axisb-TRIP 92777218,340.00,debit,Essentials,Transport,Uber
+2026-04-22,UPI-759087262739-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,190.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-04-23,UPI-640304532638-SWIGGY-swiggy@icici-ORDER 01648979,640.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-23,UPI-620903998644-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,900.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-04-24,UPI-423997271464-RAPIDO BIKE TAXI-rapido@ybl-RIDE,110.00,debit,Essentials,Transport,Rapido
+2026-04-24,UPI-033301711108-BLINKIT-blinkit.grocery@ybl-ORDER B13157800,760.00,debit,Essentials,Groceries,Staples
+2026-04-25,IMPS-P2A-144275080620-SANDEEP SELF-XXXXXX3344-TO SAVINGS AC,5000.00,debit,Goals,Self Transfer,
+2026-04-25,UPI-977473612729-BLINKIT-blinkit.grocery@ybl-ORDER B91808945,780.00,debit,Essentials,Groceries,Staples
+2026-04-25,UPI-133650204347-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,1100.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-04-26,POS 489377XXXXXX3321 ZUDIO KUKATPALLY,2200.00,debit,Lifestyle,Shopping,Clothes
+2026-04-26,UPI-036633942043-SWIGGY-swiggy@icici-ORDER 07702859,340.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-04-26,UPI-412994864571-RAPIDO BIKE TAXI-rapido@ybl-RIDE,70.00,debit,Essentials,Transport,Rapido
+2026-04-28,UPI-743706420470-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,1300.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-05-01,NEFT CR-ICIC0004321-QUBERT TECHNOLOGIES PVT LTD-SALARY MAY 2026-N789176927735,60000.00,credit,,,
+2026-05-01,UPI-141428577755-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,400.00,debit,Lifestyle,Fitness,Badminton
+2026-05-02,UPI-249445389662-VENKAT RAO-venkatrao.landlord@oksbi-1BHK RENT MADHAPUR,15000.00,debit,Essentials,Bills,Rent
+2026-05-02,POS 489377XXXXXX3321 THIRD WAVE COFFEE,330.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-05-03,UPI-149044357398-SLICE-slice.repay@axisb-SLICE CARD BILL,3000.00,debit,Essentials,Credit Bill,Slice
+2026-05-04,UPI-753960371752-SWIGGY-swiggy@icici-ORDER 35919839,480.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-04,UPI-183390631202-ZOMATO-zomato.order@hdfcbank-ORDER 58253076,680.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-05-05,UPI-335216583402-SIMPL-getsimpl@ybl-SIMPL DUES CLEARED,1050.00,debit,Essentials,Credit Bill,Simpl
+2026-05-05,UPI-493557686141-GOLDS GYM MADHAPUR-goldsgym.madhapur@okicici-MONTHLY MEMBERSHIP,1500.00,debit,Lifestyle,Fitness,Gym
+2026-05-05,UPI-525918534280-URBAN COMPANY-urbancompany@axisb-HOME DEEP CLEAN,950.00,debit,Lifestyle,Home,Cleaning
+2026-05-06,UPI-432315970532-TSSPDCL-billpay.tsspdcl@icici-USN 556677889900,1637.00,debit,Essentials,Bills,Electricity
+2026-05-06,UPI-794043980366-SWIGGY-swiggy@icici-ORDER 77452271,390.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-06,UPI-875265174538-SWIGGY-swiggy@icici-ORDER 69989089,410.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-07,UPI-362953242488-LAZYPAY-lazypay.payu@hdfcbank-LAZYPAY BILL,750.00,debit,Essentials,Credit Bill,LazyPay
+2026-05-07,UPI-725584560685-BLINKIT-blinkit.grocery@ybl-ORDER B85128897,550.00,debit,Essentials,Groceries,Staples
+2026-05-07,UPI-034887844177-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,60.00,debit,Essentials,Transport,Auto
+2026-05-07,UPI-404269423246-UBER INDIA-uber.rides@axisb-TRIP 07475686,270.00,debit,Essentials,Transport,Uber
+2026-05-07,POS 489377XXXXXX3321 RATNADEEP SUPER MARKET,670.00,debit,Lifestyle,Home,Toiletries
+2026-05-09,POS 489377XXXXXX3321 BOOKMYSHOW ARIJIT LIVE,1999.00,debit,Lifestyle,Entertainment,Shows
+2026-05-10,UPI-949239032341-JIO PREPAID-7013456789@jio-RECHARGE 7013456789,399.00,debit,Essentials,Bills,Phone
+2026-05-10,POS 489377XXXXXX3321 PVR NEXUS MALL,600.00,debit,Lifestyle,Entertainment,Movies
+2026-05-10,UPI-353806726966-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1050.00,debit,Lifestyle,Personal,Vices
+2026-05-11,UPI-635216915315-SUPERTAILS-supertails@icici-CAT FOOD LITTER ORDER,1250.00,debit,Lifestyle,Pet Care,Food
+2026-05-11,UPI-363565721510-ZOMATO-zomato.order@hdfcbank-ORDER 22948227,440.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-05-12,UPI-140595483583-UBER INDIA-uber.rides@axisb-TRIP 92296596,230.00,debit,Essentials,Transport,Uber
+2026-05-12,UPI-830725409350-SWIGGY-swiggy@icici-ORDER 87912434,380.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-12,UPI-109772433811-SWIGGY-swiggy@icici-ORDER 39294342,330.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-12,UPI-832304530781-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,350.00,debit,Lifestyle,Fitness,Badminton
+2026-05-12,UPI-557611039246-UBER INDIA-uber.rides@axisb-TRIP 77226622,400.00,debit,Essentials,Transport,Uber
+2026-05-12,UPI-434715845435-UBER INDIA-uber.rides@axisb-TRIP 79448774,180.00,debit,Essentials,Transport,Uber
+2026-05-13,UPI-408428819893-ZOMATO-zomato.order@hdfcbank-ORDER 32002904,520.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-05-13,UPI-344419140028-BLINKIT-blinkit.grocery@ybl-ORDER B44651743,500.00,debit,Essentials,Groceries,Staples
+2026-05-14,UPI-864607796047-JIOFIBER-jiofiber.bill@sbi-ACCT 30011223,799.00,debit,Essentials,Bills,Internet
+2026-05-14,UPI-954188151588-ZOMATO-zomato.order@hdfcbank-ORDER 14042436,570.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-05-14,UPI-872501359489-ZOMATO-zomato.order@hdfcbank-ORDER 55625754,690.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-05-15,SI DEBIT-AXIS BANK CC XXXXXX5566-AUTOPAY STATEMENT DUE,10300.00,debit,Essentials,Credit Bill,Credit Card
+2026-05-15,UPI-867972992294-BLINKIT-blinkit.grocery@ybl-ORDER B38582314,490.00,debit,Essentials,Groceries,Staples
+2026-05-15,UPI-055222241958-BLINKIT-blinkit.grocery@ybl-ORDER B41168660,360.00,debit,Essentials,Groceries,Staples
+2026-05-16,UPI-960244131276-ZOMATO-zomato.order@hdfcbank-ORDER 48861694,520.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-05-17,POS 489377XXXXXX3321 NETFLIX COM MUMBAI,649.00,debit,Lifestyle,Subscription,Netflix
+2026-05-17,POS 489377XXXXXX3321 SPOTIFY INDIA PREMIUM,119.00,debit,Lifestyle,Subscription,Others
+2026-05-17,IMPS-P2A-422213145285-ANIRUDH V-XXXXXX6677-TILL SALARY,2000.00,debit,Goals,Lent,
+2026-05-17,UPI-191783846345-UBER INDIA-uber.rides@axisb-TRIP 15353510,410.00,debit,Essentials,Transport,Uber
+2026-05-17,UPI-390802453177-BLINKIT-blinkit.grocery@ybl-ORDER B16515425,390.00,debit,Essentials,Groceries,Staples
+2026-05-18,UPI-753298476938-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,1000.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-05-18,UPI-735615858340-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,450.00,debit,Lifestyle,Fitness,Badminton
+2026-05-18,POS 489377XXXXXX3321 RATNADEEP SUPER MARKET,700.00,debit,Lifestyle,Home,Toiletries
+2026-05-19,UPI-585145292505-SWIGGY-swiggy@icici-ORDER 37438502,610.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-21,UPI-831392326839-SWIGGY-swiggy@icici-ORDER 21479508,350.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-22,UPI-212616820172-BLINKIT-blinkit.grocery@ybl-ORDER B86221244,520.00,debit,Essentials,Groceries,Staples
+2026-05-22,POS 489377XXXXXX3321 THIRD WAVE COFFEE,330.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-05-24,UPI-531442012634-PLAYO SPORTS-playo@axisb-CORPORATE TOURNEY ENTRY,500.00,debit,Lifestyle,Fitness,Badminton
+2026-05-25,IMPS-P2A-372568927204-SANDEEP SELF-XXXXXX3344-TO SAVINGS AC,5000.00,debit,Goals,Self Transfer,
+2026-05-26,UPI-133247032853-SWIGGY-swiggy@icici-ORDER 55155503,630.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-26,UPI-602758056579-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,150.00,debit,Essentials,Transport,Auto
+2026-05-27,UPI-800427441250-RAPIDO BIKE TAXI-rapido@ybl-RIDE,90.00,debit,Essentials,Transport,Rapido
+2026-05-27,UPI-593077833681-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,250.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-05-27,UPI-165055861830-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,400.00,debit,Lifestyle,Fitness,Badminton
+2026-05-27,UPI-521144659321-SWIGGY-swiggy@icici-ORDER 14965537,380.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-05-28,UPI-346817497181-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,240.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-06-01,NEFT CR-ICIC0004321-QUBERT TECHNOLOGIES PVT LTD-SALARY JUN 2026-N022214823397,60000.00,credit,,,
+2026-06-01,UPI-157372432604-SWIGGY-swiggy@icici-ORDER 51075673,620.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-06-02,UPI-522606409650-VENKAT RAO-venkatrao.landlord@oksbi-1BHK RENT MADHAPUR,15000.00,debit,Essentials,Bills,Rent
+2026-06-02,UPI-973709021349-UBER INDIA-uber.rides@axisb-TRIP 75890198,390.00,debit,Essentials,Transport,Uber
+2026-06-03,UPI-559160918520-SLICE-slice.repay@axisb-SLICE CARD BILL,2650.00,debit,Essentials,Credit Bill,Slice
+2026-06-03,UPI-818492418267-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,1150.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-06-04,UPI-214671325984-SWIGGY-swiggy@icici-ORDER 07744043,640.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-06-05,UPI-634636372881-SIMPL-getsimpl@ybl-SIMPL DUES CLEARED,950.00,debit,Essentials,Credit Bill,Simpl
+2026-06-05,UPI-532015164273-GOLDS GYM MADHAPUR-goldsgym.madhapur@okicici-MONTHLY MEMBERSHIP,1500.00,debit,Lifestyle,Fitness,Gym
+2026-06-06,UPI-719794152194-BLINKIT-blinkit.grocery@ybl-ORDER B60862386,540.00,debit,Essentials,Groceries,Staples
+2026-06-06,POS 489377XXXXXX3321 THIRD WAVE COFFEE,360.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-06-07,UPI-009078851469-LAZYPAY-lazypay.payu@hdfcbank-LAZYPAY BILL,800.00,debit,Essentials,Credit Bill,LazyPay
+2026-06-07,UPI-336004689839-RAPIDO BIKE TAXI-rapido@ybl-RIDE,100.00,debit,Essentials,Transport,Rapido
+2026-06-07,UPI-545465329617-BLINKIT-blinkit.grocery@ybl-ORDER B27669525,500.00,debit,Essentials,Groceries,Staples
+2026-06-08,UPI-061226460096-ZOMATO-zomato.order@hdfcbank-ORDER 59472972,410.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-06-08,UPI-827344408949-PLAYO SPORTS-playo@axisb-BADMINTON COURT 1HR,300.00,debit,Lifestyle,Fitness,Badminton
+2026-06-09,UPI-893643438041-TSSPDCL-billpay.tsspdcl@icici-USN 556677889900,1125.00,debit,Essentials,Bills,Electricity
+2026-06-09,UPI-149137449785-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,230.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-06-09,POS 489377XXXXXX3321 THIRD WAVE COFFEE,290.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-06-10,UPI-873628608463-JIO PREPAID-7013456789@jio-RECHARGE 7013456789,399.00,debit,Essentials,Bills,Phone
+2026-06-10,UPI-573994993422-JIOFIBER-jiofiber.bill@sbi-ACCT 30011223,799.00,debit,Essentials,Bills,Internet
+2026-06-10,UPI-530286398599-ZOMATO-zomato.order@hdfcbank-ORDER 05753690,610.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-06-10,UPI-869696577664-ZOMATO-zomato.order@hdfcbank-ORDER 58813090,680.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-06-11,UPI-895579782505-BLINKIT-blinkit.grocery@ybl-ORDER B12281047,450.00,debit,Essentials,Groceries,Staples
+2026-06-12,UPI-115556126245-SUPERTAILS-supertails@icici-CAT FOOD LITTER ORDER,1250.00,debit,Lifestyle,Pet Care,Food
+2026-06-12,UPI-560575552898-URBAN COMPANY-urbancompany@axisb-HOME DEEP CLEAN,850.00,debit,Lifestyle,Home,Cleaning
+2026-06-12,UPI-109052200272-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1000.00,debit,Lifestyle,Personal,Vices
+2026-06-12,UPI-510973687371-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1200.00,debit,Lifestyle,Personal,Vices
+2026-06-12,UPI-775583779070-URBAN COMPANY-urbancompany@axisb-HOME DEEP CLEAN,800.00,debit,Lifestyle,Home,Cleaning
+2026-06-13,UPI-654179777846-ABS ABSOLUTE BARBECUE-absbarbecue.hitec@okhdfcbank-BUFFET,950.00,debit,Lifestyle,Food & Drinks,Eating Out
+2026-06-13,UPI-261204189491-UBER INDIA-uber.rides@axisb-TRIP 81537351,240.00,debit,Essentials,Transport,Uber
+2026-06-13,POS 489377XXXXXX3321 THIRD WAVE COFFEE,370.00,debit,Lifestyle,Food & Drinks,Tea & Coffee
+2026-06-14,UPI-784272048146-ARCHIES GALLERY-archies.forum@okaxis-MOM BIRTHDAY GIFT,1500.00,debit,Goals,Gift,
+2026-06-15,SI DEBIT-AXIS BANK CC XXXXXX5566-AUTOPAY STATEMENT DUE,10900.00,debit,Essentials,Credit Bill,Credit Card
+2026-06-15,POS 489377XXXXXX3321 PVR NEXUS MALL,550.00,debit,Lifestyle,Entertainment,Movies
+2026-06-15,UPI-231358367975-ZOMATO-zomato.order@hdfcbank-ORDER 96739075,680.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-06-16,UPI-425609601342-BLINKIT-blinkit.grocery@ybl-ORDER B00889168,690.00,debit,Essentials,Groceries,Staples
+2026-06-16,UPI-696076291229-SWIGGY-swiggy@icici-ORDER 19845688,420.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-06-18,POS 489377XXXXXX3321 NETFLIX COM MUMBAI,649.00,debit,Lifestyle,Subscription,Netflix
+2026-06-18,POS 489377XXXXXX3321 SPOTIFY INDIA PREMIUM,119.00,debit,Lifestyle,Subscription,Others
+2026-06-18,UPI-017313319254-MAGGI POINT KPHB-9959887766@ybl-MIDNIGHT SNACKS,290.00,debit,Lifestyle,Food & Drinks,Snacks
+2026-06-18,UPI-207538573613-AUTO STAND MADHAPUR-9912665544@paytm-AUTO FARE,120.00,debit,Essentials,Transport,Auto
+2026-06-18,UPI-773555371626-ZOMATO-zomato.order@hdfcbank-ORDER 57024850,690.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-06-19,UPI-473604614177-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1150.00,debit,Lifestyle,Personal,Vices
+2026-06-20,UPI-614321055982-RAPIDO BIKE TAXI-rapido@ybl-RIDE,160.00,debit,Essentials,Transport,Rapido
+2026-06-20,UPI-189548931728-BLINKIT-blinkit.grocery@ybl-ORDER B03883649,510.00,debit,Essentials,Groceries,Staples
+2026-06-21,UPI-167749541685-ZOMATO-zomato.order@hdfcbank-ORDER 91096690,410.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-06-21,UPI-569417520588-UBER INDIA-uber.rides@axisb-TRIP 50327370,240.00,debit,Essentials,Transport,Uber
+2026-06-22,UPI-319711873117-ZOMATO-zomato.order@hdfcbank-ORDER 34239228,480.00,debit,Lifestyle,Food & Drinks,Fast Food
+2026-06-22,UPI-287078285858-SWIGGY-swiggy@icici-ORDER 16393589,430.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-06-24,UPI-995053119899-TONIQUE WINES-tonique.jubilee@okicici-WEEKEND STOCK,1450.00,debit,Lifestyle,Personal,Vices
+2026-06-24,UPI-352063247987-URBAN COMPANY-urbancompany@axisb-HOME DEEP CLEAN,750.00,debit,Lifestyle,Home,Cleaning
+2026-06-25,IMPS-P2A-926258718892-SANDEEP SELF-XXXXXX3344-TO SAVINGS AC,5000.00,debit,Goals,Self Transfer,
+2026-06-25,UPI-186807401447-UBER INDIA-uber.rides@axisb-TRIP 27459967,250.00,debit,Essentials,Transport,Uber
+2026-06-26,POS 489377XXXXXX3321 STEAMGAMES SUMMER SALE,1999.00,debit,Lifestyle,Shopping,Video Games
+2026-06-27,UPI-353155310560-SWIGGY-swiggy@icici-ORDER 17064845,450.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-06-28,UPI-086916324775-SWIGGY-swiggy@icici-ORDER 60942667,300.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-06-28,UPI-988265488663-URBAN COMPANY-urbancompany@axisb-HOME DEEP CLEAN,950.00,debit,Lifestyle,Home,Cleaning
+2026-06-28,UPI-350314281974-SWIGGY-swiggy@icici-ORDER 09059555,320.00,debit,Lifestyle,Food & Drinks,Take Away
+2026-06-30,IMPS-P2A-CR-819030969369-ROHIT KUMAR-XXXXXX8890-LOAN REPAYMENT,3000.00,credit,,,
