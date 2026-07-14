@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FinQuery</title>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --accent:#38bdf8; --text:#e2e8f0; --muted:#94a3b8; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text);
+         min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+  header { padding: 24px 16px 8px; text-align: center; }
+  header h1 { font-size: 1.6rem; } header h1 span { color: var(--accent); }
+  header p { color: var(--muted); font-size: .9rem; margin-top: 4px; }
+  main { width: 100%; max-width: 760px; flex: 1; display: flex; flex-direction: column; padding: 16px; }
+  #chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .chip { background: var(--card); border: 1px solid #334155; color: var(--text);
+          border-radius: 999px; padding: 8px 14px; font-size: .85rem; cursor: pointer; }
+  .chip:hover { border-color: var(--accent); }
+  #thread { flex: 1; display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; }
+  .msg { padding: 12px 16px; border-radius: 12px; max-width: 85%; white-space: pre-wrap; line-height: 1.45; }
+  .q { background: var(--accent); color: #082f49; align-self: flex-end; }
+  .a { background: var(--card); align-self: flex-start; }
+  .a .cites { margin-top: 8px; font-size: .78rem; color: var(--muted); }
+  form { display: flex; gap: 8px; padding-bottom: 24px; }
+  select, input, button { border-radius: 10px; border: 1px solid #334155; background: var(--card);
+                          color: var(--text); padding: 12px; font-size: .95rem; }
+  input { flex: 1; }
+  button { background: var(--accent); color: #082f49; font-weight: 600; cursor: pointer; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Fin<span>Query</span></h1>
+  <p>Ask about your transactions or personal-finance concepts. Single turn, exact numbers, cited sources.</p>
+</header>
+<main>
+  <div id="chips"></div>
+  <div id="thread"></div>
+  <form id="f">
+    <select id="approach" title="Answering approach">
+      <option value="agent">Agent</option>
+      <option value="rag">Vanilla RAG</option>
+    </select>
+    <input id="q" placeholder="e.g. How much did I spend on groceries in June?" autocomplete="off" required>
+    <button>Ask</button>
+  </form>
+</main>
+<script>
+const SUGGESTED = [
+  "How much did I spend on Food & Drinks in June?",
+  "Am I over budget on Transport?",
+  "What is the 50/30/20 rule?",
+  "How big should my emergency fund be?",
+  "After paying my EMIs I can't save enough. What should I do?",
+];
+const chips = document.getElementById("chips");
+const thread = document.getElementById("thread");
+const form = document.getElementById("f");
+const qInput = document.getElementById("q");
+
+SUGGESTED.forEach(s => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = s;
+  b.onclick = () => { qInput.value = s; form.requestSubmit(); };
+  chips.appendChild(b);
+});
+
+function add(cls, text, citations) {
+  const d = document.createElement("div");
+  d.className = "msg " + cls;
+  d.textContent = text;
+  if (citations && citations.length) {
+    const c = document.createElement("div");
+    c.className = "cites";
+    c.textContent = "Sources: " + citations.map(x => x.ref).join(" | ");
+    d.appendChild(c);
+  }
+  thread.appendChild(d);
+  d.scrollIntoView({ behavior: "smooth" });
+}
+
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  const question = qInput.value.trim();
+  if (!question) return;
+  add("q", question);
+  qInput.value = "";
+  try {
+    const res = await fetch("/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, user_id: 1, approach: document.getElementById("approach").value }),
+    });
+    const data = await res.json();
+    add("a", data.answer, data.citations);
+  } catch (err) {
+    add("a", "Request failed: " + err.message);
+  }
+};
+</script>
+</body>
+</html>

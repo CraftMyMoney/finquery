@@ -1,0 +1,4 @@
+Placeholder for the agent system prompt. Will contain: role definition, the
+fixed category taxonomy (from fake-data/category-list.md) so user phrasing maps
+to valid tool arguments, tool-use guidance, refusal boundary (specificity
+filter), and answer format with provenance requirements.

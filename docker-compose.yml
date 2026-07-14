@@ -1,0 +1,34 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: finquery-db
+    environment:
+      POSTGRES_USER: finquery
+      POSTGRES_PASSWORD: finquery
+      POSTGRES_DB: finquery
+    ports:
+      - "5433:5432"   # 5433 on host to avoid clashing with any local Postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d:ro   # schema.sql auto-applies on first boot
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finquery -d finquery"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    container_name: finquery-app
+    env_file: .env
+    environment:
+      # inside the compose network the db is reachable by service name on 5432
+      DATABASE_URL: postgresql://finquery:finquery@db:5432/finquery
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
