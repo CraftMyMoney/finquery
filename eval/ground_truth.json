@@ -1,0 +1,283 @@
+{
+  "agg-01": {
+    "bucket": "aggregation",
+    "value": "10900.00"
+  },
+  "agg-02": {
+    "bucket": "aggregation",
+    "value": "120960.00"
+  },
+  "agg-03": {
+    "bucket": "aggregation",
+    "value": "3210.00"
+  },
+  "agg-04": {
+    "bucket": "aggregation",
+    "value": "28650.00"
+  },
+  "agg-05": {
+    "bucket": "aggregation",
+    "value": "171900.00"
+  },
+  "agg-06": {
+    "bucket": "aggregation",
+    "value": "48000.00"
+  },
+  "agg-07": {
+    "bucket": "aggregation",
+    "value": "100812.00"
+  },
+  "agg-08": {
+    "bucket": "aggregation",
+    "value": "26400.00"
+  },
+  "agg-09": {
+    "bucket": "aggregation",
+    "value": "9494.17"
+  },
+  "agg-10": {
+    "bucket": "aggregation",
+    "value": "56510.00"
+  },
+  "agg-11": {
+    "bucket": "aggregation",
+    "value": "15150.00"
+  },
+  "agg-12": {
+    "bucket": "aggregation",
+    "value": "11257.00"
+  },
+  "agg-13": {
+    "bucket": "aggregation",
+    "value": "6199.00"
+  },
+  "agg-14": {
+    "bucket": "aggregation",
+    "value": "14000.00"
+  },
+  "agg-15": {
+    "bucket": "aggregation",
+    "value": 17
+  },
+  "look-01": {
+    "bucket": "lookup",
+    "value": {
+      "txn_date": "2026-03-20",
+      "amount": "7800.00"
+    }
+  },
+  "look-02": {
+    "bucket": "lookup",
+    "value": {
+      "amount": "22500.00",
+      "bank_description": "ACH D-HDFC LTD HOME LOAN-LN00458912337-EMI"
+    }
+  },
+  "look-03": {
+    "bucket": "lookup",
+    "value": {
+      "txn_date": "2026-05-09",
+      "amount": "9800.00",
+      "bank_description": "UPI-909275326973-SEA PEARL BEACH RESORT-seapearl.vizag@okhdfcbank-3N FAMILY STAY"
+    }
+  },
+  "look-04": {
+    "bucket": "lookup",
+    "value": "22500.00"
+  },
+  "look-05": {
+    "bucket": "lookup",
+    "value": {
+      "txn_date": "2026-06-17",
+      "amount": "340.00"
+    }
+  },
+  "look-06": {
+    "bucket": "lookup",
+    "value": "812.00"
+  },
+  "look-07": {
+    "bucket": "lookup",
+    "value": "9500.00"
+  },
+  "look-08": {
+    "bucket": "lookup",
+    "value": {
+      "txn_date": "2026-06-09",
+      "amount": "1750.00"
+    }
+  },
+  "look-09": {
+    "bucket": "lookup",
+    "value": "4200.00"
+  },
+  "look-10": {
+    "bucket": "lookup",
+    "value": {
+      "txn_date": "2026-02-10",
+      "amount": "8200.00"
+    }
+  },
+  "edu-01": {
+    "bucket": "education",
+    "expected_source": "kb/articles/01-fifty-thirty-twenty-rule.md"
+  },
+  "edu-02": {
+    "bucket": "education",
+    "expected_source": "kb/articles/02-emergency-fund.md"
+  },
+  "edu-03": {
+    "bucket": "education",
+    "expected_source": "kb/articles/04-emi-debt-to-income.md"
+  },
+  "edu-04": {
+    "bucket": "education",
+    "expected_source": "kb/articles/05-term-life-insurance.md"
+  },
+  "edu-05": {
+    "bucket": "education",
+    "expected_source": "kb/articles/06-dont-mix-insurance-investment.md"
+  },
+  "edu-06": {
+    "bucket": "education",
+    "expected_source": "kb/articles/08-sip-rupee-cost-averaging.md"
+  },
+  "edu-07": {
+    "bucket": "education",
+    "expected_source": "kb/articles/09-ppf-nps-elss-compared.md"
+  },
+  "edu-08": {
+    "bucket": "education",
+    "expected_source": "kb/articles/10-section-80c-tax-regimes.md"
+  },
+  "edu-09": {
+    "bucket": "education",
+    "expected_source": "kb/articles/11-credit-score-basics.md"
+  },
+  "edu-10": {
+    "bucket": "education",
+    "expected_source": "kb/articles/12-credit-card-revolving-debt.md"
+  },
+  "edu-11": {
+    "bucket": "education",
+    "expected_source": "kb/articles/13-inflation-and-compounding.md"
+  },
+  "edu-12": {
+    "bucket": "education",
+    "expected_source": "kb/articles/14-asset-allocation-100-minus-age.md"
+  },
+  "edu-13": {
+    "bucket": "education",
+    "expected_source": "kb/articles/15-nomination-vs-will.md"
+  },
+  "edu-14": {
+    "bucket": "education",
+    "expected_source": "kb/articles/16-upi-digital-payment-safety.md"
+  },
+  "edu-15": {
+    "bucket": "education",
+    "expected_source": "kb/articles/17-retirement-rules-of-thumb.md"
+  },
+  "ref-01": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-02": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-03": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-04": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-05": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-06": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-07": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-08": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-09": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "ref-10": {
+    "bucket": "refusal",
+    "expect_refusal": true
+  },
+  "comp-01": {
+    "bucket": "composite",
+    "components": {
+      "monthly_emi_total": "28650.00",
+      "monthly_salary": "100000.00",
+      "emi_share_of_salary_pct": "28.65"
+    }
+  },
+  "comp-02": {
+    "bucket": "composite",
+    "components": {
+      "may_lifestyle_actual": "23250.00",
+      "lifestyle_budget": "9000.00",
+      "may_travel_actual": "15150.00"
+    }
+  },
+  "comp-03": {
+    "bucket": "composite",
+    "components": {
+      "monthly_investment": "12500.00",
+      "investment_share_pct": "12.50"
+    }
+  },
+  "comp-04": {
+    "bucket": "composite",
+    "components": {
+      "groceries_by_month": [
+        {
+          "month": "2026-01",
+          "total": "12265.00"
+        },
+        {
+          "month": "2026-02",
+          "total": "5425.00"
+        },
+        {
+          "month": "2026-03",
+          "total": "5870.00"
+        },
+        {
+          "month": "2026-04",
+          "total": "6755.00"
+        },
+        {
+          "month": "2026-05",
+          "total": "15750.00"
+        },
+        {
+          "month": "2026-06",
+          "total": "10900.00"
+        }
+      ],
+      "groceries_budget": "9000.00"
+    }
+  },
+  "comp-05": {
+    "bucket": "composite",
+    "components": {
+      "avg_monthly_spend": "105419.17",
+      "avg_monthly_essentials": "80692.50"
+    }
+  }
+}
