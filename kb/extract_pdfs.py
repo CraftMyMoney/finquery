@@ -37,6 +37,30 @@ SOURCES = [
         "source_url": "https://ncfe.org.in/",
         "license_note": "Public financial-education material by NCFE (promoted by RBI, SEBI, IRDAI, PFRDA).",
     },
+    {
+        "pdf": "rbi_beaware_frauds_2022.pdf",
+        "out": "rbi_beaware_2022.md",
+        "title": "BE(A)WARE, A Booklet on Modus Operandi of Financial Frauds",
+        "publisher": "Reserve Bank of India, Office of RBI Ombudsman",
+        "source_url": "https://rbidocs.rbi.org.in/rdocs/content/pdfs/BEAWARE07032022.pdf",
+        "license_note": "RBI public-awareness booklet distributed for public education.",
+    },
+    {
+        "pdf": "ncfe_handbook_new_entrants.pdf",
+        "out": "ncfe_handbook_new_entrants.md",
+        "title": "Financial Education Handbook for New Entrants at Workplace",
+        "publisher": "National Centre for Financial Education (NCFE)",
+        "source_url": "https://ncfe.org.in/wp-content/uploads/2024/10/FE-Handbook-for-New-Entrants-at-Workplace.pdf",
+        "license_note": "Public financial-education material by NCFE (promoted by RBI, SEBI, IRDAI, PFRDA).",
+    },
+    {
+        "pdf": "ncfe_personal_finance_students.pdf",
+        "out": "ncfe_personal_finance.md",
+        "title": "Personal Finance (NCFE / NCERT)",
+        "publisher": "NCFE with NCERT, Department of Education in Social Sciences",
+        "source_url": "https://ncfe.org.in/wp-content/uploads/2023/12/Personal-Finance-for-School-Students.pdf",
+        "license_note": "Public financial-education material by NCFE (promoted by RBI, SEBI, IRDAI, PFRDA).",
+    },
 ]
 
 

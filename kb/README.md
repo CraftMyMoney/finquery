@@ -18,8 +18,17 @@ kb/
 |---|---|---|---|---|
 | `rbi_fame_booklet_2024.pdf` | RBI, FAME 4th ed. Feb 2024 | 60 | Reproduction permitted with source acknowledgment (stated in booklet) | rbi.org.in/FinancialEducation/fame.aspx (mirror: slbctn.com) |
 | `ncfe_financial_education_part_a.pdf` | NCFE (promoted by RBI/SEBI/IRDAI/PFRDA) | 26 | Public financial-education material; extracts cleanly | ncfe.org.in |
-| `ncfe_workshop_reading_material.pdf` | NCFE | 44 | Public; PDF uses custom font encoding, text extraction garbled. OCR or drop. | ncfe.org.in |
+| `ncfe_workshop_reading_material.pdf` | NCFE | 44 | Public; PDF uses custom font encoding, text extraction garbled. Dropped (no OCR tooling on build machine; corpus target met without it). | ncfe.org.in |
 | `sebi_financial_education_booklet.pdf` | SEBI | 73 | Carries a no-reproduction notice. REFERENCE ONLY: use facts/benchmarks when writing original articles, do NOT copy text into extracted/. | investor.sebi.gov.in |
+| `rbi_beaware_frauds_2022.pdf` | RBI, Office of RBI Ombudsman | 39 | Public-awareness booklet on fraud modus operandi; distributed for public education | rbidocs.rbi.org.in (fetched via cdnbbsr.s3waas.gov.in mirror) |
+| `ncfe_handbook_new_entrants.pdf` | NCFE | 60 | Public education material; audience = salaried new joiners, closest match to our personas | ncfe.org.in |
+| `ncfe_personal_finance_students.pdf` | NCFE / NCERT | 93 | Public education material; basics + distractor bulk for retrieval ablation | ncfe.org.in |
+
+Corpus status (2026-07-14): ~84k words across extracted/ + articles/, an estimated
+~330 chunks at 400 tokens with 15% overlap, against the design doc's ~500 estimate.
+Delta recorded for Failure Analysis: NCFE "Part B" does not exist (404), and the NCFE
+workshop PDF was dropped (garbled encoding, no OCR tooling). ~330 chunks provides
+adequate distractor mass for the dense-vs-hybrid ablation.
 
 Copyright stance (recorded for Failure Analysis / Decision Reasoning):
 - No copyrighted books are ingested (e.g., trade personal-finance books).
