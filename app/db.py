@@ -19,8 +19,14 @@ async def get_pool() -> asyncpg.Pool:
 async def close_pool() -> None:
     global _pool
     if _pool is not None:
-        await _pool.close()
-        _pool = None
+        try:
+            await _pool.close()
+        except Exception:
+            # a pool bound to an already-closed event loop cannot be closed
+            # gracefully; dropping the reference is all that is left to do
+            pass
+        finally:
+            _pool = None
 
 
 async def ping() -> bool:
