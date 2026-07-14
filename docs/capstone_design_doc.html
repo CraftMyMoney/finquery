@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FinQuery — Design Doc</title>
+<style>
+  @page { size: A4; margin: 15mm 15mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 9.5pt; line-height: 1.4; color: #1a2332;
+  }
+  header { border-bottom: 2.5px solid #1a5f4a; padding-bottom: 6pt; margin-bottom: 9pt; }
+  h1 { font-size: 15.5pt; color: #123; letter-spacing: -0.2pt; }
+  .subtitle { font-size: 9.5pt; color: #5a6a7a; margin-top: 2pt; }
+  h2 {
+    font-size: 11.5pt; color: #1a5f4a; margin: 10pt 0 4pt;
+    border-bottom: 1px solid #d8e2dd; padding-bottom: 2pt;
+    break-after: avoid;
+  }
+  p, ul, ol { margin-bottom: 5pt; }
+  ul, ol { padding-left: 16pt; }
+  li { margin-bottom: 2pt; }
+  strong { color: #123; }
+  code {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 8.5pt; background: #f0f4f2; padding: 0 2.5pt; border-radius: 2pt;
+  }
+  .approach {
+    background: #f6f9f7; border-left: 3px solid #1a5f4a;
+    padding: 5pt 8pt; margin-bottom: 6pt;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .diagram-wrap {
+    margin: 6pt 0 2pt; text-align: center;
+    break-inside: avoid; page-break-inside: avoid;
+  }
+  .diagram-caption {
+    font-size: 8.2pt; color: #5a6a7a; text-align: center; margin-bottom: 7pt;
+    break-before: avoid;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 4pt 0 6pt; font-size: 8.9pt;
+          break-inside: avoid; page-break-inside: avoid; }
+  th, td { border: 1px solid #ccd6d0; padding: 3pt 6pt; text-align: left; vertical-align: top; }
+  th { background: #eef4f0; color: #123; }
+  footer { margin-top: 10pt; padding-top: 4pt; border-top: 1px solid #d8e2dd;
+           font-size: 8.2pt; color: #7a8a95; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>FinQuery, a Grounded Personal-Finance Q&amp;A Agent</h1>
+  <div class="subtitle">Design Doc &middot; Capstone, AI Engineering Cohort: RAG &amp; Agents &middot; KrantiKumar Gajula &middot; July 2026</div>
+</header>
+
+<h2>1. Problem Statement</h2>
+<p>The target user is anyone trying to understand <strong>their own spending patterns</strong> or learn <strong>core personal-finance principles</strong>. Getting this from a general-purpose chatbot today requires uploading raw bank statements, exposing names, account numbers, phone numbers, and UPI IDs to a third party. Answers computed over hundreds of transaction rows without code execution are also unreliable and can hallucinate.</p>
+<p><strong>Build</strong>: a grounded Q&amp;A agent that answers two narrow classes of questions, while <strong>guaranteeing the LLM never sees raw PII</strong> (reversible pseudonymization layer, measured 0%-leakage target):</p>
+<ol>
+  <li><strong>Transaction Q&amp;A</strong>: "How much did I spend on food in June?", "Am I over budget on transport?" Answered with <strong>exact figures computed from the user's transaction database</strong>, with provenance ("&#8377;18,240 across 47 transactions").</li>
+  <li><strong>Personal-finance education Q&amp;A</strong>: "What is the 50/30/20 rule?", "How does 80C deduction work?" Answered from a <strong>curated, India-focused knowledge base</strong>: public RBI investor-awareness booklets, SEBI/NCFE investor-education material, plus short original articles on budgeting principles.</li>
+</ol>
+<p><strong>Explicitly out of scope</strong>: specific investment advice ("should I buy X?"), which is regulated in India (SEBI RIA); the system must detect and refuse. The refusal boundary is <strong>specificity, not topic</strong>: general principles applied to the user's numbers are education; product-level recommendations are refused. Also out: multi-turn memory, portfolio analysis, forecasting, and transaction categorization (data arrives pre-categorized).</p>
+<p>Data is synthetic: a seeded Postgres instance, one user, ~6 months of realistic Indian transactions, reproducible with one <code>docker compose up</code>. Every transaction carries a category from a <strong>fixed taxonomy</strong> (Food &amp; Dining, Transport, EMI, Rent, Utilities, Salary, ...) assigned at seed time; the taxonomy is included in the agent's system prompt so user phrasing ("eating out") maps to valid tool arguments.</p>
+
+<h2>2. Architecture</h2>
+<p>Two approaches, built and compared (mandatory comparative evaluation):</p>
+
+<div class="approach"><strong>Approach A, Vanilla RAG (baseline).</strong> Everything is a document: KB articles and serialized transaction records go through ingest &rarr; chunk &rarr; embed &rarr; index (pgvector). <em>Hypothesis: works for education questions, fails on aggregations; retrieval returns k transactions but the answer needs all N summed.</em></div>
+
+<div class="diagram-wrap">
+<svg width="680" height="80" viewBox="0 0 760 90" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#456"/>
+    </marker>
+  </defs>
+  <rect x="14" y="18" width="92" height="54" rx="7" fill="#eef4f0" stroke="#1a5f4a" stroke-width="1.3"/>
+  <text x="60" y="50" text-anchor="middle" font-size="11" font-weight="bold" fill="#123">question</text>
+
+  <rect x="146" y="18" width="80" height="54" rx="7" fill="#fff" stroke="#8a6d3b" stroke-width="1.3"/>
+  <text x="186" y="50" text-anchor="middle" font-size="11" fill="#6b5222">embed</text>
+
+  <rect x="266" y="12" width="212" height="66" rx="7" fill="#faf6ee" stroke="#8a6d3b" stroke-width="1.3"/>
+  <text x="372" y="33" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#6b5222">top-k retrieval (pgvector)</text>
+  <text x="372" y="49" text-anchor="middle" font-size="9" fill="#345">KB chunks + serialized</text>
+  <text x="372" y="63" text-anchor="middle" font-size="9" fill="#345">transaction rows</text>
+
+  <rect x="518" y="12" width="128" height="66" rx="7" fill="#eef2f8" stroke="#2b6cb0" stroke-width="1.3"/>
+  <text x="582" y="38" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4e89">LLM</text>
+  <text x="582" y="56" text-anchor="middle" font-size="9" fill="#345">single call, no tools</text>
+
+  <rect x="686" y="18" width="66" height="54" rx="7" fill="#eef4f0" stroke="#1a5f4a" stroke-width="1.3"/>
+  <text x="719" y="50" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#123">answer</text>
+
+  <line x1="106" y1="45" x2="142" y2="45" stroke="#456" stroke-width="1.5" marker-end="url(#arrA)"/>
+  <line x1="226" y1="45" x2="262" y2="45" stroke="#456" stroke-width="1.5" marker-end="url(#arrA)"/>
+  <line x1="478" y1="45" x2="514" y2="45" stroke="#456" stroke-width="1.5" marker-end="url(#arrA)"/>
+  <line x1="646" y1="45" x2="682" y2="45" stroke="#456" stroke-width="1.5" marker-end="url(#arrA)"/>
+</svg>
+</div>
+<div class="diagram-caption">Approach A: one retrieval pass, one LLM call; no tools, no loop.</div>
+
+<div class="approach"><strong>Approach B, single tool-calling agent (ReAct loop).</strong> One agent, six typed tools. Numbers are computed by SQL, never generated by the LLM. Cross-class questions ("After paying my EMIs I cannot save enough; how do I improve?") emerge naturally from the loop; vanilla RAG structurally cannot answer them.</div>
+
+<div class="diagram-wrap">
+<svg width="620" height="500" viewBox="0 0 760 613" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#456"/>
+    </marker>
+  </defs>
+
+  <!-- User -->
+  <rect x="20" y="130" width="122" height="82" rx="8" fill="#eef4f0" stroke="#1a5f4a" stroke-width="1.4"/>
+  <text x="81" y="162" text-anchor="middle" font-size="12" font-weight="bold" fill="#123">User</text>
+  <text x="81" y="180" text-anchor="middle" font-size="9.5" fill="#345">chat UI: chips</text>
+  <text x="81" y="194" text-anchor="middle" font-size="9.5" fill="#345">+ free text</text>
+
+  <!-- FastAPI + input guardrail -->
+  <rect x="232" y="20" width="248" height="86" rx="8" fill="#fdf0f0" stroke="#b04a4a" stroke-width="1.4"/>
+  <text x="356" y="42" text-anchor="middle" font-size="11" font-weight="bold" fill="#8a2f2f">FastAPI /ask</text>
+  <text x="356" y="60" text-anchor="middle" font-size="9.5" fill="#644">INPUT GUARDRAIL: refuse</text>
+  <text x="356" y="74" text-anchor="middle" font-size="9.5" fill="#644">investment-advice requests</text>
+  <text x="356" y="88" text-anchor="middle" font-size="9" font-style="italic" fill="#8a2f2f">(specificity filter, not topic)</text>
+
+  <!-- Agent -->
+  <rect x="232" y="146" width="248" height="112" rx="8" fill="#1a5f4a" stroke="#12402f" stroke-width="1.4"/>
+  <text x="356" y="168" text-anchor="middle" font-size="12" font-weight="bold" fill="#fff">AGENT (Pydantic AI)</text>
+  <text x="356" y="185" text-anchor="middle" font-size="9.5" fill="#d7eee4">LLM: gpt-4o-mini &middot; ReAct loop</text>
+  <text x="356" y="207" text-anchor="middle" font-size="9.5" fill="#fff">(3) choose tool + arguments</text>
+  <text x="356" y="226" text-anchor="middle" font-size="9.5" fill="#fff">(7) reason over result,</text>
+  <text x="356" y="240" text-anchor="middle" font-size="9.5" fill="#fff">loop to (3) or finish</text>
+
+  <!-- SQL tools -->
+  <rect x="140" y="308" width="176" height="60" rx="8" fill="#fff" stroke="#2b6cb0" stroke-width="1.4"/>
+  <text x="228" y="328" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4e89">5 SQL tools</text>
+  <text x="228" y="343" text-anchor="middle" font-size="8" fill="#345">spending_by_category &middot; budget_vs_actual</text>
+  <text x="228" y="356" text-anchor="middle" font-size="8" fill="#345">top_merchants &middot; income_summary &middot; search_txns</text>
+
+  <!-- KB tool -->
+  <rect x="396" y="308" width="176" height="60" rx="8" fill="#fff" stroke="#8a6d3b" stroke-width="1.4"/>
+  <text x="484" y="328" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#6b5222">search_finance_kb</text>
+  <text x="484" y="343" text-anchor="middle" font-size="8" fill="#345">hybrid: dense (text-embedding-3-small)</text>
+  <text x="484" y="356" text-anchor="middle" font-size="8" fill="#345">+ sparse (BM25) merged with RRF</text>
+
+  <!-- Postgres outer -->
+  <rect x="140" y="400" width="432" height="112" rx="8" fill="#f4f7fb" stroke="#2b6cb0" stroke-width="1.6"/>
+  <text x="356" y="420" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4e89">Postgres (single instance)</text>
+  <rect x="162" y="432" width="180" height="62" rx="6" fill="#fff" stroke="#2b6cb0" stroke-width="1.1"/>
+  <text x="252" y="452" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#1d4e89">transactions</text>
+  <text x="252" y="467" text-anchor="middle" font-size="8.5" fill="#345">seeded, pre-categorized</text>
+  <text x="252" y="480" text-anchor="middle" font-size="8.5" fill="#345">(fixed taxonomy)</text>
+  <rect x="370" y="432" width="180" height="62" rx="6" fill="#faf6ee" stroke="#8a6d3b" stroke-width="1.1"/>
+  <text x="460" y="452" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#6b5222">pgvector: KB</text>
+  <text x="460" y="467" text-anchor="middle" font-size="8.5" fill="#345">~500 chunks, flat index,</text>
+  <text x="460" y="480" text-anchor="middle" font-size="8.5" fill="#345">dense + full-text (BM25)</text>
+
+  <!-- PII gate -->
+  <rect x="180" y="546" width="352" height="60" rx="8" fill="#f3eefa" stroke="#6b46a0" stroke-width="1.6"/>
+  <text x="356" y="567" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#4d3175">PII PSEUDONYMIZATION GATE</text>
+  <text x="356" y="583" text-anchor="middle" font-size="9" fill="#4d3175">real &rarr; fake via per-user mapping table</text>
+  <text x="356" y="596" text-anchor="middle" font-size="9" fill="#4d3175">0% raw PII enters LLM context</text>
+
+  <!-- (1) question: user -> fastapi -->
+  <polyline points="142,158 187,158 187,63 228,63" fill="none" stroke="#456" stroke-width="1.6" marker-end="url(#arrB)"/>
+  <text x="187" y="120" text-anchor="middle" font-size="8.5" fill="#567" transform="rotate(-90 187 120)">(1) question</text>
+
+  <!-- (2) pass: fastapi -> agent -->
+  <line x1="356" y1="106" x2="356" y2="142" stroke="#456" stroke-width="1.6" marker-end="url(#arrB)"/>
+  <text x="366" y="128" font-size="8.5" fill="#567">(2) pass</text>
+
+  <!-- (4) agent -> SQL tools -->
+  <polyline points="300,258 300,281 228,281 228,304" fill="none" stroke="#456" stroke-width="1.6" marker-end="url(#arrB)"/>
+  <text x="216" y="294" text-anchor="end" font-size="8.5" fill="#567">(4) SQL query</text>
+
+  <!-- (4) agent -> KB tool -->
+  <polyline points="412,258 412,281 484,281 484,304" fill="none" stroke="#456" stroke-width="1.6" marker-end="url(#arrB)"/>
+  <text x="496" y="294" font-size="8.5" fill="#567">(4) hybrid search</text>
+
+  <!-- tools -> postgres -->
+  <line x1="228" y1="368" x2="228" y2="396" stroke="#456" stroke-width="1.6" marker-end="url(#arrB)"/>
+  <line x1="484" y1="368" x2="484" y2="396" stroke="#456" stroke-width="1.6" marker-end="url(#arrB)"/>
+
+  <!-- (5) postgres -> PII gate -->
+  <line x1="356" y1="512" x2="356" y2="542" stroke="#456" stroke-width="1.6" marker-end="url(#arrB)"/>
+  <text x="366" y="532" font-size="8.5" fill="#567">(5) raw tool output</text>
+
+  <!-- (6) PII gate -> agent (return rail) -->
+  <polyline points="532,576 680,576 680,202 484,202" fill="none" stroke="#6b46a0" stroke-width="1.6" stroke-dasharray="6 3" marker-end="url(#arrB)"/>
+  <text x="690" y="390" text-anchor="middle" font-size="8.5" fill="#4d3175" transform="rotate(-90 690 390)">(6) sanitized output to agent context</text>
+
+  <!-- (8) agent -> user final answer -->
+  <line x1="228" y1="234" x2="146" y2="234" stroke="#1a5f4a" stroke-width="1.8" marker-end="url(#arrB)"/>
+  <text x="81" y="232" text-anchor="middle" font-size="8.5" fill="#1a5f4a">(8) final answer</text>
+  <text x="81" y="244" text-anchor="middle" font-size="8" fill="#1a5f4a">exact figures, KB citations,</text>
+  <text x="81" y="255" text-anchor="middle" font-size="8" fill="#1a5f4a">provenance</text>
+</svg>
+</div>
+<div class="diagram-caption">Approach B: numbered sequence (1)&ndash;(8). Steps (3)&ndash;(7) repeat until the agent finishes; every tool output passes the PII gate before re-entering LLM context.</div>
+
+<p><strong>PII pseudonymization layer (core, applied to both approaches).</strong> Free-text transaction narrations (UPI strings) carry counterparty names, account numbers, phones, and VPAs. Before any tool output enters LLM context, a forward pseudonymization step replaces detected PII with consistent fake values from a per-user mapping table (detection: regex for account numbers, phones, and UPI VPAs, plus a known-values list; free-text name NER is documented as out of scope). Prior art is acknowledged (Microsoft Presidio). Reverse mapping (fake to real in final answers) is an <strong>optional extension</strong>: in-scope answers return numbers or principles, so pseudonyms rarely surface; it becomes required only if counterparty-name questions ("whom did I pay most?") are added.</p>
+<p><strong>Retrieval design (KB path).</strong> Hybrid search: dense (<code>text-embedding-3-small</code>) plus sparse (Postgres full-text/BM25), merged with <strong>Reciprocal Rank Fusion</strong>; evaluated as an ablation against dense-only. Chunking: ~400-token chunks, 15% overlap (short, self-contained articles). Index: exact/flat search; the corpus is ~500 chunks, so ANN indexes (HNSW/IVF) solve a scale problem this project does not have.</p>
+<p><strong>Considered and rejected</strong>: Graph-RAG/KAG (no entity-graph structure in the data; the structured side already lives in a relational DB), multi-agent (no coordination problem), map-reduce summarization and memory (no long docs, single-turn), re-ranking and HyDE (deferred; added only if evals expose retrieval misses they would fix, avoiding complexity before a baseline).</p>
+<p><strong>Stack</strong>: FastAPI service, Postgres + pgvector (one datastore for rows, vectors, and sparse index), OpenAI gpt-4o-mini, minimal chat UI (suggested-question chips plus free text, single-turn).</p>
+
+<h2>3. Evaluation Criteria</h2>
+<p><strong>Golden set (~55 questions, 5 buckets)</strong>, ground truth precomputed via SQL against the seeded DB: aggregation (15), lookup/filter (10), education (15), refusal probes (10), composite (5, requiring both the SQL and KB surfaces in one answer).</p>
+<table>
+  <tr><th>Metric</th><th>Type</th><th>What it measures</th></tr>
+  <tr><td>Numeric exact-match</td><td>Quantitative</td><td>Answer contains the exact figure from SQL ground truth (aggregation/lookup buckets)</td></tr>
+  <tr><td>Tool-selection accuracy</td><td>Quantitative</td><td>Correct tool and correct arguments, including valid taxonomy categories (agent only)</td></tr>
+  <tr><td>Tool-sequence correctness</td><td>Quantitative</td><td>Composite bucket: both surfaces (SQL and KB) were called</td></tr>
+  <tr><td>Retrieval hit rate</td><td>Quantitative</td><td>Gold chunk in top-k (education bucket; dense-only vs hybrid+RRF)</td></tr>
+  <tr><td>Refusal / false-refusal rate</td><td>Quantitative</td><td>Refuses advice probes; does not over-refuse legitimate questions</td></tr>
+  <tr><td>PII leakage rate</td><td>Quantitative</td><td>Every LLM-bound payload scanned against the real-PII mapping table; target <strong>0%</strong> (deterministic check, no judge)</td></tr>
+  <tr><td>Faithfulness, provenance, completeness, synthesis</td><td>LLM-as-judge (gpt-4o)</td><td>Narration states only what tools/chunks returned; citations present; synthesis quality on the composite bucket (no single ground-truth number exists there)</td></tr>
+</table>
+<p><strong>Comparison matrix</strong>: {Vanilla RAG, Agent + dense, Agent + hybrid-RRF} &times; 55 questions, all metrics reported per bucket; the aggregation and composite buckets are where the baseline is expected to fail hardest. Success thresholds: agent &ge; 95% numeric exact-match on aggregations, &ge; 90% refusal on probes, 0% PII leakage. Failures at each stage are documented in the README (Failure Analysis).</p>
+
+<h2>4. Framework Justification</h2>
+<ul>
+  <li><strong>Pydantic AI</strong> (agent framework). The backend skill set is FastAPI + Pydantic; tools become typed, validated schemas with zero new idioms, and the agent loop is thin and inspectable, so orchestration decisions stay visible and gradeable.</li>
+  <li><strong>pgvector over a dedicated vector DB</strong>: one datastore serves relational queries, dense vectors, and sparse (full-text) search, making hybrid+RRF a SQL query instead of a second system; right-sized for a ~500-chunk corpus.</li>
+  <li><strong>OpenAI gpt-4o-mini + text-embedding-3-small</strong>: provided cohort API key; mini-tier is sufficient for tool-calling and keeps the ~165-run eval matrix affordable. LLM-as-judge uses gpt-4o for judge/actor separation.</li>
+</ul>
+<p><strong>Rejected, LangGraph</strong>: graph abstractions are justified by multi-agent or branching workflows, which this project explicitly rejected; here they would only hide the ReAct loop being evaluated.<br>
+<strong>Rejected, smolagents</strong>: a code-agent (the LLM writes and executes Python) is the wrong risk profile for a finance surface, and its main strength duplicates what typed SQL tools already provide deterministically and auditably.</p>
+
+<p><strong>Timeline</strong>: baseline + seed data (days 1-2), agent + tools + PII layer (days 3-5), hybrid ablation + eval harness (days 6-8), UI + demo video + docs (days 9-10).</p>
+
+<footer>FinQuery design doc &middot; submitted for design-doc approval (prerequisite for API key) &middot; Build window: July 13&ndash;22, 2026</footer>
+
+</body>
+</html>
