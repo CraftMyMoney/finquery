@@ -52,7 +52,8 @@ def test_credit_without_category_uses_dash_path():
 
 # ---------------------------------------------------------------- DB round trip
 
-async def test_load_partitions_all_users_and_stores_no_real_pii():
+async def test_load_partitions_all_users_and_stores_no_real_pii(monkeypatch):
+    monkeypatch.setattr(settings, "pii_masking", True)
     try:
         conn = await asyncpg.connect(settings.database_url)
     except Exception:
@@ -95,5 +96,30 @@ async def test_load_partitions_all_users_and_stores_no_real_pii():
         assert await conn.fetchval(
             "SELECT count(*) FROM rag_transaction_chunks WHERE tsv IS NULL"
         ) == 0
+    finally:
+        await conn.close()
+
+
+async def test_pii_masking_flag_toggles_the_gate(monkeypatch):
+    """PII_MASKING=false stores raw narrations (ablation mode); turning it
+    back on restores the pseudonymized state. Leaves the DB masked."""
+    try:
+        conn = await asyncpg.connect(settings.database_url)
+    except Exception:
+        pytest.skip("seeded DB not reachable on DATABASE_URL")
+    try:
+        leak_sql = """
+            SELECT count(*)
+            FROM rag_transaction_chunks c
+            JOIN pii_mappings m ON m.user_id = c.user_id
+            WHERE position(m.real_value IN c.content) > 0
+        """
+        monkeypatch.setattr(settings, "pii_masking", False)
+        await load(conn)
+        assert await conn.fetchval(leak_sql) > 0  # raw values present by design
+
+        monkeypatch.setattr(settings, "pii_masking", True)
+        await load(conn)
+        assert await conn.fetchval(leak_sql) == 0
     finally:
         await conn.close()

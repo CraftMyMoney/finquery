@@ -78,6 +78,9 @@ python -m ingest.ingest_kb
 python -m ingest.serialize_transactions
 # Expected: 144 chunks (48 per user), and the script aborts if any real PII
 # value survives into a stored chunk.
+# PII_MASKING=false in .env skips the gate everywhere (both approaches) and
+# stores raw narrations instead: the masked-vs-unmasked ablation switch.
+# Re-run this script after flipping the flag.
 
 # 8. Sanity check
 docker exec finquery-db psql -U finquery -d finquery \

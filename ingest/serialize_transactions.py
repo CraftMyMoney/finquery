@@ -11,6 +11,9 @@ Content is pseudonymized BEFORE storage (schema contract), so the embedding
 backfill and every retrieval read a PII-clean table. The script self-checks:
 if any known real PII value survives into a chunk, it aborts loudly.
 
+PII_MASKING=false in .env skips the gate (chunks stored raw) for the
+masked-vs-unmasked ablation; re-run this script after flipping the flag.
+
 Key-independent: embedding stays NULL until the OpenAI key arrives.
 
 Usage:
@@ -88,36 +91,40 @@ async def load(conn: asyncpg.Connection) -> dict[str, int]:
                 """,
                 user["id"],
             )
-            known = {
-                m["real_value"]: (m["pii_type"], m["fake_value"])
-                for m in await conn.fetch(
-                    "SELECT pii_type, real_value, fake_value FROM pii_mappings "
-                    "WHERE user_id = $1",
-                    user["id"],
-                )
-            }
-            gate = Pseudonymizer(user["id"], known)
+            chunks = serialize_rows(rows, user["username"])
+            if settings.pii_masking:
+                known = {
+                    m["real_value"]: (m["pii_type"], m["fake_value"])
+                    for m in await conn.fetch(
+                        "SELECT pii_type, real_value, fake_value FROM pii_mappings "
+                        "WHERE user_id = $1",
+                        user["id"],
+                    )
+                }
+                gate = Pseudonymizer(user["id"], known)
 
-            clean: list[tuple[str, list[int]]] = []
-            newly_found: list[tuple[str, str, str]] = []
-            for content, txn_ids in serialize_rows(rows, user["username"]):
-                newly_found += gate.register(content)
-                clean.append((gate.pseudonymize(content), txn_ids))
+                clean: list[tuple[str, list[int]]] = []
+                newly_found: list[tuple[str, str, str]] = []
+                for content, txn_ids in chunks:
+                    newly_found += gate.register(content)
+                    clean.append((gate.pseudonymize(content), txn_ids))
 
-            if newly_found:  # keep pii_mappings authoritative for the leakage scan
-                await conn.executemany(
-                    "INSERT INTO pii_mappings (user_id, pii_type, real_value, fake_value) "
-                    "VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, real_value) DO NOTHING",
-                    [(user["id"], t, real, fake) for t, real, fake in newly_found],
-                )
+                if newly_found:  # keep pii_mappings authoritative for the leakage scan
+                    await conn.executemany(
+                        "INSERT INTO pii_mappings (user_id, pii_type, real_value, fake_value) "
+                        "VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, real_value) DO NOTHING",
+                        [(user["id"], t, real, fake) for t, real, fake in newly_found],
+                    )
 
-            for content, _ in clean:
-                for real in gate.mapping:
-                    if real in content:
-                        raise SystemExit(
-                            f"real PII value {real!r} survived into a stored chunk "
-                            f"for {user['username']}; aborting"
-                        )
+                for content, _ in clean:
+                    for real in gate.mapping:
+                        if real in content:
+                            raise SystemExit(
+                                f"real PII value {real!r} survived into a stored chunk "
+                                f"for {user['username']}; aborting"
+                            )
+            else:
+                clean = chunks  # ablation mode: stored raw, gate skipped
 
             await conn.executemany(
                 "INSERT INTO rag_transaction_chunks (user_id, content, source_txn_ids) "
@@ -135,8 +142,9 @@ async def main() -> None:
         for username, n in counts.items():
             print(f"{n:4d}  {username}")
         total = sum(counts.values())
-        print(f"\n{total} transaction chunks, pseudonymized at rest, "
-              "embeddings NULL, pending API key")
+        state = ("pseudonymized at rest" if settings.pii_masking
+                 else "RAW at rest (PII_MASKING=false, ablation mode)")
+        print(f"\n{total} transaction chunks, {state}, embeddings NULL, pending API key")
     finally:
         await conn.close()
 
