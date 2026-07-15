@@ -21,8 +21,14 @@ PII_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("vpa", re.compile(r"\b[A-Za-z0-9][\w.]*@[a-z][a-z0-9]{1,15}\b")),
     ("card", re.compile(r"\b\d{4,6}X{4,8}\d{4}\b")),
     ("account", re.compile(r"\bX{2,}\d{4}\b")),
+    ("loan_ref", re.compile(r"\bL[A-Z0-9]{1,6}\d{6,}\b")),
+    ("policy", re.compile(r"(?<=POL )[A-Z]{0,5}\d{6,}\b")),
     ("phone", re.compile(r"\b[6-9]\d{9}\b")),
 ]
+# Scope boundary: one-off transaction references (NEFT/UPI/ACH ids, tax CINs)
+# are not masked; they identify a single transaction, not a person or account.
+# Loan references and insurance policy numbers are masked because they are
+# persistent account identifiers.
 
 
 def detect_pii(text: str) -> list[tuple[str, str]]:
@@ -65,6 +71,10 @@ class Pseudonymizer:
             return f"4999{u % 100:02d}XXXXXX{n:04d}"
         if pii_type == "account":
             return f"XX{9000 + n}"
+        if pii_type == "loan_ref":
+            return f"LN{u % 10}00{n:08d}"
+        if pii_type == "policy":
+            return f"FP{u % 10}00{n:06d}"
         return f"FAKE_{pii_type.upper()}_{n:03d}"
 
     def register(self, text: str) -> list[tuple[str, str, str]]:

@@ -66,14 +66,20 @@ python -m ingest.apply_schema --with-master
 python -m ingest.seed_transactions
 # Reads fake-data/user{1,2,3}_*_transactions.csv, truncates and reloads the
 # transactions and pii_mappings tables. Expected: 1050 transactions,
-# 109 PII mappings (user1: 46, user2: 26, user3: 37).
+# 116 PII mappings (user1: 51, user2: 28, user3: 37).
 
 # 6. Chunk and load the knowledge base (embeddings stay NULL until the
 #    OpenAI key is configured; the sparse tsv index works immediately)
 python -m ingest.ingest_kb
 # Expected: 354 chunks across 22 documents (17 articles + 5 extracted booklets).
 
-# 7. Sanity check
+# 7. Serialize transactions into RAG chunks (Approach A corpus; pseudonymized
+#    at rest, embeddings NULL until the key arrives)
+python -m ingest.serialize_transactions
+# Expected: 144 chunks (48 per user), and the script aborts if any real PII
+# value survives into a stored chunk.
+
+# 8. Sanity check
 docker exec finquery-db psql -U finquery -d finquery \
   -c "SELECT u.username, count(*) FROM transactions t JOIN users u ON u.id = t.user_id GROUP BY 1 ORDER BY 1;"
 ```
@@ -86,6 +92,7 @@ docker compose up -d db       # waits for healthcheck, schema auto-applies
 python -m ingest.apply_schema --with-master
 python -m ingest.seed_transactions
 python -m ingest.ingest_kb
+python -m ingest.serialize_transactions
 ```
 
 ### Connecting from DBeaver (or any SQL client)
@@ -158,6 +165,15 @@ Chronological record of attempts, failures, and pivots. Mandated deliverable.
 7. **Alembic rejected** for schema management: migration machinery adds
    opacity for a re-seedable synthetic DB; idempotent schema.sql + drop-and-
    re-seed chosen instead.
+8. **PII detector gaps caught by eyeballing serializer output** (2026-07-15).
+   A spot-check of the first stored rag_transaction_chunk showed the home
+   loan reference LN00458912337 unmasked: the schema anticipated a loan_ref
+   type but the detector had no pattern for it. Auditing all seed narrations
+   then surfaced two more misses: loan refs in other formats (LVHYD..., L2XN...)
+   and insurance policy numbers (POL ...). Fixed with two regexes and a new
+   'policy' pii_type; mappings grew 109 -> 116. Lesson: the deterministic
+   leakage scan only guards values the detector knows about, so the detector
+   itself must be audited against every narration format in the corpus.
 
 ## Hard boundaries
 

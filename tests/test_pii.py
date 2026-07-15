@@ -21,6 +21,28 @@ def test_detects_masked_card_and_account():
     assert ("account", "XXXXXX4521") in detect_pii("IMPS-P2A-RAJESHWAR RAO-XXXXXX4521-SUPPORT")
 
 
+def test_detects_every_loan_ref_format_in_the_seed():
+    assert ("loan_ref", "LN00458912337") in detect_pii(
+        "ACH D-HDFC LTD HOME LOAN-LN00458912337-EMI")
+    assert ("loan_ref", "LVHYD00812345") in detect_pii(
+        "ACH D-ICICI BANK VEHICLE LOAN-LVHYD00812345-EMI")
+    assert ("loan_ref", "L2XN887766") in detect_pii(
+        "ACH D-BAJAJ FINSERV-LAPTOP LOAN L2XN887766-EMI")
+
+
+def test_detects_policy_numbers():
+    assert ("policy", "667788990") in detect_pii(
+        "UPI-214188805929-LIC OF INDIA-licindia.premium@sbi-POL 667788990 QTRLY")
+    assert ("policy", "SH2026114455") in detect_pii(
+        "ACH D-STAR HEALTH INSURANCE-POL SH2026114455-QTRLY PREMIUM")
+
+
+def test_oneoff_txn_refs_are_out_of_scope():
+    # NEFT/ACH/CIN ids identify a transaction, not a person: out of scope
+    assert detect_pii("NEFT CR-HDFC0000123-TECHNOVA-SALARY-N104332181960") == []
+    assert detect_pii("IB BILLPAY DR-INCOME TAX-CIN709682506710") == []
+
+
 def test_twelve_digit_ref_is_not_a_phone():
     # UPI refs are 12 digits; the 10-digit phone pattern must not fire inside
     assert detect_pii("UPI-615594078161-SOME MERCHANT-PAYMENT") == []

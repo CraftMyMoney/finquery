@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS budgets (
 CREATE TABLE IF NOT EXISTS pii_mappings (
     id         serial PRIMARY KEY,
     user_id    int  NOT NULL REFERENCES users(id),
-    pii_type   text NOT NULL CHECK (pii_type IN ('vpa','phone','account','card','loan_ref','name')),
+    pii_type   text NOT NULL CHECK (pii_type IN ('vpa','phone','account','card','loan_ref','policy','name')),
     real_value text NOT NULL,
     fake_value text NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
