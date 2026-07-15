@@ -68,7 +68,12 @@ python -m ingest.seed_transactions
 # transactions and pii_mappings tables. Expected: 1050 transactions,
 # 109 PII mappings (user1: 46, user2: 26, user3: 37).
 
-# 6. Sanity check
+# 6. Chunk and load the knowledge base (embeddings stay NULL until the
+#    OpenAI key is configured; the sparse tsv index works immediately)
+python -m ingest.ingest_kb
+# Expected: 354 chunks across 22 documents (17 articles + 5 extracted booklets).
+
+# 7. Sanity check
 docker exec finquery-db psql -U finquery -d finquery \
   -c "SELECT u.username, count(*) FROM transactions t JOIN users u ON u.id = t.user_id GROUP BY 1 ORDER BY 1;"
 ```
@@ -80,6 +85,7 @@ docker compose down -v db
 docker compose up -d db       # waits for healthcheck, schema auto-applies
 python -m ingest.apply_schema --with-master
 python -m ingest.seed_transactions
+python -m ingest.ingest_kb
 ```
 
 ### Connecting from DBeaver (or any SQL client)

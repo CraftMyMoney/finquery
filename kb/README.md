@@ -24,8 +24,9 @@ kb/
 | `ncfe_handbook_new_entrants.pdf` | NCFE | 60 | Public education material; audience = salaried new joiners, closest match to our personas | ncfe.org.in |
 | `ncfe_personal_finance_students.pdf` | NCFE / NCERT | 93 | Public education material; basics + distractor bulk for retrieval ablation | ncfe.org.in |
 
-Corpus status (2026-07-14): ~84k words across extracted/ + articles/, an estimated
-~330 chunks at 400 tokens with 15% overlap, against the design doc's ~500 estimate.
+Corpus status (2026-07-15): ~84k words across extracted/ + articles/, chunked to
+354 chunks (avg 322 tokens, max 479) by `retrieval/chunking.py`, loaded by
+`python -m ingest.ingest_kb` with embeddings NULL, against the design doc's ~500 estimate.
 Delta recorded for Failure Analysis: NCFE "Part B" does not exist (404), and the NCFE
 workshop PDF was dropped (garbled encoding, no OCR tooling). ~330 chunks provides
 adequate distractor mass for the dense-vs-hybrid ablation.
