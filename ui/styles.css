@@ -1,0 +1,53 @@
+/* Shared design tokens and chrome for all FinQuery pages: brand #222,
+   white/gray-50 surfaces, black/10 hairline borders, Geist + Pacifico. */
+:root {
+  --bg: #ffffff; --bg-alt: #f9fafb; --text: #000000;
+  --text-2: #4b5563; --muted: #9ca3af;
+  --border: rgba(0,0,0,.1); --border-hover: rgba(0,0,0,.3);
+  --brand: #222222; --on-brand: #ffffff;
+  --credit: #16a34a;
+}
+html.dark {
+  --bg: #111827; --bg-alt: #1f2937; --text: #ffffff;
+  --text-2: #d1d5db; --muted: #9ca3af;
+  --border: rgba(255,255,255,.1); --border-hover: rgba(255,255,255,.3);
+  --brand: #ffffff; --on-brand: #000000;
+  --credit: #4ade80;
+}
+* { box-sizing: border-box; margin: 0; }
+body { font-family: "Geist", system-ui, sans-serif; background: var(--bg); color: var(--text);
+       min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
+       align-items: center; -webkit-font-smoothing: antialiased; }
+header { position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+         background: color-mix(in srgb, var(--bg) 90%, transparent);
+         backdrop-filter: blur(4px); border-bottom: 1px solid var(--border); }
+.nav { max-width: 72rem; margin: 0 auto; padding: 16px 24px;
+       display: flex; justify-content: space-between; align-items: center; }
+.wordmark { font-family: "Pacifico", cursive; font-size: 1.35rem; font-weight: 400;
+            color: var(--text); text-decoration: none; }
+.nav-right { display: flex; align-items: center; gap: 16px; }
+.nav-link { font-size: .85rem; font-weight: 500; color: var(--text-2);
+            text-decoration: none; transition: color .2s; }
+.nav-link:hover { color: var(--text); }
+#theme { width: 36px; height: 36px; border: none; border-radius: 999px; cursor: pointer;
+         background: var(--bg-alt); color: var(--text-2); font-size: 1rem; line-height: 1;
+         display: flex; align-items: center; justify-content: center; transition: all .2s; }
+#theme:hover { transform: scale(1.05); }
+.kicker { font-size: .7rem; font-weight: 700; text-transform: uppercase;
+          letter-spacing: .1em; color: var(--muted); }
+select, input { border-radius: 8px; border: 2px solid var(--border); background: var(--bg);
+                color: var(--text); padding: 11px 12px; font-size: .95rem;
+                font-family: inherit; transition: border-color .2s; }
+select:hover, input:hover { border-color: var(--border-hover); }
+select:focus, input:focus { outline: none; border-color: var(--border-hover); }
+input::placeholder { color: var(--muted); }
+.btn { border: none; border-radius: 8px; background: var(--brand); color: var(--on-brand);
+       padding: 11px 20px; font-size: .9rem; font-weight: 600; font-family: inherit;
+       cursor: pointer; white-space: nowrap; transition: all .2s; }
+.btn:hover { transform: scale(1.05); }
+@media (max-width: 640px) {
+  .nav { padding: 12px 16px; }
+  .wordmark { font-size: 1.15rem; }
+  /* 16px inputs stop iOS Safari from zooming the page on focus */
+  select, input { font-size: 16px; padding: 10px; }
+}

@@ -128,7 +128,7 @@ eval/        golden set, SQL ground truth, harness, judge, PII scan
 db/          schema (SQL, idempotent, no migrations)
 fake-data/   synthetic persona generators + CSVs
 kb/          knowledge base sources, extraction, original articles
-ui/          single static chat page (no build step)
+ui/          static chat + transaction-verification pages (no build step)
 docs/        design doc (frozen) and cohort guidelines
 ```
 

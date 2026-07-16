@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -21,3 +22,14 @@ class AskResponse(BaseModel):
     approach: Literal["agent", "rag"]
     refused: bool = False
     citations: list[Citation] = []
+
+
+class TransactionOut(BaseModel):
+    """One row of the user's raw ledger, for the verification page."""
+    id: int
+    txn_date: date
+    bank_description: str
+    amount: float
+    txn_type: Literal["credit", "debit"]
+    category: str | None = None
+    subcategory: str | None = None
