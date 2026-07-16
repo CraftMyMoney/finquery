@@ -24,10 +24,52 @@ def test_health():
     assert isinstance(body["db"], bool)
 
 
-def test_ask_rag_returns_501_until_baseline_lands():
-    res = client.post("/ask", json={"question": "What is the 50/30/20 rule?", "approach": "rag"})
-    assert res.status_code == 501
-    assert "not implemented" in res.json()["detail"]
+def test_ask_rag_without_embeddings_returns_503():
+    """Embeddings are NULL until the key arrives; the baseline refuses fast,
+    before spending an embed call."""
+    asyncio.run(db.close_pool())
+    with TestClient(app) as c:
+        if not c.get("/health").json()["db"]:
+            pytest.skip("db not running")
+        res = c.post("/ask", json={"question": "What is the 50/30/20 rule?",
+                                   "approach": "rag"})
+    assert res.status_code == 503
+    assert "embed_chunks" in res.json()["detail"]
+
+
+def test_ask_rag_end_to_end_records_run(monkeypatch):
+    """Endpoint plumbing for approach='rag': routing, response shape, and the
+    ask_runs row; baseline internals are covered in test_baseline.py."""
+    from app.schemas import Citation, RunResult
+
+    async def fake_run_rag(question, user_id):
+        return RunResult(answer="From the retrieved context.", refused=False,
+                         citations=[Citation(kind="txn_chunk", ref="transaction chunk 1")],
+                         tool_calls=[], latency_ms=7)
+
+    monkeypatch.setattr("app.main.run_rag", fake_run_rag)
+
+    asyncio.run(db.close_pool())
+    with TestClient(app) as c:
+        if not c.get("/health").json()["db"]:
+            pytest.skip("db not running")
+        res = c.post("/ask", json={"question": "What is the 50/30/20 rule?",
+                                   "approach": "rag"})
+    assert res.status_code == 200
+    body = res.json()
+    assert body["approach"] == "rag"
+    assert body["citations"][0]["kind"] == "txn_chunk"
+
+    async def _check_and_cleanup():
+        conn = await asyncpg.connect(settings.database_url)
+        try:
+            row = await conn.fetchrow("SELECT * FROM ask_runs ORDER BY id DESC LIMIT 1")
+            assert row["approach"] == "rag" and row["tool_calls"] == "[]"
+            await conn.execute("DELETE FROM ask_runs WHERE id = $1", row["id"])
+        finally:
+            await conn.close()
+
+    asyncio.run(_check_and_cleanup())
 
 
 def test_ask_rejects_bad_approach():

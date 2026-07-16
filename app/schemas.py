@@ -11,10 +11,21 @@ class AskRequest(BaseModel):
 
 
 class Citation(BaseModel):
-    """Provenance for an answer fragment: a KB chunk or a SQL tool call."""
-    kind: Literal["kb_chunk", "sql_tool"]
+    """Provenance for an answer fragment: a KB chunk, a SQL tool call, or a
+    retrieved transaction chunk (vanilla RAG baseline only)."""
+    kind: Literal["kb_chunk", "sql_tool", "txn_chunk"]
     ref: str          # chunk id / document title, or tool name with arguments
     detail: str = ""  # e.g. "42 transactions between 2026-06-01 and 2026-06-30"
+
+
+class RunResult(BaseModel):
+    """What both answer pipelines (agent and vanilla RAG) return: everything
+    /ask and the eval harness need."""
+    answer: str
+    refused: bool
+    citations: list[Citation] = []
+    tool_calls: list[dict] = []   # always [] for the vanilla RAG baseline
+    latency_ms: int
 
 
 class AskResponse(BaseModel):

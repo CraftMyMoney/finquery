@@ -28,8 +28,9 @@ from pydantic_ai.usage import UsageLimits
 
 from app.config import settings
 from app.db import get_pool
-from app.schemas import Citation
+from app.schemas import Citation, RunResult
 from agent.deps import AgentDeps, build_deps
+from pii.boundary import gate_text, log_payload, persist_mappings
 from agent.tools import (
     budget_vs_actual as _budget_vs_actual,
     income_summary as _income_summary,
@@ -62,15 +63,6 @@ answer from the retrieved passages and say so if they do not cover the question.
 - Keep answers short and factual. State the date range a number covers.
 
 {REFUSAL_CRITERIA}"""
-
-
-class AgentAnswer(BaseModel):
-    """What run_agent returns: everything /ask and the eval harness need."""
-    answer: str
-    refused: bool
-    citations: list[Citation]
-    tool_calls: list[dict]
-    latency_ms: int
 
 
 agent: Agent[AgentDeps, str] = Agent(
@@ -108,40 +100,13 @@ async def taxonomy_instructions(ctx: RunContext[AgentDeps]) -> str:
 
 # --------------------------------------------------------------- LLM boundary
 
-async def _log_payload(user_id: int, kind: str, content: str,
-                       direction: str = "to_llm") -> None:
-    pool = await get_pool()
-    async with pool.acquire() as conn:
-        await conn.execute(
-            "INSERT INTO llm_payload_log (user_id, approach, direction, kind, content) "
-            "VALUES ($1, 'agent', $2, $3, $4)",
-            user_id, direction, kind, content,
-        )
-
-
-async def _persist_mappings(user_id: int, added: list[tuple[str, str, str]]) -> None:
-    if not added:
-        return
-    pool = await get_pool()
-    async with pool.acquire() as conn:
-        await conn.executemany(
-            "INSERT INTO pii_mappings (user_id, pii_type, real_value, fake_value) "
-            "VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, real_value) DO NOTHING",
-            [(user_id, t, real, fake) for t, real, fake in added],
-        )
-
-
 async def _gate(ctx: RunContext[AgentDeps], tool_name: str, args: dict,
                 result: BaseModel) -> str:
     """Single choke point between tool results and LLM context: pseudonymize
     (when PII_MASKING is on), log the exact LLM-bound payload, record the call."""
     args = {k: v for k, v in args.items() if v is not None}
-    payload = result.model_dump_json()
-    if settings.pii_masking:
-        added = ctx.deps.pseudonymizer.register(payload)
-        payload = ctx.deps.pseudonymizer.pseudonymize(payload)
-        await _persist_mappings(ctx.deps.user_id, added)
-    await _log_payload(ctx.deps.user_id, "tool_result", payload)
+    payload = await gate_text(ctx.deps.pseudonymizer, result.model_dump_json())
+    await log_payload(ctx.deps.user_id, "agent", "tool_result", payload)
     ctx.deps.tool_calls.append({"tool": tool_name, "args": args})
     return payload
 
@@ -322,7 +287,7 @@ def _live_model():
     )
 
 
-async def run_agent(question: str, user_id: int, model=None) -> AgentAnswer:
+async def run_agent(question: str, user_id: int, model=None) -> RunResult:
     """Answer one question for one user. model is injected by tests
     (TestModel/FunctionModel); None means the live configured LLM."""
     if not question.strip():
@@ -332,13 +297,10 @@ async def run_agent(question: str, user_id: int, model=None) -> AgentAnswer:
     model = model or _live_model()  # fail on a missing key before any side effects
 
     deps = await build_deps(user_id)
-    if settings.pii_masking:
-        added = deps.pseudonymizer.register(question)
-        question = deps.pseudonymizer.pseudonymize(question)
-        await _persist_mappings(user_id, added)
+    question = await gate_text(deps.pseudonymizer, question)
 
-    await _log_payload(user_id, "system", STATIC_INSTRUCTIONS)
-    await _log_payload(user_id, "user", question)
+    await log_payload(user_id, "agent", "system", STATIC_INSTRUCTIONS)
+    await log_payload(user_id, "agent", "user", question)
 
     started = time.monotonic()
     result = await agent.run(
@@ -350,9 +312,9 @@ async def run_agent(question: str, user_id: int, model=None) -> AgentAnswer:
     latency_ms = int((time.monotonic() - started) * 1000)
 
     answer = result.output
-    await _log_payload(user_id, "answer", answer, direction="from_llm")
+    await log_payload(user_id, "agent", "answer", answer, direction="from_llm")
 
-    return AgentAnswer(
+    return RunResult(
         answer=answer,
         refused=is_refusal(answer),
         citations=deps.citations,

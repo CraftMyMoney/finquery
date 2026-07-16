@@ -8,8 +8,8 @@ stay consistent across tool calls within and across runs.
 
 from dataclasses import dataclass, field
 
-from app.db import get_pool
 from app.schemas import Citation
+from pii.boundary import load_pseudonymizer
 from pii.pseudonymizer import Pseudonymizer
 
 
@@ -23,14 +23,5 @@ class AgentDeps:
 
 
 async def build_deps(user_id: int) -> AgentDeps:
-    pool = await get_pool()
-    async with pool.acquire() as conn:
-        known = {
-            m["real_value"]: (m["pii_type"], m["fake_value"])
-            for m in await conn.fetch(
-                "SELECT pii_type, real_value, fake_value FROM pii_mappings "
-                "WHERE user_id = $1",
-                user_id,
-            )
-        }
-    return AgentDeps(user_id=user_id, pseudonymizer=Pseudonymizer(user_id, known))
+    return AgentDeps(user_id=user_id,
+                     pseudonymizer=await load_pseudonymizer(user_id))
