@@ -108,6 +108,10 @@ form.onsubmit = async (e) => {
       body: JSON.stringify({ question, user_id: 1, approach: document.getElementById("approach").value }),
     });
     const data = await res.json();
+    if (!res.ok) {
+      add("a", "Error " + res.status + ": " + (data.detail || "request failed"));
+      return;
+    }
     add("a", data.answer, data.citations);
   } catch (err) {
     add("a", "Request failed: " + err.message);

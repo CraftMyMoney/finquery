@@ -329,6 +329,7 @@ async def run_agent(question: str, user_id: int, model=None) -> AgentAnswer:
         raise ValueError("question is empty")
     if len(question) > MAX_QUESTION_CHARS:
         raise ValueError(f"question exceeds {MAX_QUESTION_CHARS} characters")
+    model = model or _live_model()  # fail on a missing key before any side effects
 
     deps = await build_deps(user_id)
     if settings.pii_masking:
@@ -343,7 +344,7 @@ async def run_agent(question: str, user_id: int, model=None) -> AgentAnswer:
     result = await agent.run(
         question,
         deps=deps,
-        model=model or _live_model(),
+        model=model,
         usage_limits=UsageLimits(request_limit=REQUEST_LIMIT),
     )
     latency_ms = int((time.monotonic() - started) * 1000)
