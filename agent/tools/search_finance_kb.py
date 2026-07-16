@@ -1,9 +1,10 @@
 """search_finance_kb — the agent's sixth tool, retrieval over the KB corpus.
 
-Currently sparse-only (Postgres full-text over the tsv GIN index): the dense
-leg needs embeddings, which wait on the OpenAI key. When retrieval/hybrid.py
-lands, this tool switches to dense or hybrid-RRF per the eval ablation; the
-typed result already carries retrieval_mode so logged runs stay comparable.
+The retrieval leg is picked by KB_RETRIEVAL_MODE (settings), NOT by the
+model: sparse (key-free, tsv GIN index), dense (pgvector cosine), or hybrid
+(dense + sparse merged with RRF). That makes the agent+dense vs agent+hybrid
+eval ablation a config flip, and keeps the typed result self-describing via
+retrieval_mode so logged runs stay comparable.
 
 The KB is shared public educational material (no user data), so there is no
 user_id parameter; the PII gate still runs on the output at the agent
@@ -12,10 +13,16 @@ boundary for uniformity of the leakage scan.
 
 from pydantic_ai import ModelRetry
 
+from app.config import settings
 from app.db import get_pool
 from agent.schemas import KBChunkHit, KBSearchResult
-
-RETRIEVAL_MODE = "sparse"
+from retrieval.hybrid import (
+    dense_ranking,
+    embed_query,
+    fetch_chunks,
+    hybrid_ranking,
+    sparse_ranking,
+)
 
 
 async def search_finance_kb(query: str, limit: int = 5) -> KBSearchResult:
@@ -30,25 +37,25 @@ async def search_finance_kb(query: str, limit: int = 5) -> KBSearchResult:
     if not query.strip():
         raise ModelRetry("query is empty; pass the concept to look up.")
     limit = max(1, min(limit, 10))
+    mode = settings.kb_retrieval_mode
 
     pool = await get_pool()
     async with pool.acquire() as conn:
-        rows = await conn.fetch(
-            """
-            SELECT c.id, c.content, c.page_ref, d.title, d.publisher,
-                   ts_rank_cd(c.tsv, plainto_tsquery('english', $1)) AS rank
-            FROM kb_chunks c
-            JOIN kb_documents d ON d.id = c.document_id
-            WHERE c.tsv @@ plainto_tsquery('english', $1)
-            ORDER BY rank DESC
-            LIMIT $2
-            """,
-            query, limit,
-        )
+        if mode == "sparse":
+            ids = (await sparse_ranking(conn, query))[:limit]
+        elif mode == "dense":
+            ids = (await dense_ranking(conn, await embed_query(query)))[:limit]
+        elif mode == "hybrid":
+            ids = await hybrid_ranking(conn, query, await embed_query(query), limit)
+        else:
+            raise RuntimeError(
+                f"KB_RETRIEVAL_MODE={mode!r} is not valid; use sparse, dense, or hybrid"
+            )
+        rows = await fetch_chunks(conn, ids)
 
     return KBSearchResult(
         query=query,
-        retrieval_mode=RETRIEVAL_MODE,
+        retrieval_mode=mode,
         hits=[
             KBChunkHit(
                 chunk_id=r["id"], document_title=r["title"],

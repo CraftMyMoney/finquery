@@ -16,13 +16,10 @@ import asyncpg
 from openai import AsyncOpenAI
 
 from app.config import settings
+from retrieval.hybrid import vector_literal
 
 BATCH_SIZE = 100  # chunks are <=480 tokens, so a batch stays far below API limits
 TABLES = ("kb_chunks", "rag_transaction_chunks")
-
-
-def _vector_literal(values: list[float]) -> str:
-    return "[" + ",".join(str(v) for v in values) + "]"
 
 
 async def embed_table(conn: asyncpg.Connection, client: AsyncOpenAI,
@@ -41,7 +38,7 @@ async def embed_table(conn: asyncpg.Connection, client: AsyncOpenAI,
         tokens += response.usage.total_tokens
         await conn.executemany(
             f"UPDATE {table} SET embedding = $1::vector WHERE id = $2",
-            [(_vector_literal(item.embedding), row["id"])
+            [(vector_literal(item.embedding), row["id"])
              for item, row in zip(response.data, batch)],
         )
     return len(rows), tokens
