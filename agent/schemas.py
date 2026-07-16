@@ -83,3 +83,17 @@ class SearchResult(BaseModel):
     total_matches: int
     returned: int
     transactions: list[TransactionRow]
+
+
+class KBChunkHit(BaseModel):
+    chunk_id: int
+    document_title: str
+    publisher: str
+    page_ref: str | None = None
+    content: str
+
+
+class KBSearchResult(BaseModel):
+    query: str
+    retrieval_mode: str  # sparse until embeddings exist; then dense / hybrid_rrf
+    hits: list[KBChunkHit]
