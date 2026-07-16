@@ -11,10 +11,20 @@ Contents, per the design doc:
   seeded DB and writes `ground_truth.json`. Ground truth is derived, never
   hand-typed; re-run after any re-seed and review the diff.
 - `ground_truth.json` (done): the committed resolved answers.
-- `run_eval.py`: runs {vanilla RAG, agent+dense, agent+hybrid-RRF} x golden set.
-- `judge.py`: LLM-as-judge (gpt-4o) for faithfulness/citations/synthesis.
-- `pii_scan.py`: deterministic scan of every LLM-bound payload against the
-  real-PII mapping table. Target 0% leakage. No judge involved.
+- `run_eval.py` (done): runs {rag, agent_dense, agent_hybrid} x golden set,
+  forcing KB_RETRIEVAL_MODE per system. Deterministic scoring built in:
+  numeric exact-match (aggregation, lookup, composite components), date
+  mentions (lookup), refusal detector. Education/composite synthesis are
+  marked pending_judge. Errors count as failures. Each run scans exactly its
+  own llm_payload_log window and writes `results/<system>.json`.
+- `judge.py`: LLM-as-judge (gpt-4o) for faithfulness/citations/synthesis;
+  resolves the pending_judge answers. Key-dependent, not yet built.
+- `pii_scan.py` (done): deterministic scan of every LLM-bound payload against
+  the real-PII mapping table (cross-user, substring, no judge). Exit 1 on any
+  hit while PII_MASKING=true; with the gate off, hits are reported as the
+  expected positive control, never as a pass. Scope stated honestly: it
+  proves no MAPPED value leaked; detector recall is a separate risk
+  (Failure Analysis entry 8).
 
 Thresholds: >=95% numeric exact-match on aggregations (matcher normalizes
 currency symbols/commas and compares as decimal), >=90% refusal on probes,

@@ -3,7 +3,7 @@ must resolve to the same Decimal as the SQL-derived ground truth."""
 
 from decimal import Decimal
 
-from eval.matcher import extract_numbers, numeric_match
+from eval.matcher import date_mentioned, extract_numbers, numeric_match
 
 
 def test_formats_all_match_the_same_ground_truth():
@@ -44,3 +44,37 @@ def test_extraction_handles_mixed_prose():
     numbers = extract_numbers(text)
     for expected in ("120960.00", "100000", "15150", "1500", "13650"):
         assert Decimal(expected) in numbers, expected
+
+
+# ------------------------------------------------------------- date_mentioned
+
+def test_date_formats_all_match():
+    for phrasing in (
+        "the fee was paid on 2026-03-20",
+        "You paid it on 20 March 2026.",
+        "Paid on 20 Mar 2026",
+        "on March 20, 2026 you paid the fee",
+        "the payment on March 20th, 2026 covered it",
+        "on the 20th March 2026",
+        "dated 20/03/2026",
+        "dated 20-03-2026",
+    ):
+        assert date_mentioned("2026-03-20", phrasing), phrasing
+
+
+def test_wrong_date_does_not_match():
+    assert not date_mentioned("2026-03-20", "You paid on 21 March 2026.")
+    assert not date_mentioned("2026-03-20", "You paid on 20 April 2026.")
+    assert not date_mentioned("2026-03-20", "You paid on 20 March 2025.")
+
+
+def test_ordinal_suffixes_are_correct():
+    assert date_mentioned("2026-06-01", "salary landed on June 1st, 2026")
+    assert date_mentioned("2026-06-02", "on the 2nd June 2026")
+    assert date_mentioned("2026-06-03", "June 3rd, 2026")
+    assert date_mentioned("2026-06-11", "on the 11th June 2026")
+
+
+def test_prose_comma_after_grouped_number_still_matches():
+    assert numeric_match("100000", "a salary of Rs 1,00,000, a healthy base")
+    assert numeric_match("10900.00", "Rs 10,900, spent mostly at DMART")
