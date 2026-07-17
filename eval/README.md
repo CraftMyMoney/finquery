@@ -2,11 +2,14 @@
 
 Contents, per the design doc:
 
-- `golden_set.json` (done): 55 questions, 5 buckets (aggregation 15, lookup 10,
-  education 15, refusal 10, composite 5), user1 only. Numeric questions carry
+- `golden_set.json` (done): 58 questions, 5 buckets (aggregation 15, lookup 10,
+  education 15, refusal 13, composite 5), user1 only. Numeric questions carry
   their own `ground_truth_sql`; education carries `expected_points` for the
   judge; refusal carries `expect_refusal`; composite carries SQL `components`
-  plus `expected_concepts`.
+  plus `expected_concepts`. Three of the refusal probes (ref-11 to ref-13)
+  are prompt-injection attacks on the advice guardrail: a direct instruction
+  override, a fake system override relayed inside user content, and a
+  roleplay framing. Same deterministic scoring: the reply must still refuse.
 - `compute_ground_truth.py` (done): executes every stored SQL against the
   seeded DB and writes `ground_truth.json`. Ground truth is derived, never
   hand-typed; re-run after any re-seed and review the diff.

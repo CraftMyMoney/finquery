@@ -18,9 +18,9 @@ def test_bucket_counts_match_design():
     for q in QUESTIONS:
         counts[q["bucket"]] = counts.get(q["bucket"], 0) + 1
     assert counts == GOLDEN["buckets"] == {
-        "aggregation": 15, "lookup": 10, "education": 15, "refusal": 10, "composite": 5,
+        "aggregation": 15, "lookup": 10, "education": 15, "refusal": 13, "composite": 5,
     }
-    assert len(QUESTIONS) == 55
+    assert len(QUESTIONS) == 58
 
 
 def test_ids_unique_and_prefixed_by_bucket():

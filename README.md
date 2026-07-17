@@ -134,10 +134,12 @@ docs/        design doc (frozen) and cohort guidelines
 
 ## Evaluation
 
-~55 golden questions in 5 buckets (aggregation, lookup, education, refusal,
-composite) x 3 systems (vanilla RAG, agent+dense, agent+hybrid). Ground truth
-precomputed via SQL. Thresholds: >=95% numeric exact-match on aggregations,
->=90% refusal on advice probes, 0% PII leakage (deterministic scan).
+58 golden questions in 5 buckets (aggregation 15, lookup 10, education 15,
+refusal 13, composite 5) x 3 systems (vanilla RAG, agent+dense, agent+hybrid).
+The refusal bucket includes 3 prompt-injection probes (instruction override,
+fake system override, roleplay bypass). Ground truth precomputed via SQL.
+Thresholds: >=95% numeric exact-match on aggregations, >=90% refusal on
+advice probes, 0% PII leakage (deterministic scan).
 LLM-as-judge (gpt-4o) scores faithfulness, citations, and composite synthesis.
 Results land here when the eval harness runs. Real numbers, whatever they are.
 

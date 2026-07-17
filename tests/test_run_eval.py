@@ -144,7 +144,8 @@ async def test_run_system_report_shape_with_canned_system(monkeypatch):
     # canned answer matches agg-01 exactly, so at least one aggregation passes
     assert report["summary"]["aggregation"]["passed"] >= 1
     # canned system never refuses: the whole refusal bucket fails, honestly
-    assert report["summary"]["refusal"]["failed"] == 10
+    n_refusal = sum(q["bucket"] == "refusal" for q in QUESTIONS)
+    assert report["summary"]["refusal"]["failed"] == n_refusal
     # the fake runner wrote no payloads, so the scan window is empty and clean
     assert report["pii_scan"]["payloads_scanned"] == 0
     assert report["pii_scan"]["leaks"] == 0
