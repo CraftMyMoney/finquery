@@ -83,9 +83,15 @@ async def test_fetch_chunks_preserves_ranking_order(conn):
 
 
 async def test_dense_ranking_orders_by_cosine_distance(conn):
-    planted = [r["id"] for r in await conn.fetch(
-        "SELECT id FROM kb_chunks ORDER BY id LIMIT 3")]
+    # everything runs inside a rolled-back transaction, so the test is
+    # deterministic whether or not the real backfill has run, and leaves
+    # every embedding exactly as it found it
+    tr = conn.transaction()
+    await tr.start()
     try:
+        await conn.execute("UPDATE kb_chunks SET embedding = NULL")
+        planted = [r["id"] for r in await conn.fetch(
+            "SELECT id FROM kb_chunks ORDER BY id LIMIT 3")]
         for axis, chunk_id in enumerate(planted):
             await conn.execute(
                 "UPDATE kb_chunks SET embedding = $1::vector WHERE id = $2",
@@ -93,20 +99,21 @@ async def test_dense_ranking_orders_by_cosine_distance(conn):
 
         ranked = await dense_ranking(conn, _unit(1))
         assert ranked[0] == planted[1]
-        # only rows WITH embeddings participate; the other ~350 stay invisible
+        # only rows WITH embeddings participate; the NULLed rest stay invisible
         assert set(ranked) == set(planted)
     finally:
-        await conn.execute(
-            "UPDATE kb_chunks SET embedding = NULL WHERE id = ANY($1)", planted)
+        await tr.rollback()
 
 
 async def test_hybrid_promotes_the_chunk_both_legs_agree_on(conn):
-    sparse_ids = await sparse_ranking(conn, "how many months of expenses in an emergency fund")
-    both_legs = sparse_ids[0]                    # sparse winner, gets a dense vector too
-    dense_only = await conn.fetchval(
-        "SELECT id FROM kb_chunks WHERE id <> $1 ORDER BY id LIMIT 1", both_legs)
-    planted = [both_legs, dense_only]
+    tr = conn.transaction()
+    await tr.start()
     try:
+        await conn.execute("UPDATE kb_chunks SET embedding = NULL")
+        sparse_ids = await sparse_ranking(conn, "how many months of expenses in an emergency fund")
+        both_legs = sparse_ids[0]                # sparse winner, gets a dense vector too
+        dense_only = await conn.fetchval(
+            "SELECT id FROM kb_chunks WHERE id <> $1 ORDER BY id LIMIT 1", both_legs)
         # dense leg alone prefers dense_only (exact match) over both_legs (leaned)
         await conn.execute("UPDATE kb_chunks SET embedding = $1::vector WHERE id = $2",
                            vector_literal(_unit(0)), dense_only)
@@ -121,8 +128,7 @@ async def test_hybrid_promotes_the_chunk_both_legs_agree_on(conn):
         assert merged[0] == both_legs
         assert dense_only in merged
     finally:
-        await conn.execute(
-            "UPDATE kb_chunks SET embedding = NULL WHERE id = ANY($1)", planted)
+        await tr.rollback()
 
 
 # ------------------------------------------------------------- mode routing

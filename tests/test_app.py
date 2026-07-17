@@ -25,12 +25,24 @@ def test_health():
 
 
 def test_ask_rag_without_embeddings_returns_503():
-    """Embeddings are NULL until the key arrives; the baseline refuses fast,
-    before spending an embed call."""
+    """In the pre-backfill state the baseline refuses fast, before spending an
+    embed call. Once embeddings exist this state cannot be exercised (and the
+    request would go live), so skip."""
+
+    async def _embedded() -> int:
+        conn = await asyncpg.connect(settings.database_url)
+        try:
+            return await conn.fetchval(
+                "SELECT count(*) FROM kb_chunks WHERE embedding IS NOT NULL")
+        finally:
+            await conn.close()
+
     asyncio.run(db.close_pool())
     with TestClient(app) as c:
         if not c.get("/health").json()["db"]:
             pytest.skip("db not running")
+        if asyncio.run(_embedded()):
+            pytest.skip("embeddings are backfilled; the empty-state 503 cannot fire")
         res = c.post("/ask", json={"question": "What is the 50/30/20 rule?",
                                    "approach": "rag"})
     assert res.status_code == 503

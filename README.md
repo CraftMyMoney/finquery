@@ -38,6 +38,10 @@ uvicorn app.main:app --reload
 pytest
 ```
 
+Note: the test suite reloads the chunk tables (ingest idempotency tests),
+which resets all embeddings to NULL. After running pytest, re-run
+`python -m ingest.embed_chunks` (idempotent, ~$0.003) before live use.
+
 ## Data layer setup from scratch
 
 Everything below is key-independent (no OpenAI key needed) and fully
@@ -179,6 +183,24 @@ Chronological record of attempts, failures, and pivots. Mandated deliverable.
    'policy' pii_type; mappings grew 109 -> 116. Lesson: the deterministic
    leakage scan only guards values the detector knows about, so the detector
    itself must be audited against every narration format in the corpus.
+9. **Cohort key grants different models than the design doc assumed**
+   (2026-07-17). The doc specified gpt-4o-mini (actor) and gpt-4o (judge);
+   the granted key allows gpt-5.4-mini, gpt-5.4-nano, and
+   text-embedding-3-small only. Actor moved to gpt-5.4-mini. The judge/actor
+   separation planned as a model-family split (gpt-4o judging gpt-4o-mini)
+   is not possible with this key; the judge runs gpt-5.4-mini with a
+   separate prompt and no access to the actor's reasoning, and this
+   weakening is stated rather than hidden.
+10. **First post-backfill test run failed 4 tests and made a live API call**
+   (2026-07-17). Several tests written before embeddings existed assumed an
+   all-NULL embedding state (e.g. "dense ranking returns only planted
+   vectors", "RAG 503s without embeddings"), and the ingest idempotency
+   tests wipe-and-reload chunk tables, silently destroying the backfill on
+   every pytest run. Fixed: planted-vector tests run inside rolled-back
+   transactions, assertions made state-robust, empty-state guard tests skip
+   when embeddings exist, and the README notes that embed_chunks must be
+   re-run after pytest. Lesson: tests that depend on a mutable global DB
+   state must be written for every state the DB can legitimately be in.
 
 ## Hard boundaries
 

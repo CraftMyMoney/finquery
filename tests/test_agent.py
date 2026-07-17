@@ -27,8 +27,11 @@ from guardrails.refusal import REFUSAL_MARKER
 
 
 @pytest.fixture(autouse=True)
-async def log_baseline():
-    """DB guard + llm_payload_log high-water mark; test rows removed after."""
+async def log_baseline(monkeypatch):
+    """DB guard + llm_payload_log high-water mark; test rows removed after.
+    KB mode pinned to sparse so no test ever makes a live embedding call,
+    whatever .env currently says."""
+    monkeypatch.setattr(settings, "kb_retrieval_mode", "sparse")
     await close_pool()
     if not await ping():
         await close_pool()

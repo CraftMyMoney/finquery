@@ -84,11 +84,15 @@ async def test_pipeline_retrieves_both_corpora_and_masks_the_question(planted):
 
     assert result.answer == "Answer from context."
     assert result.refused is False and result.tool_calls == []
-    assert [c.kind for c in result.citations] == ["txn_chunk", "kb_chunk"]
+    # planted txn chunk (distance 0) always ranks first; kb chunks follow.
+    # After the real backfill other embedded chunks may fill the remaining
+    # slots, so assert kinds, not an exact list.
+    kinds = [c.kind for c in result.citations]
+    assert kinds[0] == "txn_chunk" and "kb_chunk" in kinds
     assert result.citations[0].detail.startswith("Bank transactions of")
 
     assert "[1] (your bank transactions)" in captured["user"]
-    assert "[2] (knowledge base:" in captured["user"]
+    assert "(knowledge base:" in captured["user"]
     assert vpa["real_value"] not in captured["user"]
     assert vpa["fake_value"] in captured["user"]
 
@@ -131,8 +135,20 @@ async def test_other_users_transaction_chunks_are_invisible(planted):
 
 
 async def test_without_embeddings_fails_loudly_before_any_api_call():
+    conn = await asyncpg.connect(settings.database_url)
+    embedded = await conn.fetchval(
+        """SELECT (SELECT count(*) FROM kb_chunks WHERE embedding IS NOT NULL)
+                + (SELECT count(*) FROM rag_transaction_chunks
+                   WHERE user_id = 1 AND embedding IS NOT NULL)""")
+    await conn.close()
+    if embedded:
+        pytest.skip("embeddings are backfilled; the empty-state guard cannot fire")
+
+    async def tripwire(text: str) -> list[float]:
+        raise AssertionError("embed must never be called when nothing is embedded")
+
     with pytest.raises(RuntimeError, match="embed_chunks"):
-        await run_rag("anything", 1)
+        await run_rag("anything", 1, embed=tripwire)
 
 
 async def test_refusal_marker_sets_refused_flag(planted):
