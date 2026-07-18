@@ -216,9 +216,13 @@ def _print_summary(report: dict) -> None:
 
 async def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("systems", nargs="*", choices=list(SYSTEMS), default=[],
-                        help="which systems to run (default: all)")
+    # no argparse choices= here: with nargs="*" it rejects the empty default
+    parser.add_argument("systems", nargs="*", default=[],
+                        help=f"which systems to run (default: all of {list(SYSTEMS)})")
     args = parser.parse_args()
+    unknown = set(args.systems) - set(SYSTEMS)
+    if unknown:
+        raise SystemExit(f"unknown systems {sorted(unknown)}; valid: {list(SYSTEMS)}")
     systems = args.systems or list(SYSTEMS)
 
     RESULTS_DIR.mkdir(exist_ok=True)
