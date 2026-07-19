@@ -69,6 +69,22 @@ async def test_emi_march_and_mutual_funds_total():
     assert mf.grouped_by == "none"
 
 
+async def test_group_by_month_matches_ground_truth():
+    # agg-09 (monthly average) and comp-04 (month-by-month trend) both come
+    # from this one call; averages over calendar months spanned, in SQL
+    result = await spending_by_category(1, subcategory="Groceries", group_by_month=True)
+    assert result.monthly_average == Decimal(GT["agg-09"]["value"])
+    months = {m.month: m.total for m in result.by_month}
+    expected = {r["month"]: Decimal(r["total"])
+                for r in GT["comp-04"]["components"]["groceries_by_month"]}
+    assert months == expected
+
+
+async def test_group_by_month_is_off_by_default():
+    result = await spending_by_category(1, subcategory="Groceries")
+    assert result.by_month == [] and result.monthly_average is None
+
+
 async def test_category_name_is_case_insensitive():
     result = await spending_by_category(1, subcategory="groceries")
     assert result.txn_count == 95
@@ -168,6 +184,16 @@ async def test_order_by_amount_surfaces_largest_debit():
     assert result.transactions[0].amount == Decimal(GT["look-02"]["value"]["amount"])
     # full match count is reported honestly alongside the capped page
     assert result.total_matches == 351  # user1: 360 rows - 9 credits
+
+
+async def test_multi_word_text_search_matches_words_in_any_order():
+    # look-01: the model passes word bags; every word must appear, not the
+    # bag as one substring ("fee" matches inside "littleflower.fees@okaxis")
+    result = await search_transactions(1, text="school books uniform fee")
+    assert result.total_matches == 1
+    gt = GT["look-01"]["value"]
+    assert result.transactions[0].txn_date == date.fromisoformat(gt["txn_date"])
+    assert result.transactions[0].amount == Decimal(gt["amount"])
 
 
 async def test_search_validates_order_by_and_txn_type():

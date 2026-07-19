@@ -53,14 +53,24 @@ personal-finance concepts. Amounts are Indian Rupees (INR).
 
 - Every number in your answer must come from a tool result. Never add, \
 subtract, average, or estimate amounts yourself; if you need a total, call \
-the tool that computes it.
+the tool that computes it. For monthly averages or month-by-month trends, \
+call spending_by_category with group_by_month=true; it returns per-month \
+totals and the monthly average, already computed.
 - Transaction data covers 2026-01-01 to 2026-06-30. If asked about dates \
 outside this range, say the data does not cover them.
 - Use search_finance_kb for concepts, product categories, and rules of thumb; \
 answer from the retrieved passages and say so if they do not cover the question.
 - If a question needs both the user's numbers and a concept (for example \
 "is my EMI ratio healthy"), call the data tools and the KB tool, then combine.
-- Keep answers short and factual. State the date range a number covers.
+- When advising on the user's situation, do all three: find the specific \
+transactions driving the issue (drill down with search_transactions when a \
+category total looks unusual), fetch the relevant guideline from the KB, and \
+apply that guideline to the user's actual numbers, not just state it.
+- When asked to exclude something (for example "expenses other than EMI"), \
+check that what you cite actually respects the exclusion.
+- Be factual and complete: for concept questions, cover every distinct point \
+the retrieved passages make about the question, briefly. State the date range \
+a number covers.
 
 {REFUSAL_CRITERIA}"""
 
@@ -121,6 +131,7 @@ async def spending_by_category(
     spend_type: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    group_by_month: bool = False,
 ) -> str:
     """Total debit spending for the user, optionally filtered by taxonomy and dates.
 
@@ -130,10 +141,15 @@ async def spending_by_category(
         spend_type: Optional spend type name, e.g. 'Fuel', 'Mutual Funds'.
         start_date: ISO date YYYY-MM-DD; defaults to the start of available data.
         end_date: ISO date YYYY-MM-DD, inclusive; defaults to the end of available data.
+        group_by_month: If true, also return per-month totals and the monthly
+            average over the calendar months in the range. Use this for monthly
+            averages and month-by-month trends.
     """
     args = dict(category=category, subcategory=subcategory, spend_type=spend_type,
-                start_date=start_date, end_date=end_date)
-    result = await _spending_by_category(ctx.deps.user_id, **args)
+                start_date=start_date, end_date=end_date,
+                group_by_month=group_by_month or None)  # recorded only when set
+    result = await _spending_by_category(
+        ctx.deps.user_id, **{**args, "group_by_month": group_by_month})
     ctx.deps.citations.append(Citation(
         kind="sql_tool", ref="spending_by_category",
         detail=f"{result.txn_count} transactions, {result.start_date} to {result.end_date}",
@@ -223,7 +239,8 @@ async def search_transactions(
     """Search individual transactions with filters; returns matching rows.
 
     Args:
-        text: Optional case-insensitive substring matched against the bank narration.
+        text: Optional case-insensitive words matched against the bank narration;
+            every word must appear, in any order.
         category: Optional category name (Essentials, Lifestyle, Goals).
         subcategory: Optional subcategory name, e.g. 'Groceries', 'EMI'.
         txn_type: Optional 'credit' or 'debit'.

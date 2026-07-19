@@ -28,6 +28,11 @@ class BreakdownRow(BaseModel):
     txn_count: int
 
 
+class MonthTotal(BaseModel):
+    month: str
+    total: Decimal
+
+
 class SpendingSummary(BaseModel):
     start_date: date
     end_date: date
@@ -36,6 +41,10 @@ class SpendingSummary(BaseModel):
     txn_count: int
     grouped_by: str
     breakdown: list[BreakdownRow]
+    # populated only when group_by_month is requested; monthly_average is
+    # SQL-computed over the calendar months the date range spans
+    by_month: list[MonthTotal] = []
+    monthly_average: Decimal | None = None
 
 
 class BudgetLine(BaseModel):
@@ -63,11 +72,6 @@ class TopMerchantsResult(BaseModel):
     start_date: date
     end_date: date
     merchants: list[MerchantSpend]
-
-
-class MonthTotal(BaseModel):
-    month: str
-    total: Decimal
 
 
 class IncomeSummary(BaseModel):

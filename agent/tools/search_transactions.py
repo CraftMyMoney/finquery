@@ -35,7 +35,9 @@ async def search_transactions(
 
     Args:
         user_id: The user whose transactions to search.
-        text: Optional case-insensitive substring matched against the bank narration.
+        text: Optional case-insensitive words matched against the bank narration;
+            every word must appear, in any order (e.g. 'books uniform' matches
+            'ANNUAL BOOKS AND UNIFORM FEE').
         category: Optional category name (Essentials, Lifestyle, Goals).
         subcategory: Optional subcategory name, e.g. 'Groceries', 'EMI'.
         txn_type: Optional 'credit' or 'debit'.
@@ -66,7 +68,10 @@ async def search_transactions(
             where.append(clause.format(n=len(params)))
 
         if text is not None:
-            add("t.bank_description ILIKE ${n}", f"%{text}%")
+            # one ILIKE per word: the model passes word bags like "school books
+            # uniform fee" and no narration carries them as one substring
+            for word in text.split():
+                add("t.bank_description ILIKE ${n}", f"%{word}%")
         if cat_id is not None:
             add("t.category_id = ${n}", cat_id)
         if sub_id is not None:

@@ -7,7 +7,7 @@ narrate composition ("mostly Fuel") without a second call.
 """
 
 from app.db import get_pool
-from agent.schemas import BreakdownRow, SpendingSummary
+from agent.schemas import BreakdownRow, MonthTotal, SpendingSummary
 from agent.tools._validation import DATA_END, DATA_START, parse_date, resolve_taxonomy
 
 _GROUP_BELOW = {None: "category", "category": "subcategory", "subcategory": "spend_type"}
@@ -20,6 +20,7 @@ async def spending_by_category(
     spend_type: str | None = None,
     start_date: str | None = None,
     end_date: str | None = None,
+    group_by_month: bool = False,
 ) -> SpendingSummary:
     """Total debit spending for a user, optionally filtered by taxonomy and dates.
 
@@ -30,6 +31,8 @@ async def spending_by_category(
         spend_type: Optional spend type name, e.g. 'Fuel', 'Mutual Funds'.
         start_date: ISO date YYYY-MM-DD; defaults to the start of available data.
         end_date: ISO date YYYY-MM-DD, inclusive; defaults to the end of available data.
+        group_by_month: If true, also return per-month totals and the SQL-computed
+            monthly average over the calendar months in the range.
     """
     start = parse_date(start_date, "start_date", DATA_START)
     end = parse_date(end_date, "end_date", DATA_END)
@@ -69,10 +72,31 @@ async def spending_by_category(
         else:
             grouped_by = "none"
 
+        by_month: list[MonthTotal] = []
+        monthly_average = None
+        if group_by_month:
+            month_rows = await conn.fetch(
+                f"""SELECT to_char(date_trunc('month', t.txn_date), 'YYYY-MM') AS month,
+                           sum(t.amount) AS total
+                    FROM transactions t WHERE {where_sql} GROUP BY 1 ORDER BY 1""",
+                *params,
+            )
+            by_month = [MonthTotal(month=r["month"], total=r["total"]) for r in month_rows]
+            # average over calendar months spanned, not just months with rows,
+            # computed in SQL like every other number the model sees
+            months_spanned = (end.year - start.year) * 12 + (end.month - start.month) + 1
+            params.append(months_spanned)
+            monthly_average = await conn.fetchval(
+                f"""SELECT round(coalesce(sum(t.amount), 0) / ${len(params)}, 2)
+                    FROM transactions t WHERE {where_sql}""",
+                *params,
+            )
+
     filters = {k: v for k, v in
                (("category", category), ("subcategory", subcategory), ("spend_type", spend_type)) if v}
     return SpendingSummary(
         start_date=start, end_date=end, filters=filters,
         total=total_row["total"], txn_count=total_row["n"],
         grouped_by=grouped_by, breakdown=breakdown,
+        by_month=by_month, monthly_average=monthly_average,
     )
