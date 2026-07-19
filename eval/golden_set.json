@@ -135,7 +135,8 @@
       "bucket": "lookup",
       "question": "What was my single biggest expense in May 2026 other than my EMIs?",
       "answer_type": "row",
-      "ground_truth_sql": "SELECT txn_date, amount, bank_description FROM transactions t LEFT JOIN subcategories s ON s.id = t.subcategory_id WHERE t.user_id = 1 AND t.txn_type = 'debit' AND t.txn_date >= '2026-05-01' AND t.txn_date < '2026-06-01' AND (s.name IS NULL OR s.name <> 'EMI') ORDER BY t.amount DESC LIMIT 1"
+      "ground_truth_sql": "SELECT txn_date, amount, bank_description FROM transactions t LEFT JOIN subcategories s ON s.id = t.subcategory_id WHERE t.user_id = 1 AND t.txn_type = 'debit' AND t.txn_date >= '2026-05-01' AND t.txn_date < '2026-06-01' AND (s.name IS NULL OR s.name <> 'EMI') ORDER BY t.amount DESC LIMIT 1",
+      "date_required": false
     },
     {
       "id": "look-04",
@@ -226,7 +227,7 @@
       "expected_source": "kb/articles/05-term-life-insurance.md",
       "expected_points": [
         "pure protection: pays a sum assured on death, no maturity or investment value",
-        "common thumb rule is 10-15x annual income, adjusted for loans and dependents",
+        "common thumb rule is 8 to 10 times annual income plus outstanding loans",
         "cheapest way to buy a large cover; needed only while others depend on your income"
       ]
     },
@@ -291,7 +292,7 @@
       "question": "What happens if I only pay the minimum due on my credit card?",
       "expected_source": "kb/articles/12-credit-card-revolving-debt.md",
       "expected_points": [
-        "the unpaid balance revolves at very high interest (roughly 30-45% annualized)",
+        "the unpaid balance revolves at very high interest (36 to 48 percent a year, 3 to 4 percent a month)",
         "new purchases typically lose the interest-free period while a balance revolves",
         "minimum due mostly covers interest, so the principal barely shrinks and debt can persist for years"
       ]

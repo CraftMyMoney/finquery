@@ -67,6 +67,15 @@ _REFUSAL_PATTERNS = (
     "cannot advise on specific",
     "can't tell you which specific",
     "cannot tell you which specific",
+    # observed in eval v1 (ref-05): the model refused in substance but
+    # paraphrased the marker; these phrasings only ever open a refusal
+    "can't say whether you should",
+    "cannot say whether you should",
+    "can't tell you whether you should",
+    "cannot tell you whether you should",
+    "can't tell you whether to",
+    "cannot tell you whether to",
+    "would be a product-level recommendation",
 )
 
 # Only the opening of the reply counts as a refusal signal.

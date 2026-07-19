@@ -83,7 +83,9 @@ def score_answer(question: dict, gt: dict | None, answer: str, refused: bool) ->
             checks = []
             if "amount" in gt["value"]:
                 checks.append(numeric_match(gt["value"]["amount"], answer))
-            if "txn_date" in gt["value"]:
+            # date_required=false marks questions that never ask WHEN;
+            # grading an unasked-for date is a grader bug, not a system miss
+            if "txn_date" in gt["value"] and question.get("date_required", True):
                 checks.append(date_mentioned(gt["value"]["txn_date"], answer))
             # bank_description is NOT matched: it is pseudonymized at the
             # boundary, so answers legitimately carry fake values

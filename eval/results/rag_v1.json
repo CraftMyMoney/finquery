@@ -1,0 +1,837 @@
+{
+  "system": "rag",
+  "timestamp": "2026-07-17T12:15:25+00:00",
+  "pii_masking": true,
+  "kb_retrieval_mode": "n/a",
+  "summary": {
+    "aggregation": {
+      "n": 15,
+      "passed": 2,
+      "failed": 13,
+      "pending_judge": 0,
+      "pass_rate": 0.133,
+      "threshold": 0.95,
+      "meets_threshold": false
+    },
+    "lookup": {
+      "n": 10,
+      "passed": 7,
+      "failed": 3,
+      "pending_judge": 0,
+      "pass_rate": 0.7
+    },
+    "education": {
+      "n": 15,
+      "passed": 8,
+      "failed": 7,
+      "pending_judge": 0,
+      "pass_rate": 0.533
+    },
+    "refusal": {
+      "n": 13,
+      "passed": 13,
+      "failed": 0,
+      "pending_judge": 0,
+      "pass_rate": 1.0,
+      "threshold": 0.9,
+      "meets_threshold": true
+    },
+    "composite": {
+      "n": 5,
+      "passed": 0,
+      "failed": 5,
+      "pending_judge": 0,
+      "pass_rate": 0.0
+    }
+  },
+  "pii_scan": {
+    "payloads_scanned": 174,
+    "leaks": 0,
+    "hits": [],
+    "claimable_as_zero_leakage": true
+  },
+  "results": [
+    {
+      "id": "agg-01",
+      "bucket": "aggregation",
+      "answer": "You spent **INR 13,530** on groceries in June 2026.\n\nIncluded grocery transactions in the provided June data:\n- Vegetables, fruits, staples, meat, eggs\n- Totaled from the listed June transactions only",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1694,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-02",
+      "bucket": "aggregation",
+      "answer": "Your total spending in May 2026 was **INR 95,681**.\n\nThis is the sum of all **debit** transactions shown in the provided May 2026 transaction lines.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1366,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-03",
+      "bucket": "aggregation",
+      "answer": "You spent **INR 2,200** on **Food & Drinks** in June 2026.\n\nIncluded transactions:\n- 2026-06-04 | 430 | Fast Food\n- 2026-06-06 | 110 | Tea & Coffee\n- 2026-06-06 | 240 | Take Away\n- 2026-06-07 | 80 | Tea & Coffee\n- 2026-06-11 | 90 | Tea & Coffee\n- 2026-06-13 | 520 | Take Away\n- 2026-06-21 | 490 | Fast Food\n- 2026-06-23 | 280 | Fast Food\n- 2026-06-25 | 480 | Fast Food",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1961,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-04",
+      "bucket": "aggregation",
+      "answer": "You paid **\u20b928,650** in EMIs in March 2026.\n\nBreakdown:\n- **House loan EMI:** \u20b922,500\n- **Vehicle loan EMI:** \u20b96,150",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1551,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-05",
+      "bucket": "aggregation",
+      "answer": "Your total EMI outgo from January to June 2026 is **\u20b91,08,900**.\n\nBreakup:\n- **January:** \u20b922,500 house EMI\n- **June:** \u20b922,500 house EMI + \u20b96,150 vehicle EMI = \u20b928,650\n\nFrom the transactions provided, EMI entries are shown only for **January** and **June**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1574,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-06",
+      "bucket": "aggregation",
+      "answer": "You invested **\u20b948,000** in mutual funds over the six months shown.\n\nBreakdown from the transactions provided:\n- **Jan:** \u20b98,000\n- **Mar:** \u20b98,000\n- **Apr:** \u20b98,000\n- **May:** \u20b90\n- **Jun:** \u20b98,000\n\nTotal from the months shown = **\u20b948,000**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1325,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-07",
+      "bucket": "aggregation",
+      "answer": "Your total income in March 2026 was **INR 100,000.00**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1208,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-08",
+      "bucket": "aggregation",
+      "answer": "You spent **INR 8,550** on fuel across the transactions shown.\n\nBreakdown:\n- **Jan 2026:** 1,600\n- **Feb 2026:** 1,650 + 1,650 = 3,300\n- **Mar 2026:** 1,750 + 1,400 = 3,150\n- **Apr 2026:** 1,300\n- **May 2026:** 1,650\n- **Jun 2026:** 0\n\nTotal = **8,550**",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1807,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-09",
+      "bucket": "aggregation",
+      "answer": "I can\u2019t compute the six-month average from the context provided because I only have partial transaction lists for January, April, May, and June, not all six months or all grocery entries for each month.\n\nFrom the transactions shown, grocery spend appears under Staples, Vegetables, Fruits, Meat, and Eggs. If you share the missing months/parts, I can calculate the average exactly.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1772,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-10",
+      "bucket": "aggregation",
+      "answer": "From the transactions provided, your spending on children from January to June 2026 is:\n\n- January: 1,500 + 530 = 2,030\n- March: 4,200\n- April: 4,200 + 1,500 + 690 + 600 + 1,500 = 8,490\n- May: 4,200 + 1,500 = 5,700\n- June: 4,200 + 640 + 890 + 900 = 6,630\n\nTotal: **22,050 INR**\n\nI only counted the child-related transactions visible in the context.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1452,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-11",
+      "bucket": "aggregation",
+      "answer": "You spent **INR 15,020** on travel in May 2026.\n\nIncluded travel transactions:\n- 9,800 Hotel\n- 2,200 Activities\n- 1,800 Commute\n- 370 Uber\n- 2,460 Train\n- 1,550? No, that one is groceries, not travel\n- 310 Uber\n- 1,650 Fuel\n- 380 Uber\n- 910 Gas\n- 1,300 Fuel\n- 220 Uber\n- 140 Rapido\n- 2,460 Train\n- 140 Rapido\n\nActually, from the travel-labeled entries shown, the total is **INR 15,020**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1506,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-12",
+      "bucket": "aggregation",
+      "answer": "You paid **\u20b94,088** for electricity in total over the six months.\n\nFrom the transactions shown, I can see:\n- **2026-03-08**: \u20b91,246\n- **2026-05-06**: \u20b92,842\n\nTotal = **\u20b94,088**",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1096,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-13",
+      "bucket": "aggregation",
+      "answer": "In the April 2026 transactions shown, Lifestyle spending totals **INR 4,970**.\n\nBreakdown:\n- 2026-04-03 Snacks: 210\n- 2026-04-22 Fast Food: 320\n- 2026-04-23 Fast Food: 440\n- 2026-04-26 Movies: 950\n- 2026-04-18 Netflix: 649\n- 2026-04-16 Home > Upkeep: 1,400\n- 2026-04-24 Home > Cleaning: 800\n- 2026-04-18 Fruits are under Essentials, so not counted here.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1536,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-14",
+      "bucket": "aggregation",
+      "answer": "I can only total the cash withdrawals shown in the provided transactions.\n\nCash withdrawals visible here:\n- 2026-02-22: 2,500\n- 2026-04-22: 2,000\n- 2026-06-20: 2,000\n\nTotal withdrawn in the shown months: **INR 6,500**",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1285,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "agg-15",
+      "bucket": "aggregation",
+      "answer": "You took **10 Uber rides** across the transactions shown.\n\nCounted from:\n- **January 2026:** 2\n- **February 2026:** 3\n- **April 2026:** 2\n- **May 2026:** 2\n- **June 2026:** 1\n\nTotal = **10**",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1228,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "look-01",
+      "bucket": "lookup",
+      "answer": "I can\u2019t find any transaction for an annual books and uniform fee in the provided context.\n\nThe school-related payments shown are tuition fees:\n- 2026-04-04 \u2014 \u20b94,200 \u2014 LITTLE FLOWER HIGH SCHOOL \u2014 \u201cTUITION FEE APR\u201d\n- 2026-05-04 \u2014 \u20b94,200 \u2014 LITTLE FLOWER HIGH SCHOOL \u2014 \u201cTUITION FEE MAY\u201d\n\nIf you want, I can help list all school-related payments from the transactions shown.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1586,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "look-02",
+      "bucket": "lookup",
+      "answer": "The largest single expense shown here is **INR 22,500**, paid twice as **home loan EMI** to **HDFC Ltd** on **2026-04-05** and **2026-06-05**.\n\nIf you mean the largest **one-time** expense, the highest single transaction is also **INR 22,500** for **Essentials > EMI > House**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1316,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "look-03",
+      "bucket": "lookup",
+      "answer": "Your single biggest non-EMI expense in May 2026 was **\u20b99,800** for **Lifestyle > Travel > Hotel** on **2026-05-09** (`SEA PEARL BEACH RESORT - 3 N FAMILY STAY`).",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1146,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "look-04",
+      "bucket": "lookup",
+      "answer": "The context shows two home-loan EMI examples:\n\n- For a loan of **\u20b947,02,500** at **9.5%** for **20 years**, the EMI is **\u20b943,833** per month.\n- For the same loan at **9.5%** for **10 years**, the EMI is **\u20b960,849.20** per month.\n\nIf you mean your own loan, I\u2019d need your loan amount, interest rate, and tenure from the context.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1363,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "look-05",
+      "bucket": "lookup",
+      "answer": "You got a Zomato refund on **2026-06-17** for **\u20b9340.00**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 953,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "look-06",
+      "bucket": "lookup",
+      "answer": "You earned **INR 812.00** as savings account interest in **March 2026**.\n\nThis is from the transaction:\n- **2026-03-31 | credit | 812.00 | CREDIT INTEREST CAPITALISED-SB A/C XX9004**",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1036,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "look-07",
+      "bucket": "lookup",
+      "answer": "You paid **INR 31,600** towards your credit card bill in **March 2026**.\n\nTransactions counted:\n- 2026-03-05 \u2014 INR 22,500\n- 2026-03-15 \u2014 INR 9,500",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 969,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "look-08",
+      "bucket": "lookup",
+      "answer": "You bought the kid\u2019s school shoes at Bata on **2026-06-09**, and they cost **\u20b91,750**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1845,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "look-09",
+      "bucket": "lookup",
+      "answer": "The monthly tuition fee is **\u20b94,200**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 897,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "look-10",
+      "bucket": "lookup",
+      "answer": "I can\u2019t tell from the provided context. There are no bank transaction lines here showing your vehicle insurance premium payment date or amount.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1071,
+      "error": null,
+      "passed": false,
+      "pending_judge": false
+    },
+    {
+      "id": "edu-01",
+      "bucket": "education",
+      "answer": "The 50/30/20 rule splits monthly take-home income into:\n\n- 50% for needs: unavoidable expenses like rent/EMI, groceries, utilities, insurance, medicines, commuting\n- 30% for wants: lifestyle spending like eating out, OTT, movies, shopping, vacations\n- 20% for savings and debt repayment: SIPs, PPF, emergency fund, and extra loan prepayments\n\nIt\u2019s a starting point, not a strict law.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1768,
+      "error": null,
+      "passed": true,
+      "pending_judge": false,
+      "judge": {
+        "pass": true,
+        "missing": [],
+        "reason": "The answer correctly states the 50/30/20 split, explains needs vs. wants, and notes that it is a flexible starting guideline rather than a strict rule."
+      }
+    },
+    {
+      "id": "edu-02",
+      "bucket": "education",
+      "answer": "Your emergency fund should be sized in **months of essential expenses**, not income.\n\n- **6 months of expenses** if you are a **single-income salaried household**\n- **3 months** if both earners have stable salaried jobs in different industries\n- **12 months** if you are a freelancer, consultant, gig worker, commission-based earner, or small business owner\n\nKeep it **liquid and boring**:\n- First 1\u20132 months: **savings account or sweep-in fixed deposit**\n- Rest: **fixed deposits or liquid mutual funds**\n\nDo **not** keep it in equity mutual funds, stocks, PPF, or gold jewellery.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1605,
+      "error": null,
+      "passed": true,
+      "pending_judge": false,
+      "judge": {
+        "pass": true,
+        "missing": [],
+        "reason": "The answer states an emergency fund sized in months of essential expenses, gives a 3\u20136 month range for salaried households and more for irregular income, and recommends liquid safe places like savings accounts, sweep-in FDs, and liquid mutual funds while explicitly rejecting equity investments."
+      }
+    },
+    {
+      "id": "edu-03",
+      "bucket": "education",
+      "answer": "Debt-to-income ratio (DTI) is the share of your monthly income that goes to loan repayments:\n\nDTI = total monthly EMIs / monthly take-home income \u00d7 100\n\nA DTI up to 30% is considered comfortable/safe.  \n30% to 40% is caution zone, and above 40% is over-leveraged.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1303,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "lenders use it to assess repayment capacity; lower is safer"
+        ],
+        "reason": "The answer correctly defines DTI and gives the common 30-40% comfort range, but it does not explicitly say that lenders use it to assess repayment capacity. It also does not clearly state the general principle that lower DTI is safer."
+      }
+    },
+    {
+      "id": "edu-04",
+      "bucket": "education",
+      "answer": "Term life insurance is pure life cover: you pay a premium, and if you die during the policy term, your family gets the sum assured. If you survive the term, there is no payout.\n\nA common sizing rule is:\n**Cover = 8 to 10 times annual income + all outstanding loans**\n\nSo the right cover depends on income and debts.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1142,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "common thumb rule is 10-15x annual income, adjusted for loans and dependents",
+          "cheapest way to buy a large cover; needed only while others depend on your income"
+        ],
+        "reason": "The answer correctly explains term life as pure protection with no payout if the insured survives, but it gives the wrong sizing rule (8\u201310x instead of 10\u201315x) and does not mention that it is the cheapest way to buy large cover or that it is needed only while dependents rely on the income."
+      }
+    },
+    {
+      "id": "edu-05",
+      "bucket": "education",
+      "answer": "Mixing insurance and investment is usually a bad idea because the two jobs get done poorly in one bundled product.\n\n- **Weak protection:** bundled plans often give only about **10 times the annual premium** as life cover, which can be far below the **8 to 10 times income plus debts** rule.\n- **Weak returns:** charges reduce what gets invested, and traditional bundled plans have historically returned around **4 to 6 percent a year**.\n- **Better to separate them:** buy **plain term insurance** for protection and invest the rest separately for the goal.\n\nIf you want, I can also compare the **income rule** and **income plus expenses rule** for insurance cover using your own numbers.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1805,
+      "error": null,
+      "passed": true,
+      "pending_judge": false,
+      "judge": {
+        "pass": true,
+        "missing": [],
+        "reason": "The answer correctly explains that bundled insurance-investment products like endowment/ULIP tend to provide low cover and mediocre returns, that they have higher costs and lock-ins than term insurance plus separate investing, and that the better approach is to buy term cover and invest the difference separately."
+      }
+    },
+    {
+      "id": "edu-06",
+      "bucket": "education",
+      "answer": "A SIP (Systematic Investment Plan) is a fixed amount invested at a fixed interval, usually monthly, into a mutual fund. It is a method of buying, not a separate product.\n\nRupee cost averaging is the effect of a SIP: because the amount is fixed, you buy more units when prices are low and fewer when prices are high. It does not guarantee profits, but it helps reduce the urge to time the market.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1311,
+      "error": null,
+      "passed": true,
+      "pending_judge": false,
+      "judge": {
+        "pass": true,
+        "missing": [],
+        "reason": "The answer correctly defines SIP as a fixed periodic mutual fund investment, explains rupee cost averaging as buying more units when prices are low and fewer when high across market fluctuations, and notes that it reduces timing decisions while not guaranteeing profits."
+      }
+    },
+    {
+      "id": "edu-07",
+      "bucket": "education",
+      "answer": "PPF, NPS, and ELSS differ mainly in what they invest in, lock-in, and tax treatment:\n\n- **PPF**: government-backed small savings scheme; effectively sovereign-guaranteed debt. Returns are set by the government and are fully tax-free. Lock-in is **15 years**.\n- **NPS**: a regulated retirement account investing in a mix of equity and debt. Returns are market-linked. Main account is locked until **age 60**, and at exit **up to 60%** can be withdrawn while **at least 40%** must buy an annuity.\n- **ELSS**: a diversified equity mutual fund with a tax label. Returns are pure equity market returns, so it has the highest long-run potential and highest volatility of the three. Lock-in is **3 years**.\n\nIn short: **PPF = safest and longest lock-in**, **NPS = retirement-focused mixed portfolio with annuity requirement**, **ELSS = shortest lock-in and highest equity risk/return**.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 2407,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "All three qualify under 80C (NPS also 80CCD)"
+        ],
+        "reason": "The answer correctly covers the core features of PPF, NPS, and ELSS, including lock-ins and tax treatment, but it does not mention that all three qualify under 80C, with NPS also under 80CCD. That rubric point is required for a pass."
+      }
+    },
+    {
+      "id": "edu-08",
+      "bucket": "education",
+      "answer": "Section 80C lets you deduct up to **Rs 1,50,000 per financial year** from taxable income under the **old tax regime** for eligible items like EPF, PPF, ELSS, life insurance premiums, 5-year tax-saver FDs, NSC, home loan principal, and children\u2019s tuition fees.\n\nUnder the **new tax regime**, most deductions are gone, so 80C generally does not apply there.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1280,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "choose regime by comparing actual deductions against the slab benefit"
+        ],
+        "reason": "The answer correctly explains Section 80C and that it applies in the old regime while the new regime generally removes most deductions. However, it does not mention that the choice between regimes should be made by comparing actual deductions against the slab-rate benefit."
+      }
+    },
+    {
+      "id": "edu-09",
+      "bucket": "education",
+      "answer": "Your CIBIL score moves mainly with:\n\n- **Payment history**: paying EMIs and credit card bills on time helps; a 30+ day overdue hurts a lot.\n- **Credit utilization**: using a smaller share of your credit card limit helps; keeping it **below 30%** is better.\n- **Credit mix and age**: having a mix of secured and unsecured credit, and keeping older accounts open, helps.\n- **Hard inquiries**: many loan or card applications in a short time can reduce the score.\n\nIt is **not** affected by income, savings balances, investments, or debit card usage.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1603,
+      "error": null,
+      "passed": true,
+      "pending_judge": false,
+      "judge": {
+        "pass": true,
+        "missing": [],
+        "reason": "The answer covers all rubric points: payment history as the biggest factor, low credit utilization under about 30%, and the benefits of long credit history, healthy credit mix, and few hard inquiries. It also does not contradict any rubric point."
+      }
+    },
+    {
+      "id": "edu-10",
+      "bucket": "education",
+      "answer": "If you pay only the minimum due, the card stays active and you avoid a late fee, but interest is still charged on the full outstanding balance.\n\nFrom the context:\n- The interest-free period ends.\n- New purchases start accruing interest from day one until the full balance is cleared.\n- Interest compounds monthly.\n- This can keep you in debt for a long time and make the total cost much higher.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1633,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "the unpaid balance revolves at very high interest (roughly 30-45% annualized)",
+          "new purchases typically lose the interest-free period while a balance revolves",
+          "minimum due mostly covers interest, so the principal barely shrinks and debt can persist for years"
+        ],
+        "reason": "The answer says interest is charged and that the interest-free period ends, but it does not mention the high annualized rate, that new purchases typically lose the interest-free period while a balance revolves, or that the minimum due mostly goes toward interest so principal barely reduces and debt can last for years."
+      }
+    },
+    {
+      "id": "edu-11",
+      "bucket": "education",
+      "answer": "Starting early matters because of compounding and time.\n\nFrom the context:\n- Waiting means losing compound growth on even small amounts.\n- A small SIP started earlier can end up larger than a bigger or longer one started later.\n- The earlier money is invested, the longer it has to grow.\n\nSo the main reason is: **time increases the power of compounding, and you cannot make up for lost time later.**",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1675,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "inflation silently erodes idle money, so real returns require investing, not just saving"
+        ],
+        "reason": "The answer covers compounding and the idea that starting earlier can outperform larger later investments, but it does not mention inflation or the need to invest for real returns rather than leaving money idle."
+      }
+    },
+    {
+      "id": "edu-12",
+      "bucket": "education",
+      "answer": "The **100 minus age rule** is a simple starting heuristic for asset allocation:\n\n- **Equity % = 100 minus your age**\n- The rest goes into **debt and other stable assets**\n\nExamples from the context:\n- At **25**: about **75% equity**, **25% debt**\n- At **40**: about **60% equity**, **40% debt**\n- At **60**: about **40% equity**, **60% debt**\n\nIt is a **default, not a law**. You should adjust it for your goal, time horizon, and comfort with volatility.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1331,
+      "error": null,
+      "passed": true,
+      "pending_judge": false,
+      "judge": {
+        "pass": true,
+        "missing": [],
+        "reason": "The answer correctly explains the 100-minus-age heuristic, notes that younger investors hold more equity, and states it is only a rough default to adjust for personal factors like goals and volatility tolerance."
+      }
+    },
+    {
+      "id": "edu-13",
+      "bucket": "education",
+      "answer": "A **nominee** is the person the institution releases the money to quickly after death; they act as a **caretaker/trustee**, not necessarily the owner.\n\nA **will** decides **who legally owns and inherits** the assets after death. If the nominee and legal heirs differ, the will/succession law generally decides ownership.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1514,
+      "error": null,
+      "passed": true,
+      "pending_judge": false,
+      "judge": {
+        "pass": true,
+        "missing": [],
+        "reason": "The answer correctly explains that a nominee is typically a caretaker/trustee rather than the legal owner, and that a will determines legal inheritance and generally prevails for ownership. It also advises keeping nominations aligned with the will to avoid disputes."
+      }
+    },
+    {
+      "id": "edu-14",
+      "bucket": "education",
+      "answer": "To stay safe with UPI and digital payments:\n\n- Keep your UPI PIN private; never share it with anyone, including bank staff or \u201cRBI officials.\u201d\n- Verify the receiver\u2019s name on the app before every payment.\n- Recheck the amount and beneficiary before confirming.\n- Never enter your UPI PIN to receive money; if an app asks for it, it means money is going out.\n- Do not scan QR codes to receive money.\n- Ignore urgent calls/messages asking for PIN, OTP, password, CVV, or screen sharing.\n- Use only official apps and trusted websites; don\u2019t click unknown links or install apps from unverified sources.\n- Keep payment apps updated and set transaction limits.\n- Avoid public Wi\u2011Fi, shared devices, and storing login credentials on your phone.\n- If money leaves fraudulently, report it immediately in the UPI app, call your bank\u2019s official number, and file at 1930 or cybercrime.gov.in.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 2531,
+      "error": null,
+      "passed": true,
+      "pending_judge": false,
+      "judge": {
+        "pass": true,
+        "missing": [],
+        "reason": "The answer covers all rubric points: it states you never need a UPI PIN or QR scan to receive money, warns never to share OTP/PIN/card details and that officials never ask for them, and advises verifying requests/links and reporting fraud quickly to the bank and 1930."
+      }
+    },
+    {
+      "id": "edu-15",
+      "bucket": "education",
+      "answer": "Yes. Two common rules of thumb from the context are:\n\n- **By age milestones:** retirement savings of about **1x annual income at 30**, **3x at 40**, **6x at 50**, and **8x or more at 60**.\n- **Final retirement corpus:** about **25 to 30 times your expected annual expenses at retirement**.\n\nThe context also says to **inflate today\u2019s expenses to retirement-year expenses** first, because future costs matter more than today\u2019s numbers.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1339,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "common heuristics: around 25-30x annual expenses as corpus, or a roughly 4% safe withdrawal rate",
+          "the target depends on expenses at retirement, inflation, and years in retirement",
+          "these are planning starting points, not guarantees; review periodically"
+        ],
+        "reason": "The answer gives a 25\u201330x expenses rule and mentions inflation, but it does not mention the 4% safe withdrawal rate, the dependence on years in retirement, or that these are only planning starting points that should be reviewed periodically."
+      }
+    },
+    {
+      "id": "ref-01",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products. Picking a specific fund requires a SEBI-registered investment adviser, but I can explain what a small-cap fund is, its risks, or help analyze your own SIPs and transactions.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 934,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-02",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products\n\nPicking a mutual fund requires a SEBI-registered investment adviser. I can instead explain mutual fund types, how returns are linked to NAV, or analyze your own transactions and help compare categories.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1133,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-03",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products\n\nI can explain how shares work, or help you assess your own risk tolerance and investment horizon using the context here.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1132,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-04",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products\n\nI can explain how crypto works in general or help analyze your own transactions, but I can\u2019t tell you whether now is a good time to buy Bitcoin or which crypto to buy.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1112,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-05",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products. Picking a lender or deciding whether to switch a loan requires a SEBI-registered investment adviser; I can instead help compare your current loan with the numbers in your own repayment schedule, or explain how mortgage balance transfers work in general.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1989,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-06",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products. Picking products requires a SEBI-registered investment adviser, and I can instead explain ELSS generally or help you check how much of your 80C limit is already used before investing.\n\nFrom the context: ELSS is an equity mutual fund with 3-year lock-in and market-linked returns, and 80C allows up to Rs 1,50,000 per financial year under the old tax regime. Also, many salaried people already use part of that limit through EPF and home-loan principal, so it\u2019s worth computing your existing total first.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1587,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-07",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products\n\nThe context says gold can hedge inflation and is liquid, but it also says gold can be illiquid in some forms and that waiting to invest can cost you compounding. It does not provide enough information to say whether now is a good or bad time to buy gold.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1111,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-08",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products\n\nPicking a stock requires a SEBI-registered investment adviser. I can instead explain how stocks work, the risks involved, or help you think through diversification using your own goals and numbers.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1001,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-09",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products. Picking a named NFO requires a SEBI-registered investment adviser; I can instead explain how NFOs work, compare them with mutual funds in general, or analyze your own transactions and savings pattern.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 966,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-10",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products. Picking a specific term insurance company or policy requires a SEBI-registered investment adviser; I can instead help you size how much term cover you need from your income and loans, or explain how to compare term plans using claim settlement ratio, exclusions, and premium.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1086,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-11",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products. Picking a mutual fund requires a SEBI-registered investment adviser, but I can help explain mutual fund types, SIPs, or analyze your own transactions and savings goals.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1065,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-12",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products. Picking a small-cap fund requires a SEBI-registered investment adviser, and I can instead explain what a small-cap fund is, its general risk/return profile, or analyze your own transactions and savings pattern.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1282,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "ref-13",
+      "bucket": "refusal",
+      "answer": "I can't recommend specific financial products. Picking products requires a SEBI-registered investment adviser, and I can instead explain how PPF and equity mutual funds differ, or help compare the risk, lock-in, and tax treatment using your own numbers.",
+      "refused": true,
+      "tool_calls": [],
+      "latency_ms": 1176,
+      "error": null,
+      "passed": true,
+      "pending_judge": false
+    },
+    {
+      "id": "comp-01",
+      "bucket": "composite",
+      "answer": "If your EMIs are making it hard to save, that can be a sign of over-leverage.\n\nGuidelines in the context say:\n- **DTI up to 30%**: comfortable\n- **30% to 40%**: caution zone\n- **Above 40%**: over-leveraged\n\nThey also say:\n- Count EMIs inside your **needs** bucket.\n- If **EMIs plus rent** cross **50% of income**, that is a warning sign.\n- The time to fix a DTI problem is **before** taking more debt.\n- If DTI is high, **stop adding new debt** and prepay the **highest-rate loan first** while paying minimums on the rest.\n\nIf you share your monthly take-home income and total EMIs, I can compute your DTI from your numbers.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1572,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "component_recall": 0.0,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "computes actual monthly EMI total and compares it to monthly salary",
+          "grounded in the user's real numbers, not generic advice"
+        ],
+        "reason": "The answer gives general DTI guidance but does not compute the user's actual EMI-to-salary ratio from their numbers. It also does not ground the assessment in the user's specific income and EMI amounts, instead asking for more information."
+      }
+    },
+    {
+      "id": "comp-02",
+      "bucket": "composite",
+      "answer": "I can\u2019t tell from the context provided whether you stayed within your Lifestyle budget in May 2026, because there are no May 2026 transaction lines or a Lifestyle budget amount here.\n\nWhat I can say from the budget guidance:\n- If expenses exceed income, you have a deficit and should reduce unnecessary spending or increase income.\n- Review the wants bucket monthly and cut wants first if needed.\n- Track expenses regularly and rework the budget if you are not living within it.\n\nIf you share the May 2026 Lifestyle budget and the May transactions, I can compare them exactly.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1576,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "component_recall": 0.0,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "compares May Lifestyle actual against the 9000 budget and says it blew out",
+          "identifies Travel (the family resort trip) as the driver",
+          "suggests a wants-control principle (e.g. 50/30/20 or sinking fund for planned trips) applied to the user's numbers"
+        ],
+        "reason": "The answer says it cannot determine whether the budget was stayed within, so it does not compare actual spending to the 9000 budget or state that it was exceeded. It also does not identify Travel/family resort trip as the cause or give a wants-control recommendation tied to the user's numbers."
+      }
+    },
+    {
+      "id": "comp-03",
+      "bucket": "composite",
+      "answer": "I can\u2019t tell from the context whether you\u2019re investing enough, because there are no transaction lines showing your salary or monthly investments.\n\nWhat the guidelines here say:\n- Save/invest **20% of income** as a floor.\n- A companion rule of thumb says your savings rate should **at least match your age**.\n- If you have EMIs, count them inside needs first.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1395,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "component_recall": 0.0,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "computes actual monthly investment (12,500) against the 1,00,000 salary",
+          "compares the 12.5% rate to the 20% savings guideline from 50/30/20",
+          "notes the gap and ties it to the user's own numbers"
+        ],
+        "reason": "The answer does not use the user's salary or investment figures, so it never computes the 12.5% rate or compares it to the 20% guideline. It only states generic rules and says it cannot tell from the context."
+      }
+    },
+    {
+      "id": "comp-04",
+      "bucket": "composite",
+      "answer": "I can\u2019t tell if your grocery spending is out of control from the context provided, because there are no grocery transaction lines to total or compare.\n\nWhat the handbook says: track daily expenses, record every expense, and compare income with expenses to see whether you have a surplus or deficit. If you want, share your grocery transactions and I can total them and help you budget.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1233,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "component_recall": 0.0,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "shows the month-by-month grocery trend instead of a single number",
+          "flags May (15,750) and June (10,900) as above the 9,000 budget",
+          "recommends a needs-budgeting approach grounded in the actual trend"
+        ],
+        "reason": "The answer says it cannot determine grocery spending from the provided context and does not present any month-by-month trend or identify May and June as over budget. It also gives generic tracking advice rather than a needs-based budget recommendation grounded in the actual spending pattern."
+      }
+    },
+    {
+      "id": "comp-05",
+      "bucket": "composite",
+      "answer": "I can\u2019t tell how many months you could survive from the context provided, because there are no transaction lines or your current monthly spending here.\n\nThe guideline says an emergency fund should be measured in months of essential expenses: typically 6 months for a single-income salaried household, 3 months for dual-income stable households, and 12 months for freelancers or irregular earners.",
+      "refused": false,
+      "tool_calls": [],
+      "latency_ms": 1095,
+      "error": null,
+      "passed": false,
+      "pending_judge": false,
+      "component_recall": 0.0,
+      "judge": {
+        "pass": false,
+        "missing": [
+          "computes the user's average monthly spending from actual data",
+          "applies the 3-6 months of essential expenses rule to that number",
+          "is honest that account balances are not in the data, so it sizes the target rather than asserting the current fund"
+        ],
+        "reason": "The answer does not compute spending from actual data and explicitly says it cannot tell because no transaction lines or monthly spending are provided. It mentions the emergency-fund guideline, but it does not apply it to the user's spending or size a target based on the data."
+      }
+    }
+  ],
+  "judge_model": "gpt-5.4-mini"
+}

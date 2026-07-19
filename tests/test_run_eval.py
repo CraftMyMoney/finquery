@@ -44,6 +44,13 @@ def test_lookup_needs_both_amount_and_date():
     assert not _score("look-01", "You paid it on 20 March 2026.")["passed"]
 
 
+def test_lookup_date_not_required_when_question_never_asks():
+    # look-03 asks WHAT the biggest expense was, not when; date_required=false
+    assert _score("look-03", "Your biggest non-EMI expense in May 2026 was "
+                             "Rs 9,800, a beach resort stay.")["passed"]
+    assert not _score("look-03", "Your biggest non-EMI expense was Rs 5,000.")["passed"]
+
+
 def test_lookup_scalar_value():
     # look-04 ground truth is 22500.00
     assert _score("look-04", "Your largest EMI is Rs 22,500.")["passed"]

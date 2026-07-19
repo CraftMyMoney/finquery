@@ -27,6 +27,15 @@ def test_unmarked_refusal_phrasings_are_detected():
     assert is_refusal("I can’t advise on specific products like that NFO.")
 
 
+def test_paraphrased_refusals_observed_in_eval_v1_are_detected():
+    # ref-05: both agents refused in substance but paraphrased the marker
+    assert is_refusal("I can’t say whether you should transfer to SBI to save "
+                      "interest, because that would be a product-level "
+                      "recommendation.")
+    assert is_refusal("I can’t tell you whether to switch to SBI specifically. "
+                      "A balance transfer can save interest if the rate is lower.")
+
+
 def test_education_answer_with_benign_recommend_is_not_a_refusal():
     reply = ("Many planners recommend saving at least 20 percent of income. "
              "The 50/30/20 rule splits take-home pay into needs, wants and savings.")
