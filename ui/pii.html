@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PII log - FinQuery</title>
+<title>PII boundary - FinQuery</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
@@ -22,30 +22,53 @@
   html.dark .banner.off { background: rgba(220,38,38,.15); }
   #controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
   #summary { font-size: .82rem; color: var(--text-2); }
-  .table-wrap { overflow-x: auto; border: 2px solid var(--border); border-radius: 8px; }
-  table { width: 100%; border-collapse: collapse; font-size: .84rem; }
-  th { text-align: left; padding: 10px 14px; background: var(--bg-alt);
-       font-size: .7rem; font-weight: 700; text-transform: uppercase;
-       letter-spacing: .05em; color: var(--muted); white-space: nowrap; }
-  td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: top; }
-  td.when, td.tag, td.run { white-space: nowrap; color: var(--text-2); }
-  td.run { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .76rem; }
-  tr.run-start td { border-top: 2px solid var(--border-hover); }
-  .pill { display: inline-block; border-radius: 999px; padding: 1px 9px; font-size: .7rem;
-          font-weight: 600; background: var(--bg-alt); border: 1px solid var(--border); }
-  .pill.from { background: #eef2ff; border-color: #6366f1; color: #312e81; }
-  html.dark .pill.from { background: rgba(99,102,241,.18); color: #c7d2fe; }
-  td.content { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-               font-size: .74rem; line-height: 1.55; word-break: break-word;
-               max-width: 46rem; }
-  td.content .clip { display: -webkit-box; -webkit-line-clamp: 4;
-                     -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
-  td.content .clip.open { display: block; -webkit-line-clamp: unset; }
+
+  /* one card per question: the run boundary is the thing readers need to see */
+  .run { border: 2px solid var(--border); border-radius: 10px; margin-bottom: 16px;
+         overflow: hidden; }
+  .run-head { background: var(--bg-alt); padding: 12px 16px;
+              border-bottom: 1px solid var(--border); }
+  .run-q { font-size: .92rem; font-weight: 600; line-height: 1.45; }
+  .run-q.none { color: var(--muted); font-weight: 400; font-style: italic; }
+  .run-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center;
+              margin-top: 7px; font-size: .74rem; color: var(--text-2); }
+  .run-meta code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                   font-size: .72rem; color: var(--muted); }
+
+  .step { display: grid; grid-template-columns: 10.5rem 1fr; gap: 14px;
+          padding: 11px 16px; border-top: 1px solid var(--border); }
+  .step:first-child { border-top: none; }
+  .step.reply { background: color-mix(in srgb, var(--bg-alt) 55%, transparent);
+                box-shadow: inset 3px 0 0 #6366f1; }
+  .step-label { font-size: .74rem; }
+  .step-kind { font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+               font-size: .68rem; color: var(--muted); }
+  .step-note { color: var(--text-2); margin-top: 3px; line-height: 1.4; }
+  .masked { display: inline-block; margin-top: 5px; border-radius: 999px;
+            padding: 1px 8px; font-size: .68rem; font-weight: 700;
+            background: #fef3c7; color: #78350f; border: 1px solid #d97706; }
+  html.dark .masked { background: rgba(217,119,6,.22); color: #fcd34d; }
+  /* must out-specify html.dark .masked above, or these read as boundary evidence */
+  .masked.zero, html.dark .masked.zero {
+    background: var(--bg-alt); color: var(--muted); border-color: var(--border);
+    font-weight: 600; }
+  .masked.ingest { background: #eef2ff; color: #312e81; border-color: #6366f1; }
+  html.dark .masked.ingest { background: rgba(99,102,241,.18); color: #c7d2fe; }
+  .body { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+          font-size: .74rem; line-height: 1.55; word-break: break-word; }
+  .body .clip { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+                overflow: hidden; cursor: pointer; }
+  .body .clip.open { display: block; -webkit-line-clamp: unset; }
+  .body .clip.collapsed { -webkit-line-clamp: 1; color: var(--muted); }
   mark { background: #fde68a; color: #78350f; border-radius: 3px; padding: 0 2px;
          font-weight: 600; }
   html.dark mark { background: rgba(217,119,6,.35); color: #fcd34d; }
-  .empty { padding: 24px; text-align: center; color: var(--muted); }
-  @media (max-width: 640px) { main { padding: 84px 16px 16px; } }
+  .empty { padding: 24px; text-align: center; color: var(--muted);
+           border: 2px solid var(--border); border-radius: 10px; }
+  @media (max-width: 640px) {
+    main { padding: 84px 16px 16px; }
+    .step { grid-template-columns: 1fr; gap: 6px; }
+  }
 </style>
 </head>
 <body>
@@ -65,12 +88,18 @@
 <main>
   <div class="page-head">
     <p class="kicker">The LLM boundary, verbatim</p>
-    <h1>PII payload log</h1>
-    <p class="explain">Every payload that crosses the LLM boundary is logged here exactly as
-    sent or received. A divider line separates one question and answer exchange from the
-    next; the Run column identifies which rows belong together. Highlighted values are
-    pseudonyms substituted by the PII layer: the real account numbers, phone numbers, UPI
-    IDs and loan references never leave the database. Click a row to expand it.</p>
+    <h1>What actually reached the model</h1>
+    <p class="explain">One card per question. Inside it, every payload that crossed the
+    boundary, in order: the system prompt, the question, one row per tool result the agent
+    fetched, and the model's reply at the bottom. Rows are not model calls; the agent
+    answers one question over a few turns and each turn can carry several tool results.</p>
+    <p class="explain">Highlights mark pseudonyms. The badge says where the substitution
+    happened, because the two approaches mask at different points. The agent masks tool
+    output at this boundary, so its rows read <em>masked here</em>. The vanilla RAG corpus
+    was already pseudonymized when it was serialized and embedded, so nothing is left to
+    replace at call time and its rows read <em>masked at ingest</em>. Either way no real
+    value reaches the model: account numbers, phone numbers, UPI IDs and loan references
+    stay in the database. Click any payload to expand it.</p>
   </div>
   <div id="banner"></div>
   <div id="controls">
@@ -83,38 +112,107 @@
     <button id="refresh" type="button" class="btn">Refresh</button>
     <span id="summary"></span>
   </div>
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Run</th><th>When</th><th>Approach</th><th>Kind</th><th>Direction</th><th>Payload</th></tr></thead>
-      <tbody id="rows"></tbody>
-    </table>
-    <div class="empty" id="empty" hidden>No payloads logged yet. Ask a question on the Chat page first.</div>
-  </div>
+  <div id="runs"></div>
+  <div class="empty" id="empty" hidden>No payloads logged yet. Ask a question on the Chat page first.</div>
 </main>
 <script src="/common.js"></script>
 <script>
-const tbody = document.getElementById("rows");
+const runsEl = document.getElementById("runs");
 const empty = document.getElementById("empty");
 const banner = document.getElementById("banner");
 const summary = document.getElementById("summary");
 const limitSel = document.getElementById("limit");
 const TIME_FMT = new Intl.DateTimeFormat("en-IN",
-  { dateStyle: "medium", timeStyle: "medium" });
+  { dateStyle: "medium", timeStyle: "short" });
 
-function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+// What each kind is, in the reader's terms rather than the column's.
+const KIND_NOTE = {
+  system: "Standing instructions. Identical on every run, contains no user data.",
+  user: "The question as the model received it.",
+  tool_result: "SQL or KB output the agent pulled in mid-answer.",
+  retrieval_context: "Chunks retrieved by vector search.",
+  answer: "What the model sent back.",
+};
 
-function highlighted(content, fakes) {
-  // escape first, then wrap pseudonyms; longest first so substrings never win
+function esc(s) {
   const span = document.createElement("span");
-  span.textContent = content;
-  let html = span.innerHTML;
+  span.textContent = s;
+  return span.innerHTML;
+}
+
+// Wrap pseudonyms and report how many distinct ones this payload contains.
+// Longest first so substrings never win.
+function highlighted(content, fakes) {
+  let html = esc(content);
+  let present = 0;
   fakes.forEach(f => {
-    const esc = document.createElement("span");
-    esc.textContent = f.fake_value;
-    html = html.replace(new RegExp(escRe(esc.innerHTML), "g"),
-      '<mark title="pseudonym (' + f.pii_type + ')">' + esc.innerHTML + "</mark>");
+    const needle = esc(f.fake_value);
+    if (!html.includes(needle)) return;
+    present += 1;
+    html = html.split(needle).join(
+      '<mark title="pseudonym (' + f.pii_type + ')">' + needle + "</mark>");
   });
-  return html;
+  return { html, present };
+}
+
+function byTypeLabel(replacements) {
+  const byType = {};
+  replacements.forEach(r => { byType[r.type] = (byType[r.type] || 0) + 1; });
+  return Object.entries(byType).map(([t, n]) => n + " " + t).join(", ");
+}
+
+// Two distinct facts, and the difference is the architecture, not a bug:
+// the agent masks tool output at this boundary, while the vanilla RAG corpus
+// was already masked at ingest time. Reporting only the former makes a
+// context full of pseudonyms read as "nothing to mask".
+function maskedBadge(replacements, present) {
+  if (replacements.length) {
+    return '<span class="masked">' + replacements.length + " masked here ("
+      + esc(byTypeLabel(replacements)) + ")</span>";
+  }
+  if (present) {
+    return '<span class="masked ingest">' + present
+      + " pseudonyms, masked at ingest</span>";
+  }
+  return '<span class="masked zero">no PII in this payload</span>';
+}
+
+// The rag baseline logs context and question in one payload; show just the question.
+function questionOf(userRow) {
+  if (!userRow) return null;
+  const marker = "\n\nQuestion: ";
+  const at = userRow.content.lastIndexOf(marker);
+  return at === -1 ? userRow.content : userRow.content.slice(at + marker.length);
+}
+
+function renderRun(rows) {
+  const card = document.createElement("div");
+  card.className = "run";
+  const first = rows[0];
+  const question = questionOf(rows.find(r => r.kind === "user"));
+  const tools = rows.filter(r => r.kind === "tool_result").length;
+  const masked = rows.reduce((n, r) => n + r.replacements.length, 0);
+  const present = rows.reduce((n, r) => n + r.present, 0);
+
+  const meta = [
+    esc(first.approach),
+    TIME_FMT.format(new Date(first.created_at)),
+    tools + " tool call" + (tools === 1 ? "" : "s"),
+    rows.length + " payload" + (rows.length === 1 ? "" : "s"),
+    masked ? masked + " masked here"
+      : present ? present + " pseudonyms, masked at ingest"
+      : "no PII in this exchange",
+  ].join(" &middot; ");
+
+  const head = document.createElement("div");
+  head.className = "run-head";
+  head.innerHTML =
+    '<div class="run-q' + (question ? "" : " none") + '">'
+      + (question ? esc(question) : "(question not logged for this run)") + "</div>" +
+    '<div class="run-meta"><span>' + meta + "</span>"
+      + (first.run_id ? "<code>" + esc(first.run_id) + "</code>" : "") + "</div>";
+  card.appendChild(head);
+  return { card, question };
 }
 
 async function load() {
@@ -126,6 +224,7 @@ async function load() {
   } catch (err) {
     empty.textContent = "Could not load payloads: " + err.message;
     empty.hidden = false;
+    runsEl.innerHTML = "";
     return;
   }
   banner.innerHTML = "";
@@ -138,38 +237,47 @@ async function load() {
 
   const fakes = [...data.fake_values].sort(
     (a, b2) => b2.fake_value.length - a.fake_value.length);
-  tbody.innerHTML = "";
-  let marked = 0;
-  let lastRun = undefined;   // undefined never matches a run_id or null
-  const seenRuns = new Set();
-  data.payloads.forEach(p => {
-    const tr = document.createElement("tr");
-    // a new divider starts whenever the run changes; two rows with no
-    // run_id (pre-migration data) are never assumed to be the same exchange
-    if (!p.run_id || p.run_id !== lastRun) tr.classList.add("run-start");
-    lastRun = p.run_id;
-    if (p.run_id) seenRuns.add(p.run_id);
-    else seenRuns.add("row-" + p.id);
 
-    const dirPill = '<span class="pill' + (p.direction === "from_llm" ? " from" : "") + '">'
-      + (p.direction === "from_llm" ? "from LLM" : "to LLM") + "</span>";
-    const html = highlighted(p.content, fakes);
-    if (html.includes("<mark")) marked += 1;
-    tr.innerHTML =
-      '<td class="run" title="' + (p.run_id || "no run id (older data)") + '">'
-        + (p.run_id ? p.run_id.slice(0, 8) : "&mdash;") + "</td>" +
-      '<td class="when">' + TIME_FMT.format(new Date(p.created_at)) + "</td>" +
-      '<td class="tag">' + p.approach + "</td>" +
-      '<td class="tag">' + p.kind + "</td>" +
-      "<td>" + dirPill + "</td>" +
-      '<td class="content"><div class="clip">' + html + "</div></td>";
-    tr.querySelector(".clip").onclick = e => e.currentTarget.classList.toggle("open");
-    tbody.appendChild(tr);
+  // /payloads is newest first; group into runs, then read each run top to bottom.
+  // Rows with no run_id (pre-migration data) each stand alone.
+  const groups = [];
+  const byRun = new Map();
+  data.payloads.forEach(p => {
+    const key = p.run_id || "row-" + p.id;
+    if (!byRun.has(key)) { const g = []; byRun.set(key, g); groups.push(g); }
+    byRun.get(key).push(p);
   });
+
+  runsEl.innerHTML = "";
+  let totalMasked = 0;
+  groups.forEach(rows => {
+    rows.sort((a, b2) => a.id - b2.id);   // chronological within the exchange
+    // highlight first: the run header needs each row's pseudonym count
+    rows.forEach(p => { p.shown = highlighted(p.content, fakes); p.present = p.shown.present; });
+    const { card } = renderRun(rows);
+    rows.forEach(p => {
+      totalMasked += p.replacements.length;
+      const step = document.createElement("div");
+      step.className = "step" + (p.direction === "from_llm" ? " reply" : "");
+      const shown = p.shown;
+      step.innerHTML =
+        '<div class="step-label"><div class="step-kind">' + esc(p.kind) + "</div>" +
+          '<div class="step-note">' + esc(KIND_NOTE[p.kind] || "") + "</div>" +
+          maskedBadge(p.replacements, shown.present) + "</div>" +
+        '<div class="body"><div class="clip' + (p.kind === "system" ? " collapsed" : "")
+          + '">' + shown.html + "</div></div>";
+      step.querySelector(".clip").onclick = e => {
+        e.currentTarget.classList.remove("collapsed");
+        e.currentTarget.classList.toggle("open");
+      };
+      card.appendChild(step);
+    });
+    runsEl.appendChild(card);
+  });
+
   empty.hidden = data.payloads.length > 0;
-  summary.textContent = data.payloads.length + " payloads across " + seenRuns.size
-    + " question" + (seenRuns.size === 1 ? "" : "s") + ", "
-    + marked + " contain pseudonymized values";
+  summary.textContent = groups.length + " question" + (groups.length === 1 ? "" : "s") + ", "
+    + data.payloads.length + " payloads, " + totalMasked + " values masked";
 }
 
 document.getElementById("refresh").onclick = load;
