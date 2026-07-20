@@ -122,7 +122,16 @@ CREATE TABLE IF NOT EXISTS llm_payload_log (
     direction  text NOT NULL CHECK (direction IN ('to_llm', 'from_llm')),
     kind       text NOT NULL,                -- system / user / tool_result / retrieval_context
     content    text NOT NULL,
-    run_id     text                          -- groups every payload from one /ask call
+    run_id     text,                         -- groups every payload from one /ask call
+    -- what the PII gate substituted in THIS payload: [{"type","fake"}].
+    -- Fake values only; real values stay in pii_mappings. This is what makes
+    -- the log self-evidencing rather than a wall of plausible-looking strings.
+    replacements jsonb NOT NULL DEFAULT '[]'
 );
 CREATE INDEX IF NOT EXISTS idx_llm_payload_dir ON llm_payload_log (direction, created_at);
 CREATE INDEX IF NOT EXISTS idx_llm_payload_run ON llm_payload_log (run_id);
+-- CREATE TABLE IF NOT EXISTS above is a no-op on an existing database, so new
+-- columns need an explicit ALTER to reach one that was created before them.
+ALTER TABLE llm_payload_log
+    ADD COLUMN IF NOT EXISTS run_id text,
+    ADD COLUMN IF NOT EXISTS replacements jsonb NOT NULL DEFAULT '[]';

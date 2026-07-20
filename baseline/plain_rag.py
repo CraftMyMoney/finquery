@@ -124,7 +124,7 @@ async def run_rag(question: str, user_id: int, *,
 
     run_id = uuid.uuid4().hex[:12]
     pseudonymizer = await load_pseudonymizer(user_id)
-    question = await gate_text(pseudonymizer, question)
+    question, replaced = await gate_text(pseudonymizer, question)
 
     query_vector = await embed(question)  # embeds the MASKED question
     async with pool.acquire() as conn:
@@ -134,7 +134,10 @@ async def run_rag(question: str, user_id: int, *,
     user_message = f"{context}\n\nQuestion: {question}"
 
     await log_payload(user_id, "rag", "system", SYSTEM_PROMPT, run_id=run_id)
-    await log_payload(user_id, "rag", "user", user_message, run_id=run_id)
+    # replacements are the question's; the retrieved context was masked earlier,
+    # at embed time, so nothing is substituted here.
+    await log_payload(user_id, "rag", "user", user_message, run_id=run_id,
+                      replacements=replaced)
 
     started = time.monotonic()
     answer = await complete(SYSTEM_PROMPT, user_message)

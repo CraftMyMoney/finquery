@@ -203,7 +203,11 @@ def test_payloads_endpoint_never_exposes_real_values():
         assert len(body["payloads"]) <= 5
         for p in body["payloads"]:
             assert set(p) == {"id", "created_at", "approach", "direction",
-                              "kind", "content", "run_id"}
+                              "kind", "content", "run_id", "replacements"}
+            # replacements carry the fake side only; a real value here would
+            # mean the transparency page leaks what it exists to protect
+            for r in p["replacements"]:
+                assert set(r) == {"type", "fake"}
         # fake_values must be pseudonyms only: none may equal a real value
         async def _reals():
             conn = await asyncpg.connect(settings.database_url)
@@ -216,6 +220,8 @@ def test_payloads_endpoint_never_exposes_real_values():
         assert reals  # seed guarantees mappings exist
         fakes = {f["fake_value"] for f in body["fake_values"]}
         assert fakes and not (fakes & reals)
+        reported = {r["fake"] for p in body["payloads"] for r in p["replacements"]}
+        assert not (reported & reals)
 
 
 def test_payloads_limit_is_clamped():

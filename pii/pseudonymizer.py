@@ -91,9 +91,21 @@ class Pseudonymizer:
     def pseudonymize(self, text: str) -> str:
         """Replace every known real value with its fake value. Call register()
         first (or rely on a fully built mapping) so nothing is missed."""
+        return self.pseudonymize_with_report(text)[0]
+
+    def pseudonymize_with_report(self, text: str) -> tuple[str, list[tuple[str, str]]]:
+        """pseudonymize(), plus the (pii_type, fake_value) pairs actually
+        substituted in this text. The report is the evidence the PII log page
+        shows per payload: it covers values already in the mapping, not just
+        newly registered ones, so a repeated VPA still counts as masked.
+
+        Real values are deliberately absent; they stay in pii_mappings."""
         self.register(text)
+        applied: list[tuple[str, str]] = []
         # longest first so a substring never clobbers a longer value
         for real in sorted(self.mapping, key=len, reverse=True):
-            _pii_type, fake = self.mapping[real]
-            text = text.replace(real, fake)
-        return text
+            pii_type, fake = self.mapping[real]
+            if real in text:
+                applied.append((pii_type, fake))
+                text = text.replace(real, fake)
+        return text, applied

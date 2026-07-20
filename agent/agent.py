@@ -117,9 +117,9 @@ async def _gate(ctx: RunContext[AgentDeps], tool_name: str, args: dict,
     (when PII_MASKING is on), log the exact LLM-bound payload, record the call.
     summary is the human-readable one-liner the UI shows per ReAct step."""
     args = {k: v for k, v in args.items() if v is not None}
-    payload = await gate_text(ctx.deps.pseudonymizer, result.model_dump_json())
+    payload, replaced = await gate_text(ctx.deps.pseudonymizer, result.model_dump_json())
     await log_payload(ctx.deps.user_id, "agent", "tool_result", payload,
-                      run_id=ctx.deps.run_id)
+                      run_id=ctx.deps.run_id, replacements=replaced)
     ctx.deps.tool_calls.append({"tool": tool_name, "args": args, "summary": summary})
     return payload
 
@@ -315,10 +315,11 @@ async def run_agent(question: str, user_id: int, model=None) -> RunResult:
 
     run_id = uuid.uuid4().hex[:12]
     deps = await build_deps(user_id, run_id)
-    question = await gate_text(deps.pseudonymizer, question)
+    question, replaced = await gate_text(deps.pseudonymizer, question)
 
     await log_payload(user_id, "agent", "system", STATIC_INSTRUCTIONS, run_id=run_id)
-    await log_payload(user_id, "agent", "user", question, run_id=run_id)
+    await log_payload(user_id, "agent", "user", question, run_id=run_id,
+                      replacements=replaced)
 
     started = time.monotonic()
     result = await agent.run(

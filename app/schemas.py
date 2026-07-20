@@ -37,6 +37,12 @@ class AskResponse(BaseModel):
     latency_ms: int | None = None
 
 
+class Replacement(BaseModel):
+    """One value the PII gate substituted in a payload. Fake side only."""
+    type: str
+    fake: str
+
+
 class PayloadEntry(BaseModel):
     """One LLM-bound (or LLM-returned) payload as logged at the boundary."""
     id: int
@@ -46,6 +52,7 @@ class PayloadEntry(BaseModel):
     kind: str
     content: str
     run_id: str | None = None  # groups every payload one /ask call produced
+    replacements: list[Replacement] = []  # evidence of masking in THIS payload
 
 
 class FakeValue(BaseModel):

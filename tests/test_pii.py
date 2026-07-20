@@ -65,6 +65,32 @@ def test_no_raw_pii_survives():
         assert real not in out
 
 
+def test_report_lists_what_was_substituted():
+    p = Pseudonymizer(user_id=1)
+    out, applied = p.pseudonymize_with_report(
+        "UPI-999-SCHOOL-littleflower.fees@okaxis-FEE-XXXXXX3344 9848012345")
+    assert sorted(t for t, _ in applied) == ["account", "phone", "vpa"]
+    for _pii_type, fake in applied:
+        assert fake in out          # every reported pseudonym is really there
+    assert len(applied) == 3
+
+
+def test_report_counts_already_known_values():
+    """A repeated value is masked on every payload, so it must keep being
+    reported. register() alone only returns first sightings."""
+    p = Pseudonymizer(user_id=1)
+    text = "UPI-999-SCHOOL-littleflower.fees@okaxis-FEE"
+    p.pseudonymize_with_report(text)
+    assert not p.register(text)                      # nothing new the second time
+    assert p.pseudonymize_with_report(text)[1] == [("vpa", "person1.contact001@fakeupi")]
+
+
+def test_report_is_empty_when_nothing_matches():
+    p = Pseudonymizer(user_id=1)
+    out, applied = p.pseudonymize_with_report("NEFT CR-SALARY JAN 2026")
+    assert applied == [] and out == "NEFT CR-SALARY JAN 2026"
+
+
 def test_mappings_are_isolated_per_user():
     p1 = Pseudonymizer(user_id=1)
     p2 = Pseudonymizer(user_id=2)

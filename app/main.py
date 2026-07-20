@@ -107,14 +107,17 @@ async def payloads(user_id: int = 1, limit: int = 50) -> PayloadsResponse:
     """Recent LLM-boundary payloads for the PII transparency page: exactly
     what left for (or came back from) the LLM, newest first.
 
-    Returns fake values (pseudonyms) so the UI can highlight where masking
-    happened; real values never leave the database through this endpoint.
+    Each row carries the substitutions the PII gate applied to it, so the page
+    can state per payload how many values were masked and of what type. Fake
+    values (pseudonyms) are returned for highlighting; real values never leave
+    the database through this endpoint.
     """
     limit = max(1, min(limit, 200))
     pool = await db.get_pool()
     async with pool.acquire() as conn:
         rows = await conn.fetch(
-            """SELECT id, created_at, approach, direction, kind, content, run_id
+            """SELECT id, created_at, approach, direction, kind, content, run_id,
+                      replacements
                FROM llm_payload_log WHERE user_id = $1
                ORDER BY id DESC LIMIT $2""",
             user_id, limit,
@@ -129,6 +132,7 @@ async def payloads(user_id: int = 1, limit: int = 50) -> PayloadsResponse:
             id=r["id"], created_at=r["created_at"].isoformat(),
             approach=r["approach"], direction=r["direction"],
             kind=r["kind"], content=r["content"], run_id=r["run_id"],
+            replacements=json.loads(r["replacements"] or "[]"),
         ) for r in rows],
         fake_values=[FakeValue(**dict(f)) for f in fakes],
     )

@@ -7,9 +7,15 @@ pii/pseudonymizer.py stays pure (regex + mapping, no I/O); this module is
 its integration layer against the database.
 """
 
+import json
+
 from app.config import settings
 from app.db import get_pool
 from pii.pseudonymizer import Pseudonymizer
+
+# What gate_text substituted in one payload: [{"type": "vpa", "fake": "..."}].
+# Fake values only; real values stay in pii_mappings.
+Replacements = list[dict[str, str]]
 
 
 async def load_pseudonymizer(user_id: int) -> Pseudonymizer:
@@ -38,25 +44,37 @@ async def persist_mappings(user_id: int, added: list[tuple[str, str, str]]) -> N
         )
 
 
-async def gate_text(pseudonymizer: Pseudonymizer, text: str) -> str:
-    """Mask text when PII_MASKING is on (no-op when off), persisting any
-    newly discovered values. The caller still logs the result."""
+async def gate_text(pseudonymizer: Pseudonymizer, text: str) -> tuple[str, Replacements]:
+    """Mask text when PII_MASKING is on (no-op when off), persisting any newly
+    discovered values. Returns the masked text and the substitutions applied to
+    it; the caller passes the latter to log_payload so the PII page can show,
+    per payload, how many values were replaced and of what type.
+
+    With masking off (the ablation) the report is empty, which is the point:
+    the log then shows raw values and zero substitutions."""
     if not settings.pii_masking:
-        return text
+        return text, []
     added = pseudonymizer.register(text)
-    masked = pseudonymizer.pseudonymize(text)
+    masked, applied = pseudonymizer.pseudonymize_with_report(text)
     await persist_mappings(pseudonymizer.user_id, added)
-    return masked
+    return masked, [{"type": t, "fake": f} for t, f in applied]
 
 
 async def log_payload(user_id: int, approach: str, kind: str, content: str,
-                      direction: str = "to_llm", run_id: str | None = None) -> None:
+                      direction: str = "to_llm", run_id: str | None = None,
+                      replacements: Replacements | None = None) -> None:
     """run_id groups every payload one /ask call produced, so the PII
-    transparency page can show which rows belong to the same question."""
+    transparency page can show which rows belong to the same question.
+
+    replacements records what gate_text substituted in this exact payload, so
+    the log is self-evidencing: a reader sees the masking happened rather than
+    having to infer it from fake-looking strings."""
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute(
-            "INSERT INTO llm_payload_log (user_id, approach, direction, kind, content, run_id) "
-            "VALUES ($1, $2, $3, $4, $5, $6)",
+            "INSERT INTO llm_payload_log "
+            "(user_id, approach, direction, kind, content, run_id, replacements) "
+            "VALUES ($1, $2, $3, $4, $5, $6, $7)",
             user_id, approach, direction, kind, content, run_id,
+            json.dumps(replacements or []),
         )
