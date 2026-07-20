@@ -22,7 +22,7 @@ leakage. One Postgres instance holds rows, vectors, and the sparse index.
 
 ### Approach A: vanilla RAG baseline
 
-![Approach A: vanilla RAG baseline](docs/diagrams/approach_a_vanilla_rag.svg)
+![Approach A: vanilla RAG baseline](docs/diagrams/approach_a_vanilla_rag.png)
 
 The baseline exists to be beaten, and to prove the beating was necessary. Its
 weakness is structural, not a tuning problem: an aggregation question retrieves
@@ -30,7 +30,7 @@ at most k transaction chunks, so the LLM sums a partial list.
 
 ### Approach B: single tool-calling agent (ReAct)
 
-![Approach B: single tool-calling agent](docs/diagrams/approach_b_agent.svg)
+![Approach B: single tool-calling agent](docs/diagrams/approach_b_agent.png)
 
 Composite questions are emergent, not routed. The loop calls
 `spending_by_category`, sees the EMI share of salary, calls `search_finance_kb`
@@ -77,6 +77,8 @@ python -m ingest.apply_schema --with-master
 #                pii_mappings, kb_*, ask_runs, llm_payload_log)
 # seed_master.sql = DML: 3 categories, 33 subcategories, 133 spend types,
 #                3 users, 59 budget rows
+# No Alembic by design: for a re-seedable synthetic DB, migration machinery
+# adds opacity over an idempotent schema.sql plus drop-and-re-seed.
 
 # 5. Load synthetic transactions + build PII mappings
 python -m ingest.seed_transactions
@@ -222,110 +224,95 @@ hybrid's advantage would need a larger corpus or a retrieval-specific eval with
 more education questions; both are recorded as future work rather than claimed
 as results.
 
-## Failure Analysis (living log, started day 1)
+## Failure Analysis
 
-Chronological record of attempts, failures, and pivots. Mandated deliverable.
+What went wrong, what it cost, and what changed as a result. Seven entries,
+ordered by when they happened.
 
-1. **KB corpus shortfall vs estimate.** Design doc estimated ~500 chunks. The
-   initial permitted corpus (RBI FAME + NCFE Part A + 17 original articles)
-   measured only ~110 chunks, too small for the dense-vs-hybrid ablation to
-   discriminate (retrieval saturates). Fix: added RBI BE(A)WARE, NCFE Workplace
-   Handbook, NCFE/NCERT Personal Finance; now ~330 chunks. Delta from estimate
-   stands recorded.
-2. **NCFE "Part B" does not exist** (404); assumed sibling of Part A. Dropped.
-3. **NCFE workshop PDF unusable**: custom font encoding garbles extraction;
-   no OCR tooling on the build machine. Dropped rather than OCR'd; corpus
-   target met without it.
-4. **SEBI booklet is no-reproduction.** Its notice forbids copying, so it is
-   reference-only for our original articles; never extracted. RBI FAME
-   explicitly permits reproduction with acknowledgment, so RBI/NCFE material
-   forms the extracted corpus instead.
-5. **rbidocs.rbi.org.in refuses scripted downloads.** BE(A)WARE fetched from
-   the government's own S3 mirror (cdnbbsr.s3waas.gov.in); recorded in
-   kb/README.md.
-6. **CMM IP near-miss.** An internal CraftMyMoney scoring document was briefly
-   staged as a KB source; removed before commit (business IP, and risks
-   "reused project" appearance). KB rebuilt from public + original material only.
-7. **Alembic rejected** for schema management: migration machinery adds
-   opacity for a re-seedable synthetic DB; idempotent schema.sql + drop-and-
-   re-seed chosen instead.
-8. **PII detector gaps caught by eyeballing serializer output** (2026-07-15).
-   A spot-check of the first stored rag_transaction_chunk showed the home
-   loan reference LN00458912337 unmasked: the schema anticipated a loan_ref
-   type but the detector had no pattern for it. Auditing all seed narrations
-   then surfaced two more misses: loan refs in other formats (LVHYD..., L2XN...)
-   and insurance policy numbers (POL ...). Fixed with two regexes and a new
-   'policy' pii_type; mappings grew 109 -> 116. Lesson: the deterministic
-   leakage scan only guards values the detector knows about, so the detector
-   itself must be audited against every narration format in the corpus.
-9. **Cohort key grants different models than the design doc assumed**
-   (2026-07-17). The doc specified gpt-4o-mini (actor) and gpt-4o (judge);
-   the granted key allows gpt-5.4-mini, gpt-5.4-nano, and
-   text-embedding-3-small only. Actor moved to gpt-5.4-mini. The judge/actor
-   separation planned as a model-family split (gpt-4o judging gpt-4o-mini)
-   is not possible with this key; the judge runs gpt-5.4-mini with a
-   separate prompt and no access to the actor's reasoning, and this
-   weakening is stated rather than hidden.
-10. **First post-backfill test run failed 4 tests and made a live API call**
-   (2026-07-17). Several tests written before embeddings existed assumed an
-   all-NULL embedding state (e.g. "dense ranking returns only planted
-   vectors", "RAG 503s without embeddings"), and the ingest idempotency
-   tests wipe-and-reload chunk tables, silently destroying the backfill on
-   every pytest run. Partly fixed: planted-vector tests moved inside
-   rolled-back transactions, assertions made state-robust, empty-state guard
-   tests skip when embeddings exist. The destructive ingest tests were NOT
-   fixed; a README note telling the reader to re-run embed_chunks after
-   pytest was accepted as the remedy. See entry 13: that was a workaround
-   recorded as a fix, and it cost two days later.
-11. **Eval v1 exposed a tool-surface gap, not a loop failure** (2026-07-18).
-   The agent missed the 95% aggregation threshold by exactly one question
-   (agg-09, average monthly grocery spend): it fetched the correct 6-month
-   total, then refused to divide by 6 because the grounding rule forbids
-   model arithmetic and no tool computed averages. Two composite questions
-   failed the same way (month-by-month trend, average monthly spend). Fix:
-   spending_by_category gained group_by_month, returning SQL-computed
-   per-month totals and the monthly average. The grounding rule is untouched;
-   the tool surface grew to match the question surface. Related: look-01
-   failed because search_transactions matched the text filter as ONE
-   substring while the model passes word bags ("school books uniform fee");
-   now every word must match independently.
-12. **Eval v1 also exposed three grader bugs, fixed uniformly** (2026-07-19).
-   (a) Two education rubrics contradicted our own KB: edu-04 demanded
-   "10-15x income" term cover where the KB article teaches 8-10x plus loans,
-   and edu-10 demanded "30-45%" card interest where the KB says 36-48%. The
-   agents quoted the KB correctly and were marked wrong. Rubrics realigned
-   to the corpus. (b) look-03 required a transaction date the question never
-   asked for; a date_required=false flag now marks such questions. (c) ref-05
-   was refused in substance by both agents but paraphrased past the
-   deterministic refusal detector; the detector gained the observed
-   paraphrases as explicit patterns. All three fixes apply identically to
-   all three systems, and v1 numbers remain reported alongside v2. Lesson:
-   the eval harness is code too; failures must be triaged into system
-   defects and grader defects before either is "fixed".
-13. **A documented workaround masquerading as a fix, and the two days it
-   cost** (2026-07-20). Vanilla RAG started returning "no embedded chunks"
-   for every question. First diagnosis blamed a stray manual re-ingest and
-   the backfill was simply re-run; the error came back within the hour,
-   because the actual cause was the destructive ingest tests left unfixed in
-   entry 10. Every full pytest run deletes and reloads `kb_chunks` and
-   `rag_transaction_chunks`, resetting all 498 embeddings to NULL. Two
-   properties turned a small bug into a slow one. First, the workaround was
-   filed as a fix, so the failure mode was invisible in this log. Second,
-   only vanilla RAG fails loudly: it guards on an empty index, while the
-   agent's hybrid KB search silently degrades to BM25-only and keeps
-   returning plausible hits. A dense-vs-hybrid ablation run in that state
-   would have compared "nothing" against "sparse only" and produced numbers
-   that looked fine. Fixed properly: the two ingest tests now run inside
-   rolled-back transactions, and three fixtures that "restored" planted
-   vectors by setting `embedding = NULL` (correct before the backfill
-   existed, a slow bleed of real vectors after it) now save and restore the
-   prior value. Verified by planting sentinel vectors and running the full
-   suite twice with counts holding at 354 and 144. Lessons: a workaround
-   written into the README is not a fix, and any component that can silently
-   degrade instead of failing is an eval-integrity risk before it is a
-   product bug. The v2 results above were confirmed unaffected by checking
-   that vanilla RAG, which cannot run without embeddings, produced full
-   output on every run.
+**1. The KB corpus came up short, and sourcing was the reason** (2026-07-14).
+The design doc assumed ~500 chunks. The first legally-clean corpus measured
+~110, too small for a dense-vs-hybrid ablation to discriminate because
+retrieval saturates. Three separate sourcing walls caused the gap: NCFE "Part
+B" was assumed to exist and returns 404, an NCFE workshop PDF has custom font
+encoding that garbles text extraction (dropped rather than OCR'd, no OCR
+tooling on the build machine), and the SEBI booklet carries a no-reproduction
+notice so it informs our original articles but was never extracted. RBI's own
+site also refuses scripted downloads, so BE(A)WARE came from the government S3
+mirror. Fix: added RBI BE(A)WARE, the NCFE Workplace Handbook and NCFE/NCERT
+Personal Finance, reaching **354 chunks**. Lesson: corpus size estimates made
+before checking licences and extractability are guesses.
+
+**2. A near-miss on the "reused project" rule** (2026-07-14). An internal
+CraftMyMoney scoring document was briefly staged as a KB source. Removed
+before commit: it is business IP, and its presence would make a standalone
+capstone look like recycled work. The KB is now public material plus original
+articles only, and "never import CMM code or data" became an explicit repo
+boundary rather than an assumption.
+
+**3. The PII detector was auditing itself against too few examples**
+(2026-07-15). Eyeballing the first stored transaction chunk showed a home-loan
+reference (`LN00458912337`) sitting unmasked: the schema anticipated a
+`loan_ref` type but no regex implemented it. Auditing every seed narration then
+found two more misses, loan refs in other formats and insurance policy numbers.
+Fixed with two regexes and a new `policy` type; mappings grew 109 to 116.
+Lesson: **the leakage scan only guards values the detector already knows
+about**, so the detector itself has to be audited against every narration
+format in the corpus. The scan proves no mapped value leaked, not that
+detection is complete, and the README says so.
+
+**4. The cohort key granted different models than the design doc assumed**
+(2026-07-17). The doc specified gpt-4o-mini as actor and gpt-4o as judge. The
+granted key allows gpt-5.4-mini, gpt-5.4-nano and text-embedding-3-small only.
+The actor moved to gpt-5.4-mini. The planned judge/actor separation across
+model families is **not achievable with this key**; the judge runs gpt-5.4-mini
+with a separate adversarial prompt and no access to the actor's reasoning.
+This is a real weakening of the eval design and is stated rather than hidden.
+
+**5. Eval v1 exposed a tool-surface gap, not a loop failure** (2026-07-18).
+The agent missed the 95% aggregation threshold by exactly one question: asked
+for average monthly grocery spend it fetched the correct 6-month total, then
+refused to divide by 6, because the grounding rule forbids model arithmetic and
+no tool computed averages. Two composite questions failed identically. The fix
+was to grow the tool surface, not relax the rule: `spending_by_category` gained
+`group_by_month`, returning SQL-computed monthly totals and averages. Related,
+`search_transactions` matched its text filter as one substring while the model
+passes word bags ("school books uniform fee"); now every word must match
+independently. Lesson: when a grounded agent refuses, check whether the tools
+can answer the question before blaming the loop.
+
+**6. Eval v1 also exposed three bugs in the grader itself** (2026-07-19).
+Two education rubrics contradicted our own KB (demanding "10-15x income" term
+cover where the KB teaches 8-10x plus loans, and "30-45%" card interest where
+the KB says 36-48%), so agents quoting the KB correctly were marked wrong. One
+lookup question required a date it never asked for. One refusal probe was
+refused in substance but paraphrased past the deterministic detector. All three
+fixes apply identically to all three systems, and v1 numbers remain reported
+alongside v2. Lesson: **the eval harness is code too**; failures must be triaged
+into system defects and grader defects before either is "fixed".
+
+**7. A workaround recorded as a fix, and the two days it cost**
+(2026-07-17 to 2026-07-20). On 07-17 the first post-backfill test run failed
+four tests: several were written before embeddings existed and assumed an
+all-NULL state, and the ingest idempotency tests wipe and reload the chunk
+tables, destroying the backfill on every run. The state-dependent assertions
+were fixed, but the destructive ingest tests were not. Instead the README
+gained a note telling the reader to re-run `embed_chunks` after pytest, and the
+entry was filed as resolved. On 07-20 vanilla RAG began returning "no embedded
+chunks" for every question; the first diagnosis blamed a stray manual re-ingest
+and simply re-ran the backfill, which the next test run destroyed again. Root
+cause was the ingest tests left unfixed three days earlier: every full pytest
+deletes and reloads both chunk tables, resetting all 498 embeddings to NULL.
+Fixed properly by running those tests inside rolled-back transactions, and by
+making three fixtures restore each row's prior embedding instead of setting it
+to NULL (correct before the backfill existed, a slow bleed of real vectors
+after). Verified by planting sentinel vectors and running the full suite twice
+with counts holding at 354 and 144. Two lessons. **A workaround written into
+the README is not a fix.** And only vanilla RAG failed loudly here, because it
+guards on an empty index while the agent's hybrid KB search silently degrades
+to BM25-only and keeps returning plausible hits, so **a component that degrades
+instead of failing is an eval-integrity risk before it is a product bug**. The
+v2 results above were confirmed unaffected: vanilla RAG cannot run without
+embeddings and produced full output on every run.
 
 ## Hard boundaries
 
