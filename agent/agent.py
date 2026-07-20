@@ -21,6 +21,7 @@ the persisted pii_mappings.
 """
 
 import time
+import uuid
 
 from pydantic import BaseModel
 from pydantic_ai import Agent, RunContext
@@ -111,13 +112,15 @@ async def taxonomy_instructions(ctx: RunContext[AgentDeps]) -> str:
 # --------------------------------------------------------------- LLM boundary
 
 async def _gate(ctx: RunContext[AgentDeps], tool_name: str, args: dict,
-                result: BaseModel) -> str:
+                result: BaseModel, summary: str = "") -> str:
     """Single choke point between tool results and LLM context: pseudonymize
-    (when PII_MASKING is on), log the exact LLM-bound payload, record the call."""
+    (when PII_MASKING is on), log the exact LLM-bound payload, record the call.
+    summary is the human-readable one-liner the UI shows per ReAct step."""
     args = {k: v for k, v in args.items() if v is not None}
     payload = await gate_text(ctx.deps.pseudonymizer, result.model_dump_json())
-    await log_payload(ctx.deps.user_id, "agent", "tool_result", payload)
-    ctx.deps.tool_calls.append({"tool": tool_name, "args": args})
+    await log_payload(ctx.deps.user_id, "agent", "tool_result", payload,
+                      run_id=ctx.deps.run_id)
+    ctx.deps.tool_calls.append({"tool": tool_name, "args": args, "summary": summary})
     return payload
 
 
@@ -150,11 +153,10 @@ async def spending_by_category(
                 group_by_month=group_by_month or None)  # recorded only when set
     result = await _spending_by_category(
         ctx.deps.user_id, **{**args, "group_by_month": group_by_month})
+    detail = f"{result.txn_count} transactions, {result.start_date} to {result.end_date}"
     ctx.deps.citations.append(Citation(
-        kind="sql_tool", ref="spending_by_category",
-        detail=f"{result.txn_count} transactions, {result.start_date} to {result.end_date}",
-    ))
-    return await _gate(ctx, "spending_by_category", args, result)
+        kind="sql_tool", ref="spending_by_category", detail=detail))
+    return await _gate(ctx, "spending_by_category", args, result, summary=detail)
 
 
 @agent.tool
@@ -171,11 +173,10 @@ async def budget_vs_actual(
     """
     args = dict(month=month, category=category)
     result = await _budget_vs_actual(ctx.deps.user_id, **args)
+    detail = f"{len(result.lines)} budget lines for {result.month}"
     ctx.deps.citations.append(Citation(
-        kind="sql_tool", ref="budget_vs_actual",
-        detail=f"{len(result.lines)} budget lines for {result.month}",
-    ))
-    return await _gate(ctx, "budget_vs_actual", args, result)
+        kind="sql_tool", ref="budget_vs_actual", detail=detail))
+    return await _gate(ctx, "budget_vs_actual", args, result, summary=detail)
 
 
 @agent.tool
@@ -194,11 +195,10 @@ async def top_merchants(
     """
     args = dict(start_date=start_date, end_date=end_date, limit=limit)
     result = await _top_merchants(ctx.deps.user_id, **args)
+    detail = f"top {len(result.merchants)}, {result.start_date} to {result.end_date}"
     ctx.deps.citations.append(Citation(
-        kind="sql_tool", ref="top_merchants",
-        detail=f"top {len(result.merchants)}, {result.start_date} to {result.end_date}",
-    ))
-    return await _gate(ctx, "top_merchants", args, result)
+        kind="sql_tool", ref="top_merchants", detail=detail))
+    return await _gate(ctx, "top_merchants", args, result, summary=detail)
 
 
 @agent.tool
@@ -215,11 +215,10 @@ async def income_summary(
     """
     args = dict(start_date=start_date, end_date=end_date)
     result = await _income_summary(ctx.deps.user_id, **args)
+    detail = f"{result.txn_count} credits, {result.start_date} to {result.end_date}"
     ctx.deps.citations.append(Citation(
-        kind="sql_tool", ref="income_summary",
-        detail=f"{result.txn_count} credits, {result.start_date} to {result.end_date}",
-    ))
-    return await _gate(ctx, "income_summary", args, result)
+        kind="sql_tool", ref="income_summary", detail=detail))
+    return await _gate(ctx, "income_summary", args, result, summary=detail)
 
 
 @agent.tool
@@ -255,11 +254,10 @@ async def search_transactions(
                 txn_type=txn_type, min_amount=min_amount, max_amount=max_amount,
                 start_date=start_date, end_date=end_date, order_by=order_by, limit=limit)
     result = await _search_transactions(ctx.deps.user_id, **args)
+    detail = f"{result.returned} of {result.total_matches} matching transactions"
     ctx.deps.citations.append(Citation(
-        kind="sql_tool", ref="search_transactions",
-        detail=f"{result.returned} of {result.total_matches} matching transactions",
-    ))
-    return await _gate(ctx, "search_transactions", args, result)
+        kind="sql_tool", ref="search_transactions", detail=detail))
+    return await _gate(ctx, "search_transactions", args, result, summary=detail)
 
 
 @agent.tool
@@ -284,7 +282,9 @@ async def search_finance_kb(
             ref=f"{hit.document_title} (chunk {hit.chunk_id})",
             detail=hit.page_ref or "",
         ))
-    return await _gate(ctx, "search_finance_kb", args, result)
+    titles = ", ".join(dict.fromkeys(h.document_title for h in result.hits)) or "no hits"
+    summary = f"{len(result.hits)} chunks ({result.retrieval_mode}): {titles}"
+    return await _gate(ctx, "search_finance_kb", args, result, summary=summary)
 
 
 # ---------------------------------------------------------------- entry point
@@ -313,11 +313,12 @@ async def run_agent(question: str, user_id: int, model=None) -> RunResult:
         raise ValueError(f"question exceeds {MAX_QUESTION_CHARS} characters")
     model = model or _live_model()  # fail on a missing key before any side effects
 
-    deps = await build_deps(user_id)
+    run_id = uuid.uuid4().hex[:12]
+    deps = await build_deps(user_id, run_id)
     question = await gate_text(deps.pseudonymizer, question)
 
-    await log_payload(user_id, "agent", "system", STATIC_INSTRUCTIONS)
-    await log_payload(user_id, "agent", "user", question)
+    await log_payload(user_id, "agent", "system", STATIC_INSTRUCTIONS, run_id=run_id)
+    await log_payload(user_id, "agent", "user", question, run_id=run_id)
 
     started = time.monotonic()
     result = await agent.run(
@@ -329,7 +330,7 @@ async def run_agent(question: str, user_id: int, model=None) -> RunResult:
     latency_ms = int((time.monotonic() - started) * 1000)
 
     answer = result.output
-    await log_payload(user_id, "agent", "answer", answer, direction="from_llm")
+    await log_payload(user_id, "agent", "answer", answer, direction="from_llm", run_id=run_id)
 
     return RunResult(
         answer=answer,

@@ -13,3 +13,10 @@ themeBtn.onclick = () => {
 };
 
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+
+// Highlight the current page in the shared nav.
+document.querySelectorAll(".nav-link").forEach(a => {
+  const href = a.getAttribute("href");
+  const here = href === "/" ? ["/", "/index.html"] : [href];
+  if (here.includes(location.pathname)) a.classList.add("active");
+});

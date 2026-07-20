@@ -26,6 +26,18 @@
   .a .cites { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border);
               font-size: .72rem; font-weight: 700; text-transform: uppercase;
               letter-spacing: .05em; color: var(--muted); }
+  .a .steps { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .a .steps-title { font-size: .68rem; font-weight: 700; text-transform: uppercase;
+                    letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+  .step { display: flex; gap: 8px; align-items: baseline; margin: 5px 0;
+          font-size: .8rem; line-height: 1.45; white-space: normal; }
+  .step .n { color: var(--muted); font-weight: 700; flex: none; }
+  .step code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+               font-size: .74rem; background: var(--bg-alt);
+               border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; }
+  .step .sum { display: block; color: var(--muted); font-size: .74rem; margin-top: 2px; }
+  .a .meta { margin-top: 8px; font-size: .7rem; color: var(--muted); }
+  .a .meta .refused { color: #dc2626; font-weight: 700; }
   form { position: sticky; bottom: 0; background: var(--bg);
          display: flex; gap: 8px; padding: 12px 0 24px; }
   input { flex: 1; min-width: 0; }
@@ -42,7 +54,11 @@
   <div class="nav">
     <a class="wordmark" href="/">FinQuery</a>
     <div class="nav-right">
-      <a class="nav-link" href="/transactions.html">Transactions</a>
+      <div class="nav-links">
+        <a class="nav-link" href="/">Chat</a>
+        <a class="nav-link" href="/transactions.html">Transactions</a>
+        <a class="nav-link" href="/pii.html">PII log</a>
+      </div>
       <button id="theme" type="button" title="Toggle theme">&#9788;</button>
     </div>
   </div>
@@ -81,18 +97,93 @@ SUGGESTED.forEach(s => {
   chips.appendChild(b);
 });
 
-function add(cls, text, citations) {
+function renderBold(container, text) {
+  // minimal, safe **bold** rendering: no innerHTML, just text + <strong> nodes
+  text.split(/(\*\*[^*]+\*\*)/g).forEach(part => {
+    const m = /^\*\*([^*]+)\*\*$/.exec(part);
+    if (m) {
+      const strong = document.createElement("strong");
+      strong.textContent = m[1];
+      container.appendChild(strong);
+    } else if (part) {
+      container.appendChild(document.createTextNode(part));
+    }
+  });
+}
+
+function add(cls, text, data) {
   const d = document.createElement("div");
   d.className = "msg " + cls;
-  d.textContent = text;
-  if (citations && citations.length) {
-    const c = document.createElement("div");
-    c.className = "cites";
-    c.textContent = "Sources: " + citations.map(x => x.ref).join(" | ");
-    d.appendChild(c);
+  renderBold(d, text);
+  if (data) {
+    renderSteps(d, data);
+    const kb = (data.citations || []).filter(x => x.kind !== "sql_tool");
+    if (kb.length) {
+      const c = document.createElement("div");
+      c.className = "cites";
+      c.textContent = "Sources: " + [...new Set(kb.map(x => x.ref))].join(" | ");
+      d.appendChild(c);
+    }
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    const bits = [data.approach === "rag" ? "Vanilla RAG" : "Agent"];
+    if (data.latency_ms != null) bits.push((data.latency_ms / 1000).toFixed(1) + "s");
+    meta.textContent = bits.join(" · ");
+    if (data.refused) {
+      const r = document.createElement("span");
+      r.className = "refused"; r.textContent = " · refused";
+      meta.appendChild(r);
+    }
+    d.appendChild(meta);
   }
   thread.appendChild(d);
   d.scrollIntoView({ behavior: "smooth" });
+}
+
+function renderSteps(bubble, data) {
+  const wrap = document.createElement("div");
+  wrap.className = "steps";
+  const title = document.createElement("div");
+  title.className = "steps-title";
+  const list = [];
+  if (data.approach === "rag") {
+    title.textContent = "How this was answered";
+    const n = (data.citations || []).length;
+    list.push({ call: "retrieve top " + n + " chunks (cosine)", sum: "one LLM call, no tools" });
+  } else {
+    title.textContent = "ReAct steps";
+    (data.tool_calls || []).forEach(t => {
+      const args = Object.entries(t.args || {})
+        .map(([k, v]) => k + "=" + v).join(", ");
+      list.push({ call: t.tool + "(" + args + ")", sum: t.summary || "" });
+    });
+    list.push({ call: "write the final answer", sum: "", plain: true });
+  }
+  if (!list.length) return;
+  wrap.appendChild(title);
+  list.forEach((s, i) => {
+    const row = document.createElement("div");
+    row.className = "step";
+    const n = document.createElement("span");
+    n.className = "n"; n.textContent = (i + 1) + ".";
+    row.appendChild(n);
+    const body = document.createElement("span");
+    if (s.plain) {
+      body.textContent = s.call;
+    } else {
+      const code = document.createElement("code");
+      code.textContent = s.call;
+      body.appendChild(code);
+      if (s.sum) {
+        const sum = document.createElement("span");
+        sum.className = "sum"; sum.textContent = "→ " + s.sum;
+        body.appendChild(sum);
+      }
+    }
+    row.appendChild(body);
+    wrap.appendChild(row);
+  });
+  bubble.appendChild(wrap);
 }
 
 form.onsubmit = async (e) => {
@@ -112,7 +203,7 @@ form.onsubmit = async (e) => {
       add("a", "Error " + res.status + ": " + (data.detail || "request failed"));
       return;
     }
-    add("a", data.answer, data.citations);
+    add("a", data.answer, data);
   } catch (err) {
     add("a", "Request failed: " + err.message);
   }

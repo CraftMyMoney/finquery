@@ -50,11 +50,13 @@ async def gate_text(pseudonymizer: Pseudonymizer, text: str) -> str:
 
 
 async def log_payload(user_id: int, approach: str, kind: str, content: str,
-                      direction: str = "to_llm") -> None:
+                      direction: str = "to_llm", run_id: str | None = None) -> None:
+    """run_id groups every payload one /ask call produced, so the PII
+    transparency page can show which rows belong to the same question."""
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute(
-            "INSERT INTO llm_payload_log (user_id, approach, direction, kind, content) "
-            "VALUES ($1, $2, $3, $4, $5)",
-            user_id, approach, direction, kind, content,
+            "INSERT INTO llm_payload_log (user_id, approach, direction, kind, content, run_id) "
+            "VALUES ($1, $2, $3, $4, $5, $6)",
+            user_id, approach, direction, kind, content, run_id,
         )

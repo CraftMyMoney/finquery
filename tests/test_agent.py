@@ -82,9 +82,13 @@ async def test_tool_output_is_masked_and_payloads_logged(log_baseline):
 
     assert answer.answer.startswith("Here are your DMART purchases")
     assert answer.refused is False
-    assert answer.tool_calls == [{"tool": "search_transactions", "args": {
+    assert len(answer.tool_calls) == 1
+    call = answer.tool_calls[0]
+    assert call["tool"] == "search_transactions"
+    assert call["args"] == {
         "text": "DMART", "start_date": "2026-06-01", "end_date": "2026-06-30",
-        "order_by": "date", "limit": 20}}]
+        "order_by": "date", "limit": 20}
+    assert "matching transactions" in call["summary"]  # UI step one-liner
     assert [c.kind for c in answer.citations] == ["sql_tool"]
 
     # what actually entered LLM context contains no real mapped PII value
@@ -159,8 +163,8 @@ async def test_model_retry_feeds_valid_names_back_and_self_corrects(log_baseline
     assert "Groceries" in retries[0].model_response()  # lists valid options
     assert answer.answer == "Grocery total reported."
     # only the successful call is recorded
-    assert answer.tool_calls == [
-        {"tool": "spending_by_category", "args": {"subcategory": "Groceries"}}]
+    assert [(c["tool"], c["args"]) for c in answer.tool_calls] == [
+        ("spending_by_category", {"subcategory": "Groceries"})]
 
 
 async def test_runaway_tool_loop_stops_at_request_limit(log_baseline):

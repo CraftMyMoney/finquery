@@ -33,6 +33,31 @@ class AskResponse(BaseModel):
     approach: Literal["agent", "rag"]
     refused: bool = False
     citations: list[Citation] = []
+    tool_calls: list[dict] = []   # ordered ReAct steps; [] for vanilla RAG
+    latency_ms: int | None = None
+
+
+class PayloadEntry(BaseModel):
+    """One LLM-bound (or LLM-returned) payload as logged at the boundary."""
+    id: int
+    created_at: str
+    approach: str
+    direction: Literal["to_llm", "from_llm"]
+    kind: str
+    content: str
+    run_id: str | None = None  # groups every payload one /ask call produced
+
+
+class FakeValue(BaseModel):
+    """A pseudonym the PII layer substitutes. Real values never leave the DB."""
+    fake_value: str
+    pii_type: str
+
+
+class PayloadsResponse(BaseModel):
+    pii_masking: bool
+    payloads: list[PayloadEntry]
+    fake_values: list[FakeValue]
 
 
 class TransactionOut(BaseModel):

@@ -8,7 +8,15 @@ from pydantic_ai.exceptions import UsageLimitExceeded
 
 from agent.agent import run_agent
 from app import db
-from app.schemas import AskRequest, AskResponse, TransactionOut
+from app.config import settings
+from app.schemas import (
+    AskRequest,
+    AskResponse,
+    FakeValue,
+    PayloadEntry,
+    PayloadsResponse,
+    TransactionOut,
+)
 from baseline.plain_rag import run_rag
 
 UI_DIR = Path(__file__).resolve().parent.parent / "ui"
@@ -66,6 +74,7 @@ async def ask(req: AskRequest) -> AskResponse:
     return AskResponse(
         answer=result.answer, approach=req.approach,
         refused=result.refused, citations=result.citations,
+        tool_calls=result.tool_calls, latency_ms=result.latency_ms,
     )
 
 
@@ -93,4 +102,47 @@ async def transactions(user_id: int = 1) -> list[TransactionOut]:
     return [TransactionOut(**dict(r)) for r in rows]
 
 
-app.mount("/", StaticFiles(directory=UI_DIR, html=True), name="ui")
+@app.get("/payloads", response_model=PayloadsResponse)
+async def payloads(user_id: int = 1, limit: int = 50) -> PayloadsResponse:
+    """Recent LLM-boundary payloads for the PII transparency page: exactly
+    what left for (or came back from) the LLM, newest first.
+
+    Returns fake values (pseudonyms) so the UI can highlight where masking
+    happened; real values never leave the database through this endpoint.
+    """
+    limit = max(1, min(limit, 200))
+    pool = await db.get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """SELECT id, created_at, approach, direction, kind, content, run_id
+               FROM llm_payload_log WHERE user_id = $1
+               ORDER BY id DESC LIMIT $2""",
+            user_id, limit,
+        )
+        fakes = await conn.fetch(
+            "SELECT fake_value, pii_type FROM pii_mappings WHERE user_id = $1",
+            user_id,
+        )
+    return PayloadsResponse(
+        pii_masking=settings.pii_masking,
+        payloads=[PayloadEntry(
+            id=r["id"], created_at=r["created_at"].isoformat(),
+            approach=r["approach"], direction=r["direction"],
+            kind=r["kind"], content=r["content"], run_id=r["run_id"],
+        ) for r in rows],
+        fake_values=[FakeValue(**dict(f)) for f in fakes],
+    )
+
+
+class NoCacheStaticFiles(StaticFiles):
+    """Static assets are actively edited during development; a browser that
+    caches an old ui/*.html or *.css/js is a recurring source of "the nav
+    looks wrong" confusion that has nothing to do with the served code."""
+
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = "no-store"
+        return response
+
+
+app.mount("/", NoCacheStaticFiles(directory=UI_DIR, html=True), name="ui")

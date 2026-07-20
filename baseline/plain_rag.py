@@ -19,6 +19,7 @@ is testable before the key arrives.
 """
 
 import time
+import uuid
 
 import asyncpg
 
@@ -121,6 +122,7 @@ async def run_rag(question: str, user_id: int, *,
             "no embedded chunks; run 'python -m ingest.embed_chunks' first"
         )
 
+    run_id = uuid.uuid4().hex[:12]
     pseudonymizer = await load_pseudonymizer(user_id)
     question = await gate_text(pseudonymizer, question)
 
@@ -131,14 +133,14 @@ async def run_rag(question: str, user_id: int, *,
     context, citations = _build_context(rows)
     user_message = f"{context}\n\nQuestion: {question}"
 
-    await log_payload(user_id, "rag", "system", SYSTEM_PROMPT)
-    await log_payload(user_id, "rag", "user", user_message)
+    await log_payload(user_id, "rag", "system", SYSTEM_PROMPT, run_id=run_id)
+    await log_payload(user_id, "rag", "user", user_message, run_id=run_id)
 
     started = time.monotonic()
     answer = await complete(SYSTEM_PROMPT, user_message)
     latency_ms = int((time.monotonic() - started) * 1000)
 
-    await log_payload(user_id, "rag", "answer", answer, direction="from_llm")
+    await log_payload(user_id, "rag", "answer", answer, direction="from_llm", run_id=run_id)
 
     return RunResult(
         answer=answer,

@@ -121,6 +121,8 @@ CREATE TABLE IF NOT EXISTS llm_payload_log (
     approach   text NOT NULL,                -- agent / rag / judge
     direction  text NOT NULL CHECK (direction IN ('to_llm', 'from_llm')),
     kind       text NOT NULL,                -- system / user / tool_result / retrieval_context
-    content    text NOT NULL
+    content    text NOT NULL,
+    run_id     text                          -- groups every payload from one /ask call
 );
 CREATE INDEX IF NOT EXISTS idx_llm_payload_dir ON llm_payload_log (direction, created_at);
+CREATE INDEX IF NOT EXISTS idx_llm_payload_run ON llm_payload_log (run_id);

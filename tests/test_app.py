@@ -188,3 +188,41 @@ def test_transactions_endpoint():
     row = body[0]
     assert set(row) >= {"id", "txn_date", "bank_description", "amount", "txn_type", "category"}
     assert row["txn_type"] in ("credit", "debit")
+
+
+def test_payloads_endpoint_never_exposes_real_values():
+    asyncio.run(db.close_pool())
+    with TestClient(app) as c:
+        if not c.get("/health").json()["db"]:
+            pytest.skip("db not running")
+        res = c.get("/payloads", params={"user_id": 1, "limit": 5})
+        assert res.status_code == 200
+        body = res.json()
+        assert set(body) == {"pii_masking", "payloads", "fake_values"}
+        assert isinstance(body["pii_masking"], bool)
+        assert len(body["payloads"]) <= 5
+        for p in body["payloads"]:
+            assert set(p) == {"id", "created_at", "approach", "direction",
+                              "kind", "content", "run_id"}
+        # fake_values must be pseudonyms only: none may equal a real value
+        async def _reals():
+            conn = await asyncpg.connect(settings.database_url)
+            try:
+                return {r["real_value"] for r in await conn.fetch(
+                    "SELECT real_value FROM pii_mappings WHERE user_id = 1")}
+            finally:
+                await conn.close()
+        reals = asyncio.run(_reals())
+        assert reals  # seed guarantees mappings exist
+        fakes = {f["fake_value"] for f in body["fake_values"]}
+        assert fakes and not (fakes & reals)
+
+
+def test_payloads_limit_is_clamped():
+    asyncio.run(db.close_pool())
+    with TestClient(app) as c:
+        if not c.get("/health").json()["db"]:
+            pytest.skip("db not running")
+        res = c.get("/payloads", params={"user_id": 1, "limit": 100000})
+        assert res.status_code == 200
+        assert len(res.json()["payloads"]) <= 200

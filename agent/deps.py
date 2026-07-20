@@ -17,11 +17,12 @@ from pii.pseudonymizer import Pseudonymizer
 class AgentDeps:
     user_id: int
     pseudonymizer: Pseudonymizer
+    run_id: str  # groups this run's llm_payload_log rows for the PII log page
     # filled by the tool wrappers as the ReAct loop runs
     tool_calls: list[dict] = field(default_factory=list)
     citations: list[Citation] = field(default_factory=list)
 
 
-async def build_deps(user_id: int) -> AgentDeps:
-    return AgentDeps(user_id=user_id,
+async def build_deps(user_id: int, run_id: str) -> AgentDeps:
+    return AgentDeps(user_id=user_id, run_id=run_id,
                      pseudonymizer=await load_pseudonymizer(user_id))

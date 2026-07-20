@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PII log - FinQuery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+<style>
+  main { width: 100%; max-width: 72rem; flex: 1; padding: 96px 24px 24px; }
+  .page-head { margin-bottom: 16px; }
+  .page-head h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; margin-top: 2px; }
+  .explain { font-size: .85rem; color: var(--text-2); max-width: 46rem; line-height: 1.6;
+             margin-top: 8px; }
+  .banner { display: inline-flex; align-items: center; gap: 8px; margin: 14px 0;
+            border-radius: 8px; padding: 8px 14px; font-size: .82rem; font-weight: 600; }
+  .banner.on { background: #ecfdf5; color: #065f46; border: 1px solid #059669; }
+  .banner.off { background: #fef2f2; color: #991b1b; border: 1px solid #dc2626; }
+  html.dark .banner.on { background: rgba(5,150,105,.15); }
+  html.dark .banner.off { background: rgba(220,38,38,.15); }
+  #controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  #summary { font-size: .82rem; color: var(--text-2); }
+  .table-wrap { overflow-x: auto; border: 2px solid var(--border); border-radius: 8px; }
+  table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+  th { text-align: left; padding: 10px 14px; background: var(--bg-alt);
+       font-size: .7rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: .05em; color: var(--muted); white-space: nowrap; }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: top; }
+  td.when, td.tag, td.run { white-space: nowrap; color: var(--text-2); }
+  td.run { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .76rem; }
+  tr.run-start td { border-top: 2px solid var(--border-hover); }
+  .pill { display: inline-block; border-radius: 999px; padding: 1px 9px; font-size: .7rem;
+          font-weight: 600; background: var(--bg-alt); border: 1px solid var(--border); }
+  .pill.from { background: #eef2ff; border-color: #6366f1; color: #312e81; }
+  html.dark .pill.from { background: rgba(99,102,241,.18); color: #c7d2fe; }
+  td.content { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+               font-size: .74rem; line-height: 1.55; word-break: break-word;
+               max-width: 46rem; }
+  td.content .clip { display: -webkit-box; -webkit-line-clamp: 4;
+                     -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+  td.content .clip.open { display: block; -webkit-line-clamp: unset; }
+  mark { background: #fde68a; color: #78350f; border-radius: 3px; padding: 0 2px;
+         font-weight: 600; }
+  html.dark mark { background: rgba(217,119,6,.35); color: #fcd34d; }
+  .empty { padding: 24px; text-align: center; color: var(--muted); }
+  @media (max-width: 640px) { main { padding: 84px 16px 16px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="wordmark" href="/">FinQuery</a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a class="nav-link" href="/">Chat</a>
+        <a class="nav-link" href="/transactions.html">Transactions</a>
+        <a class="nav-link" href="/pii.html">PII log</a>
+      </div>
+      <button id="theme" type="button" title="Toggle theme">&#9788;</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="page-head">
+    <p class="kicker">The LLM boundary, verbatim</p>
+    <h1>PII payload log</h1>
+    <p class="explain">Every payload that crosses the LLM boundary is logged here exactly as
+    sent or received. A divider line separates one question and answer exchange from the
+    next; the Run column identifies which rows belong together. Highlighted values are
+    pseudonyms substituted by the PII layer: the real account numbers, phone numbers, UPI
+    IDs and loan references never leave the database. Click a row to expand it.</p>
+  </div>
+  <div id="banner"></div>
+  <div id="controls">
+    <select id="limit">
+      <option value="25">Last 25</option>
+      <option value="50" selected>Last 50</option>
+      <option value="100">Last 100</option>
+      <option value="200">Last 200</option>
+    </select>
+    <button id="refresh" type="button" class="btn">Refresh</button>
+    <span id="summary"></span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Run</th><th>When</th><th>Approach</th><th>Kind</th><th>Direction</th><th>Payload</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty" id="empty" hidden>No payloads logged yet. Ask a question on the Chat page first.</div>
+  </div>
+</main>
+<script src="/common.js"></script>
+<script>
+const tbody = document.getElementById("rows");
+const empty = document.getElementById("empty");
+const banner = document.getElementById("banner");
+const summary = document.getElementById("summary");
+const limitSel = document.getElementById("limit");
+const TIME_FMT = new Intl.DateTimeFormat("en-IN",
+  { dateStyle: "medium", timeStyle: "medium" });
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }
+
+function highlighted(content, fakes) {
+  // escape first, then wrap pseudonyms; longest first so substrings never win
+  const span = document.createElement("span");
+  span.textContent = content;
+  let html = span.innerHTML;
+  fakes.forEach(f => {
+    const esc = document.createElement("span");
+    esc.textContent = f.fake_value;
+    html = html.replace(new RegExp(escRe(esc.innerHTML), "g"),
+      '<mark title="pseudonym (' + f.pii_type + ')">' + esc.innerHTML + "</mark>");
+  });
+  return html;
+}
+
+async function load() {
+  let data;
+  try {
+    const res = await fetch("/payloads?user_id=1&limit=" + limitSel.value);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    data = await res.json();
+  } catch (err) {
+    empty.textContent = "Could not load payloads: " + err.message;
+    empty.hidden = false;
+    return;
+  }
+  banner.innerHTML = "";
+  const b = document.createElement("span");
+  b.className = "banner " + (data.pii_masking ? "on" : "off");
+  b.textContent = data.pii_masking
+    ? "PII masking is ON: payloads below are pseudonymized before leaving the app"
+    : "PII masking is OFF (ablation mode): payloads below may contain raw values";
+  banner.appendChild(b);
+
+  const fakes = [...data.fake_values].sort(
+    (a, b2) => b2.fake_value.length - a.fake_value.length);
+  tbody.innerHTML = "";
+  let marked = 0;
+  let lastRun = undefined;   // undefined never matches a run_id or null
+  const seenRuns = new Set();
+  data.payloads.forEach(p => {
+    const tr = document.createElement("tr");
+    // a new divider starts whenever the run changes; two rows with no
+    // run_id (pre-migration data) are never assumed to be the same exchange
+    if (!p.run_id || p.run_id !== lastRun) tr.classList.add("run-start");
+    lastRun = p.run_id;
+    if (p.run_id) seenRuns.add(p.run_id);
+    else seenRuns.add("row-" + p.id);
+
+    const dirPill = '<span class="pill' + (p.direction === "from_llm" ? " from" : "") + '">'
+      + (p.direction === "from_llm" ? "from LLM" : "to LLM") + "</span>";
+    const html = highlighted(p.content, fakes);
+    if (html.includes("<mark")) marked += 1;
+    tr.innerHTML =
+      '<td class="run" title="' + (p.run_id || "no run id (older data)") + '">'
+        + (p.run_id ? p.run_id.slice(0, 8) : "&mdash;") + "</td>" +
+      '<td class="when">' + TIME_FMT.format(new Date(p.created_at)) + "</td>" +
+      '<td class="tag">' + p.approach + "</td>" +
+      '<td class="tag">' + p.kind + "</td>" +
+      "<td>" + dirPill + "</td>" +
+      '<td class="content"><div class="clip">' + html + "</div></td>";
+    tr.querySelector(".clip").onclick = e => e.currentTarget.classList.toggle("open");
+    tbody.appendChild(tr);
+  });
+  empty.hidden = data.payloads.length > 0;
+  summary.textContent = data.payloads.length + " payloads across " + seenRuns.size
+    + " question" + (seenRuns.size === 1 ? "" : "s") + ", "
+    + marked + " contain pseudonymized values";
+}
+
+document.getElementById("refresh").onclick = load;
+limitSel.onchange = load;
+load();
+</script>
+</body>
+</html>
