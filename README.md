@@ -22,7 +22,7 @@ leakage. One Postgres instance holds rows, vectors, and the sparse index.
 
 ### Approach A: vanilla RAG baseline
 
-![Approach A: vanilla RAG baseline](docs/diagrams/approach_a_vanilla_rag.png)
+![Approach A: vanilla RAG baseline](https://raw.githubusercontent.com/CraftMyMoney/finquery/main/docs/diagrams/approach_a_vanilla_rag.png)
 
 The baseline exists to be beaten, and to prove the beating was necessary. Its
 weakness is structural, not a tuning problem: an aggregation question retrieves
@@ -30,7 +30,7 @@ at most k transaction chunks, so the LLM sums a partial list.
 
 ### Approach B: single tool-calling agent (ReAct)
 
-![Approach B: single tool-calling agent](docs/diagrams/approach_b_agent.png)
+![Approach B: single tool-calling agent](https://raw.githubusercontent.com/CraftMyMoney/finquery/main/docs/diagrams/approach_b_agent.png)
 
 Composite questions are emergent, not routed. The loop calls
 `spending_by_category`, sees the EMI share of salary, calls `search_finance_kb`

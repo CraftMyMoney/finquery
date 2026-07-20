@@ -5,6 +5,11 @@
 # embeds the PNGs because GitHub and most markdown previewers refuse to render
 # a linked SVG (sanitizer policy), which leaves a broken image icon.
 #
+# The README links these by absolute raw.githubusercontent.com URL, not by
+# relative path: GitHub only rewrites a relative image path when the renderer
+# knows the repo root, so previewers outside the repo page show it broken.
+# After renaming the repo or its default branch, update those two URLs.
+#
 # No rsvg-convert/ImageMagick dependency: headless Chrome is already required
 # for the design doc PDF, so it renders these too. 2x device scale keeps the
 # 10px labels legible.
