@@ -53,20 +53,28 @@ async def db_guard():
 
 @pytest.fixture
 async def planted():
-    """One kb chunk on axis 0, one user-1 txn chunk on axis 1; NULLed after."""
+    """One kb chunk on axis 0, one user-1 txn chunk on axis 1. The vectors must
+    be committed (run_rag reads through the pool), so the fixture restores each
+    row's prior embedding afterwards instead of assuming it was NULL. Assuming
+    NULL silently erodes the embedding backfill one row per run."""
     conn = await asyncpg.connect(settings.database_url)
-    kb_id = await conn.fetchval("SELECT id FROM kb_chunks ORDER BY id LIMIT 1")
-    txn_id = await conn.fetchval(
-        "SELECT id FROM rag_transaction_chunks WHERE user_id = 1 ORDER BY id LIMIT 1")
+    kb = await conn.fetchrow(
+        "SELECT id, embedding::text AS prior FROM kb_chunks ORDER BY id LIMIT 1")
+    txn = await conn.fetchrow(
+        "SELECT id, embedding::text AS prior FROM rag_transaction_chunks "
+        "WHERE user_id = 1 ORDER BY id LIMIT 1")
+    kb_id, txn_id = kb["id"], txn["id"]
     await conn.execute("UPDATE kb_chunks SET embedding = $1::vector WHERE id = $2",
                        vector_literal(_unit(0)), kb_id)
     await conn.execute(
         "UPDATE rag_transaction_chunks SET embedding = $1::vector WHERE id = $2",
         vector_literal(_unit(1)), txn_id)
     yield {"kb_id": kb_id, "txn_id": txn_id, "conn": conn}
-    await conn.execute("UPDATE kb_chunks SET embedding = NULL WHERE id = $1", kb_id)
+    await conn.execute("UPDATE kb_chunks SET embedding = $1::vector WHERE id = $2",
+                       kb["prior"], kb_id)
     await conn.execute(
-        "UPDATE rag_transaction_chunks SET embedding = NULL WHERE id = $1", txn_id)
+        "UPDATE rag_transaction_chunks SET embedding = $1::vector WHERE id = $2",
+        txn["prior"], txn_id)
     await conn.close()
 
 
@@ -110,8 +118,10 @@ async def test_pipeline_retrieves_both_corpora_and_masks_the_question(planted):
 
 
 async def test_other_users_transaction_chunks_are_invisible(planted):
-    other_txn = await planted["conn"].fetchval(
-        "SELECT id FROM rag_transaction_chunks WHERE user_id = 2 ORDER BY id LIMIT 1")
+    other = await planted["conn"].fetchrow(
+        "SELECT id, embedding::text AS prior FROM rag_transaction_chunks "
+        "WHERE user_id = 2 ORDER BY id LIMIT 1")
+    other_txn = other["id"]
     await planted["conn"].execute(
         "UPDATE rag_transaction_chunks SET embedding = $1::vector WHERE id = $2",
         vector_literal(_unit(1)), other_txn)
@@ -131,7 +141,8 @@ async def test_other_users_transaction_chunks_are_invisible(planted):
         assert f"transaction chunk {other_txn}" not in [c.ref for c in result1.citations]
     finally:
         await planted["conn"].execute(
-            "UPDATE rag_transaction_chunks SET embedding = NULL WHERE id = $1", other_txn)
+            "UPDATE rag_transaction_chunks SET embedding = $1::vector WHERE id = $2",
+            other["prior"], other_txn)
 
 
 async def test_without_embeddings_fails_loudly_before_any_api_call():

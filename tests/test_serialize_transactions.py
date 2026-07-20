@@ -58,6 +58,10 @@ async def test_load_partitions_all_users_and_stores_no_real_pii(monkeypatch):
         conn = await asyncpg.connect(settings.database_url)
     except Exception:
         pytest.skip("seeded DB not reachable on DATABASE_URL")
+    # load() wipes rag_transaction_chunks, so keep it inside a rolled-back
+    # transaction; otherwise the run discards the embedding backfill
+    tr = conn.transaction()
+    await tr.start()
     try:
         counts = await load(conn)
         assert await load(conn) == counts  # idempotent wipe-and-reload
@@ -97,16 +101,20 @@ async def test_load_partitions_all_users_and_stores_no_real_pii(monkeypatch):
             "SELECT count(*) FROM rag_transaction_chunks WHERE tsv IS NULL"
         ) == 0
     finally:
+        await tr.rollback()
         await conn.close()
 
 
 async def test_pii_masking_flag_toggles_the_gate(monkeypatch):
     """PII_MASKING=false stores raw narrations (ablation mode); turning it
-    back on restores the pseudonymized state. Leaves the DB masked."""
+    back on restores the pseudonymized state. Rolled back either way, so the
+    embedding backfill survives the run."""
     try:
         conn = await asyncpg.connect(settings.database_url)
     except Exception:
         pytest.skip("seeded DB not reachable on DATABASE_URL")
+    tr = conn.transaction()
+    await tr.start()
     try:
         leak_sql = """
             SELECT count(*)
@@ -122,4 +130,5 @@ async def test_pii_masking_flag_toggles_the_gate(monkeypatch):
         await load(conn)
         assert await conn.fetchval(leak_sql) == 0
     finally:
+        await tr.rollback()
         await conn.close()

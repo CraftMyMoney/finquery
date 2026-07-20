@@ -1,6 +1,11 @@
 """KB ingest test against the live DB: load() must be idempotent and leave
 embeddings NULL (backfilled post-key) with the tsv sparse index populated.
-Skips cleanly if the dockerized Postgres is not reachable."""
+Skips cleanly if the dockerized Postgres is not reachable.
+
+load() is destructive by design (DELETE FROM kb_documents cascades to
+kb_chunks), so it runs inside a rolled-back transaction. Without that, every
+test run silently discards the embedding backfill and leaves vanilla RAG
+dead until someone re-runs ingest.embed_chunks."""
 
 import asyncpg
 import pytest
@@ -14,6 +19,8 @@ async def test_ingest_kb_is_idempotent_and_leaves_embeddings_null():
         conn = await asyncpg.connect(settings.database_url)
     except Exception:
         pytest.skip("seeded DB not reachable on DATABASE_URL")
+    tr = conn.transaction()
+    await tr.start()
     try:
         counts = await load(conn)
         counts_again = await load(conn)  # wipe-and-reload must be repeatable
@@ -41,4 +48,5 @@ async def test_ingest_kb_is_idempotent_and_leaves_embeddings_null():
         )
         assert hit is not None and "emergency" in hit["content"].lower()
     finally:
+        await tr.rollback()   # restores the pre-test rows, embeddings included
         await conn.close()

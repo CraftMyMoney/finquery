@@ -146,7 +146,12 @@ async def test_tool_routes_by_settings_mode(conn, monkeypatch):
     await close_pool()
     monkeypatch.setattr(settings, "kb_retrieval_mode", "hybrid")
     monkeypatch.setattr(kb_module, "embed_query", _fake_embed)
-    planted = await conn.fetchval("SELECT id FROM kb_chunks ORDER BY id LIMIT 1")
+    # search_finance_kb reads through the pool, not this connection, so the
+    # planted vector has to be committed; restore the prior value rather than
+    # assuming it was NULL, or every run erodes the embedding backfill
+    row = await conn.fetchrow(
+        "SELECT id, embedding::text AS prior FROM kb_chunks ORDER BY id LIMIT 1")
+    planted, prior = row["id"], row["prior"]
     try:
         await conn.execute("UPDATE kb_chunks SET embedding = $1::vector WHERE id = $2",
                            vector_literal(_unit(0)), planted)
@@ -154,7 +159,8 @@ async def test_tool_routes_by_settings_mode(conn, monkeypatch):
         assert result.retrieval_mode == "hybrid"
         assert planted in [h.chunk_id for h in result.hits]
     finally:
-        await conn.execute("UPDATE kb_chunks SET embedding = NULL WHERE id = $1", planted)
+        await conn.execute("UPDATE kb_chunks SET embedding = $1::vector WHERE id = $2",
+                           prior, planted)
         await close_pool()
 
 
