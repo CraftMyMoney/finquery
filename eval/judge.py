@@ -66,9 +66,10 @@ async def judge_one(client, question: dict, answer: str) -> dict:
             "reason": verdict.get("reason", "")}
 
 
-async def judge_file(system: str, client, rejudge: bool = False) -> dict:
+async def judge_file(system: str, client, rejudge: bool = False,
+                     suffix: str = "") -> dict:
     """Judge one results file in place. Returns the updated report."""
-    path = RESULTS_DIR / f"{system}.json"
+    path = RESULTS_DIR / f"{system}{suffix}.json"
     report = json.loads(path.read_text())
     _, questions, _ = load_golden()
     by_id = {q["id"]: q for q in questions}
@@ -100,12 +101,15 @@ async def main() -> None:
     parser.add_argument("systems", nargs="*", default=[])
     parser.add_argument("--rejudge", action="store_true",
                         help="re-judge entries that already have a verdict")
+    parser.add_argument("--tag", default="",
+                        help="suffix matching the run_eval --tag to judge")
     args = parser.parse_args()
+    suffix = f"_{args.tag}" if args.tag else ""
     unknown = set(args.systems) - set(SYSTEMS)
     if unknown:
         raise SystemExit(f"unknown systems {sorted(unknown)}; valid: {list(SYSTEMS)}")
     systems = args.systems or [s for s in SYSTEMS
-                               if (RESULTS_DIR / f"{s}.json").exists()]
+                               if (RESULTS_DIR / f"{s}{suffix}.json").exists()]
     if not systems:
         raise SystemExit("no results files found; run eval.run_eval first")
     if not settings.openai_api_key:
@@ -113,9 +117,12 @@ async def main() -> None:
 
     from openai import AsyncOpenAI
     client = AsyncOpenAI(api_key=settings.openai_api_key)
+    print(f"judge model: {settings.judge_model}"
+          + (f"  |  reading *{suffix}.json" if suffix else ""))
 
     for system in systems:
-        outcome = await judge_file(system, client, rejudge=args.rejudge)
+        outcome = await judge_file(system, client, rejudge=args.rejudge,
+                                   suffix=suffix)
         print(f"{system}: judged {outcome['judged']} answers")
         for bucket in ("education", "composite"):
             b = outcome["summary"].get(bucket)

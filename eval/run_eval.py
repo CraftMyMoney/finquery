@@ -221,17 +221,26 @@ async def main() -> None:
     # no argparse choices= here: with nargs="*" it rejects the empty default
     parser.add_argument("systems", nargs="*", default=[],
                         help=f"which systems to run (default: all of {list(SYSTEMS)})")
+    # --tag namespaces the output file (e.g. agent_dense_nano.json) so an
+    # experimental actor/judge model does not overwrite the primary results.
+    # The actor model itself is set via the LLM_MODEL env var, not here.
+    parser.add_argument("--tag", default="",
+                        help="suffix for result filenames, e.g. --tag nano")
     args = parser.parse_args()
     unknown = set(args.systems) - set(SYSTEMS)
     if unknown:
         raise SystemExit(f"unknown systems {sorted(unknown)}; valid: {list(SYSTEMS)}")
     systems = args.systems or list(SYSTEMS)
+    suffix = f"_{args.tag}" if args.tag else ""
 
     RESULTS_DIR.mkdir(exist_ok=True)
+    if suffix:
+        print(f"actor model: {settings.llm_model}  |  writing *{suffix}.json")
     try:
         for system in systems:
             report = await run_system(system)
-            out = RESULTS_DIR / f"{system}.json"
+            report["actor_model"] = settings.llm_model
+            out = RESULTS_DIR / f"{system}{suffix}.json"
             out.write_text(json.dumps(report, indent=2, default=str) + "\n")
             _print_summary(report)
             print(f"  written to {out}")
