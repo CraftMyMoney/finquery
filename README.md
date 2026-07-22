@@ -104,9 +104,22 @@ python -m ingest.serialize_transactions
 # stores raw narrations instead: the masked-vs-unmasked ablation switch.
 # Re-run this script after flipping the flag.
 
-# 8. Sanity check
+# 8. Backfill embeddings for both corpora (REQUIRED, needs OPENAI_API_KEY).
+#    Steps 6 and 7 store chunks with embedding NULL; this fills them in.
+#    Skip it and Approach A returns 503 "no embedded chunks", while the agent
+#    silently degrades to BM25-only KB retrieval.
+python -m ingest.embed_chunks
+# Expected: 498 chunks embedded (354 KB + 144 transaction), ~166k tokens,
+# roughly USD 0.003. Idempotent: only rows WHERE embedding IS NULL are sent,
+# so re-running after a partial failure resumes rather than re-paying.
+
+# 9. Sanity check: transaction counts, and that nothing is left unembedded
 docker exec finquery-db psql -U finquery -d finquery \
   -c "SELECT u.username, count(*) FROM transactions t JOIN users u ON u.id = t.user_id GROUP BY 1 ORDER BY 1;"
+docker exec finquery-db psql -U finquery -d finquery -c \
+  "SELECT 'kb_chunks' AS t, count(*) rows, count(embedding) embedded FROM kb_chunks
+   UNION ALL SELECT 'rag_transaction_chunks', count(*), count(embedding) FROM rag_transaction_chunks;"
+# rows and embedded must match on both lines. If embedded is 0, step 8 did not run.
 ```
 
 To rebuild from zero (drops all data, including the Docker volume):
@@ -118,6 +131,7 @@ python -m ingest.apply_schema --with-master
 python -m ingest.seed_transactions
 python -m ingest.ingest_kb
 python -m ingest.serialize_transactions
+python -m ingest.embed_chunks   # do not skip: re-ingest resets embeddings to NULL
 ```
 
 ### Connecting from DBeaver (or any SQL client)
