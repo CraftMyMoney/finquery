@@ -1,0 +1,324 @@
+<!doctype html><html><head><meta charset='utf-8'><title>FinQuery: Project Documentation</title><style>
+@page { size: A4; margin: 14mm 15mm; }
+body { font: 10pt/1.39 -apple-system, "Helvetica Neue", Arial, sans-serif;
+       color: #16181d; }
+h1 { font-size: 17pt; margin: 0 0 2pt; }
+h2 { font-size: 12pt; margin: 13pt 0 5pt; padding-top: 3pt;
+     border-top: 1px solid #d6dae1; break-after: avoid; }
+h3 { font-size: 10.5pt; margin: 9pt 0 3pt; break-after: avoid; }
+p, li { margin: 0 0 4pt; }
+ul { margin: 0 0 5pt; padding-left: 16px; }
+hr { display: none; }
+img { max-width: 66%; display: block; margin: 5pt auto; break-inside: avoid; }
+table { border-collapse: collapse; width: 100%; font-size: 9pt;
+        margin: 5pt 0 7pt; break-inside: avoid; }
+th, td { border: 1px solid #ccd2da; padding: 2.5pt 5pt; text-align: left; }
+th { background: #eef1f5; }
+code { font-family: "SF Mono", Menlo, monospace; font-size: 8.8pt;
+       background: #f0f2f5; padding: 0.5pt 2.5pt; border-radius: 2px; }
+pre { background: #f5f7f9; border: 1px solid #e2e6eb; border-radius: 3px;
+      padding: 5pt 7pt; font-size: 8.5pt; overflow: hidden;
+      break-inside: avoid; }
+pre code { background: none; padding: 0; }
+a { color: #1a4d8f; text-decoration: none; }
+blockquote { margin: 0 0 5pt; padding-left: 9pt; border-left: 2px solid #ccd2da;
+             color: #4a5058; }
+</style></head><body><h1>FinQuery: Project Documentation</h1>
+<p><strong>AI Engineering Cohort (RAG &amp; Agents), Capstone</strong> | Group IP6 | Author: KrantiKumar Gajula</p>
+<p>This document is self-contained: it assumes no prior reading of the design doc or
+the repository README. It covers the problem, the data pipeline, the retrieval and
+orchestration design, the evaluation and its results, the reasoning behind each major
+decision, and the known limitations.</p>
+<hr />
+<h2>1. Problem</h2>
+<p>People who want to understand their own spending, or learn a personal-finance concept,
+have two bad options today. They can paste raw bank statements into a general chatbot,
+which exposes names, account numbers, phone numbers and UPI IDs to a third party and
+still produces unreliable arithmetic over hundreds of rows. Or they can do the sums by
+hand. FinQuery is a narrow Q&amp;A system that answers two specific classes of question with
+exact, provenance-backed figures, while guaranteeing that raw personal data never reaches
+the language model.</p>
+<p><strong>In scope, two question types:</strong></p>
+<ol>
+<li><strong>Transaction Q&amp;A</strong>, answered with exact figures computed from the user's database:
+   "How much did I spend on Food &amp; Drinks in June?", "Am I over budget on transport?"
+   Every number carries provenance (amount, transaction count, date range).</li>
+<li><strong>Personal-finance education</strong>, answered from a curated India-focused knowledge base:
+   "What is the 50/30/20 rule?", "How does the debt-to-income ratio work?"</li>
+</ol>
+<p><strong>Explicitly out of scope, and refused:</strong> specific investment advice ("should I buy this
+fund?"), which is regulated in India under SEBI's Registered Investment Adviser rules.
+The refusal boundary is <strong>specificity, not topic</strong>. Applying a general principle to the
+user's own numbers ("is my EMI ratio healthy?") is education and is answered. Naming a
+product to buy, sell or hold, or calling market timing, is refused. Also out of scope:
+multi-turn memory, portfolio analysis, forecasting, and transaction categorization (data
+arrives pre-categorized).</p>
+<p>The problem is deliberately narrow because the cohort's most common failure mode is a
+vague objective. "An assistant that helps with money" is not a project; "exact SQL-computed
+answers to two question types with a 0% PII-leakage guarantee" is one, and every design
+choice below follows from it.</p>
+<hr />
+<h2>2. Data</h2>
+<p>All data is synthetic and reproducible from a single <code>docker compose up</code>. A mentor can run
+the system cold with no access to any real account.</p>
+<ul>
+<li><strong>Transactions:</strong> 1,050 rows across 3 synthetic users (the demo user has ~6 months of
+  realistic Indian activity), each carrying a category from a <strong>fixed taxonomy</strong> (3
+  categories, 33 subcategories, 133 spend types) assigned at seed time. The taxonomy is
+  included in the agent's system prompt so that natural phrasing ("eating out") maps to a
+  valid tool argument (Food &amp; Drinks). Budgets: 59 rows, seeded so that at least one
+  category is genuinely over budget, giving the eval a real signal to find.</li>
+<li><strong>Realistic fake PII by design.</strong> Transaction narrations are modelled on real bank
+  strings and carry fake UPI VPAs, phone numbers, masked account and card fragments, loan
+  references and insurance policy numbers. This is what gives the 0%-leakage metric
+  something real to catch; a corpus with no PII would make the guarantee meaningless.</li>
+<li><strong>Knowledge base:</strong> 354 chunks across 22 documents (17 original articles written for this
+  project plus 5 extracted public booklets from RBI and NCFE/NCERT investor-education
+  material). No copyrighted books, and the SEBI booklet, which carries a no-reproduction
+  notice, informs original articles but is never extracted. Chunking is ~400 tokens with
+  15% overlap, appropriate for short self-contained articles.</li>
+</ul>
+<p><strong>Two ingestion paths feed pgvector.</strong> KB markdown is chunked and embedded directly.
+Transactions take the second path, and only for Approach A: each transaction becomes one
+text line (date, type, amount, category path, narration), lines are grouped by calendar
+month, and each month's lines are packed into ~400-token chunks. A month therefore spans
+several chunks, not one: user1's 60 transactions per month pack into 8 chunks of roughly
+7 transactions each, giving 48 chunks per user and 144 in total, stored in
+<code>rag_transaction_chunks</code> with their <code>source_txn_ids</code> and embedding. Unlike the KB, this
+corpus is chunked with <strong>no overlap</strong>: overlapping windows would repeat transactions
+across chunks and inflate any total the baseline tries to compute. This path is also where
+Approach A's PII masking happens: each chunk is pseudonymized <strong>before</strong> storage and
+embedding, so no real value is ever written to the vector store. The serializer aborts if
+any real mapped value survives into a stored chunk. Approach B never reads these chunks;
+its tools query the <code>transactions</code> table directly in SQL.</p>
+<hr />
+<h2>3. Architecture</h2>
+<p>Two approaches are built and compared, as the cohort requires. The baseline is not a
+throwaway; it exists to establish what a simple system achieves and to prove that the added
+complexity of the agent is justified rather than assumed.</p>
+<h3>Approach A: vanilla RAG baseline</h3>
+<p><img alt="Approach A: vanilla RAG baseline" src="diagrams/approach_a_vanilla_rag.png" /></p>
+<p>Everything is a document. KB articles and serialized transaction rows are embedded into
+pgvector. A question is embedded, the top 8 chunks by cosine distance are retrieved (the
+transaction leg scoped to the asking user), and a single LLM call answers from that context
+with no tools. <strong>Hypothesis under test: this works for education questions and fails on
+aggregation.</strong> The arithmetic makes the reason concrete: one month of this user's
+transactions occupies exactly 8 chunks, and k is 8. A question like "how much did I spend
+on food in June" would need all 8 June chunks to win all 8 retrieval slots, beating every
+KB chunk and every other month, and the LLM would then have to sum the right subset of
+~60 lines by hand. Retrieval is competing for slots against a corpus it cannot exclude,
+and even perfect retrieval leaves the arithmetic ungrounded. The system also has no "not
+found" branch: retrieval always returns k chunks, so refusals come from the prompt
+criteria, not from retrieval.</p>
+<h3>Approach B: single tool-calling agent (ReAct)</h3>
+<p><img alt="Approach B: single tool-calling agent" src="diagrams/approach_b_agent.png" /></p>
+<p>One agent (Pydantic AI, gpt-5.4-mini) with six typed tools. Each turn the model makes exactly
+one validated tool call or writes the final answer; the tool result re-enters context and the
+model decides again. There is no upfront plan and no classifier-router in front: <strong>tool
+selection is the routing.</strong> The six tools are five SQL tools over the transaction database
+(<code>spending_by_category</code>, <code>budget_vs_actual</code>, <code>top_merchants</code>, <code>income_summary</code>,
+<code>search_transactions</code>) and one hybrid KB search (<code>search_finance_kb</code>).</p>
+<p><strong>Numbers are computed by SQL inside the tools; the model never does arithmetic.</strong> This is the
+core reliability property. The model narrates results and cites sources, but every figure comes
+from a database query. Guardrails: an input filter refuses investment-advice requests before the
+loop starts, tool arguments are validated by Pydantic (a bad category or month format triggers a
+<code>ModelRetry</code> whose error message re-enters the loop and self-corrects), and hard caps bound the
+loop (10 requests, 2 retries per tool).</p>
+<p><strong>Composite questions are an emergent capability, not a feature.</strong> Asked "After paying my EMIs I
+can't save enough, what should I do?", the loop calls <code>spending_by_category</code> for the EMI total,
+<code>income_summary</code> for salary, and <code>search_finance_kb</code> for the debt-to-income guideline, then
+writes one grounded answer. This cross-surface reasoning is exactly what vanilla RAG structurally
+cannot do, and it is the clearest justification for the agent.</p>
+<hr />
+<h2>4. PII pseudonymization layer</h2>
+<p>This is a core requirement applied to <strong>both</strong> approaches, not an add-on. Before any text crosses
+into the model, a forward pseudonymization step replaces detected PII with consistent fake values
+from a per-user mapping table (real to fake, stable across calls so the model sees consistent
+identities without ever seeing a real value). Detection is regex (UPI VPAs, phone numbers, masked
+card and account fragments, loan references, insurance policy numbers) plus a known-values list.
+Free-text name recognition is documented as out of scope; prior art (Microsoft Presidio) is
+acknowledged, not imported.</p>
+<p>The two approaches mask at <strong>different points</strong>, and this is a genuine architectural distinction:
+the agent masks tool output at call time, while the vanilla RAG corpus was pseudonymized once at
+ingest time. Either way, no real value reaches the model.</p>
+<p><strong>The guarantee is measured, not asserted.</strong> Every LLM-bound payload (system prompt, question,
+tool result, answer) is logged to a <code>llm_payload_log</code> table and scanned deterministically against
+the real-value mapping table. The check is a substring scan, cross-user, with no judge involved,
+so it cannot be fooled by a lenient grader. As a positive control, running with <code>PII_MASKING=false</code>
+produces leaks, which confirms the scanner actually fires rather than passing trivially. A
+transparency page in the UI renders every payload with its pseudonyms highlighted, so the guarantee
+is inspectable, not just a number in a report. One honest limit is stated plainly: the scan proves
+that no <strong>mapped</strong> value leaked; detector recall (whether every real value was found in the first
+place) is a separate risk, mitigated by auditing the detector against every narration format in the
+corpus.</p>
+<hr />
+<h2>5. Evaluation</h2>
+<p><strong>Golden set:</strong> 58 questions in 5 buckets, ground truth precomputed by SQL against the seeded
+database (never hand-typed): aggregation (15), lookup (10), education (15), refusal (13, including
+3 prompt-injection probes), composite (5). <strong>Comparison matrix:</strong> three systems (vanilla RAG, agent
+with dense-only retrieval, agent with hybrid retrieval) times the golden set, each run <strong>three
+times</strong> to separate real differences from run-to-run variance.</p>
+<p>Scoring combines deterministic checks (numeric exact-match, date mentions, a refusal detector, the
+PII scan) with an LLM-as-judge (gpt-5.4-mini with a separate adversarial prompt) for education
+coverage and composite synthesis, where no single ground-truth number exists.</p>
+<h3>Results</h3>
+<p>Questions passed per bucket, median of three runs:</p>
+<table>
+<thead>
+<tr>
+<th>Bucket</th>
+<th>n</th>
+<th>Vanilla RAG</th>
+<th>Agent + dense</th>
+<th>Agent + hybrid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aggregation</td>
+<td>15</td>
+<td><strong>2</strong></td>
+<td><strong>15</strong></td>
+<td><strong>15</strong></td>
+</tr>
+<tr>
+<td>Lookup</td>
+<td>10</td>
+<td>7</td>
+<td>8</td>
+<td>8</td>
+</tr>
+<tr>
+<td>Education</td>
+<td>15</td>
+<td>8</td>
+<td>12</td>
+<td>13</td>
+</tr>
+<tr>
+<td>Refusal</td>
+<td>13</td>
+<td>13</td>
+<td>13</td>
+<td>13</td>
+</tr>
+<tr>
+<td>Composite</td>
+<td>5</td>
+<td><strong>0</strong></td>
+<td>2</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>Threshold checks:</p>
+<table>
+<thead>
+<tr>
+<th>Threshold</th>
+<th>Target</th>
+<th>Vanilla RAG</th>
+<th>Agent + dense</th>
+<th>Agent + hybrid</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Numeric exact-match, aggregation</td>
+<td>&gt;= 95%</td>
+<td>13% FAIL</td>
+<td><strong>100% PASS</strong></td>
+<td><strong>100% PASS</strong></td>
+</tr>
+<tr>
+<td>Refusal on advice probes</td>
+<td>&gt;= 90%</td>
+<td>100% PASS</td>
+<td><strong>100% PASS</strong></td>
+<td><strong>100% PASS</strong></td>
+</tr>
+<tr>
+<td>PII leakage</td>
+<td>0%</td>
+<td><strong>0 leaks</strong></td>
+<td><strong>0 leaks</strong></td>
+<td><strong>0 leaks</strong></td>
+</tr>
+</tbody>
+</table>
+<h3>Reading the results</h3>
+<p><strong>The agent beats the baseline decisively, and for the predicted reason.</strong> Vanilla RAG answers 2 of
+15 aggregation questions and 0 of 5 composite questions in every one of three runs. This is not a
+tuning gap. Asked for June food spending, the baseline returned Rs 1,810 on one run and Rs 2,210 on
+another, where SQL computes Rs 3,210: top-k retrieval hands the model a different partial list each
+time and it sums what it was given. The baseline is not just less accurate, it is
+<strong>non-deterministically wrong</strong>, which for a finance product is worse than being wrong in a stable
+way. The hypothesis in Section 3 is confirmed and quantified.</p>
+<p><strong>The dense-vs-hybrid ablation is inconclusive at this corpus size, and is reported as such.</strong> Hybrid
+leads on the median in education (13 vs 12) and composite (3 vs 2), but the per-run spreads overlap on
+every bucket: across three runs hybrid scored 10 to 13 on education while dense scored 12 to 13, and
+hybrid lost a refusal probe in one run that dense never lost. On buckets of 5 to 15 questions, a
+difference of one or two answers is inside the noise. Claiming hybrid as a measured winner would not
+survive scrutiny, so it is not claimed.</p>
+<hr />
+<h2>6. Decisions and their reasoning</h2>
+<p><strong>Chosen: the agent, with hybrid retrieval retained.</strong> The agent over RAG is settled by the results.
+Hybrid over dense is <strong>not</strong> settled by the results, and is kept on a different basis: its worst case
+is bounded (the sparse BM25 leg guarantees keyword recall on exact terms like fund names and section
+numbers, which dense embeddings can miss), and its cost over dense is a single extra SQL query merged
+by Reciprocal Rank Fusion. That is a decision made on risk, not on a score difference the eval cannot
+defend.</p>
+<p><strong>Framework: Pydantic AI.</strong> The backend skill set is FastAPI plus Pydantic, so tools become typed,
+validated schemas with no new idioms, and the ReAct loop stays thin and inspectable, which matters
+because the loop is the thing being evaluated. <strong>LangGraph was rejected</strong>: its graph abstractions pay
+off for multi-agent or branching workflows, which this project does not have, and here they would only
+hide the loop. <strong>smolagents was rejected</strong>: a code-agent that writes and executes Python is the wrong
+risk profile for a finance surface, and its strength duplicates what typed SQL tools already provide
+deterministically.</p>
+<p><strong>Datastore: Postgres + pgvector, one instance</strong> for rows, dense vectors and the sparse full-text
+index. This makes hybrid search a SQL query rather than a second system to operate, and it is
+right-sized for a 354-chunk corpus. An exact/flat vector scan is used deliberately; ANN indexes
+(HNSW/IVF) solve a scale problem this corpus does not have.</p>
+<p><strong>No classifier-router in front of the agent.</strong> Tool selection is the routing, and composite questions
+prove a hard router would be harmful: a router that sent "I can't save after EMIs" to a single surface
+would break exactly the cross-surface reasoning that justifies the agent.</p>
+<p><strong>Other rejections, recorded:</strong> Graph-RAG (no entity-graph structure; the structured side already
+lives in a relational DB), multi-agent (no coordination problem), memory and map-reduce (single-turn,
+no long documents), re-ranking and HyDE (deferred until an eval exposes a miss they would fix, to avoid
+adding complexity before a baseline demands it).</p>
+<hr />
+<h2>7. Limitations, stated honestly</h2>
+<ul>
+<li><strong>Composite is the weakest real result</strong> (2 to 3 of 5 for the agents) and is also the capability
+  used to justify the agent. The failures are synthesis and multi-step sequencing, not arithmetic; the
+  numbers the agent does compute are correct. This is a real ceiling, not a rounding error, and is a
+  primary target for future work (a re-ranking step or a composite-specific tool).</li>
+<li><strong>The dense-vs-hybrid question is unresolved</strong> at 354 chunks. Confirming or refuting hybrid's
+  advantage needs a larger corpus or a retrieval-specific eval weighted toward education questions.</li>
+<li><strong>Judge/actor separation is prompt-level, and was tested rather than assumed.</strong> The key allows only
+  the gpt-5.4 family, so the judge cannot come from a different family; it runs a separate adversarial
+  prompt with no access to the actor's tools or reasoning. To check whether a shared model inflates
+  verdicts, the matrix was re-run with a genuinely different actor (<strong>nano judged by mini</strong>) against
+  the primary <strong>mini judged by mini</strong>. Every bucket landed within one question, with zero leaks
+  throughout. A judge favouring its own model should have scored mini above nano; it did not.
+  Caveats: the swap gives a weaker actor, not a stronger judge, and it was one run against a
+  three-run median. A judge more capable than the system it grades remains out of reach.</li>
+<li><strong>Actor model size barely moves accuracy</strong>, which the design predicts: nano matched mini on
+  aggregation because SQL computes the numbers, and RAG scored 2 of 15 on both, confirming the
+  baseline fails structurally rather than for want of a better model. Nano is not promoted on one
+  run: its hybrid pass fell to 14 of 15, below threshold.</li>
+<li><strong>PII detection recall is bounded by the regex set.</strong> The leakage guarantee is precise ("no mapped
+  value leaked") and is not overstated into "no PII can possibly leak". Free-text names are out of scope.</li>
+</ul>
+<p>The full chronological record of attempts, failures and pivots, including a case where a workaround was
+mistakenly recorded as a fix and resurfaced two days later, is maintained in the repository README's
+Failure Analysis section.</p>
+<hr />
+<h2>8. How to run</h2>
+<pre><code class="language-bash">git clone https://github.com/CraftMyMoney/finquery.git &amp;&amp; cd finquery
+docker compose up            # Postgres (pgvector) + app on :8000
+</code></pre>
+<p>The database is synthetic and seeded by committed scripts, so nothing is needed beyond an OpenAI key
+in <code>.env</code>. The <strong><a href="https://github.com/CraftMyMoney/finquery">repository README</a></strong> covers the
+cold-start pipeline with expected row counts, reproducing the tables above, and the Failure Analysis
+log.</p></body></html>

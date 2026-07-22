@@ -13,3 +13,6 @@ pypdf~=5.1
 pytest~=8.3
 pytest-asyncio~=0.25
 httpx~=0.28
+
+# docs build (docs/render_documentation.py)
+markdown~=3.7

@@ -247,25 +247,18 @@ adding complexity before a baseline demands it).
   primary target for future work (a re-ranking step or a composite-specific tool).
 - **The dense-vs-hybrid question is unresolved** at 354 chunks. Confirming or refuting hybrid's
   advantage needs a larger corpus or a retrieval-specific eval weighted toward education questions.
-- **Judge/actor separation is prompt-level, and was tested rather than assumed.** The granted key
-  allows only the gpt-5.4 family, so the judge cannot come from a different family as originally
-  planned; it runs with a separate adversarial prompt and no access to the actor's tools or reasoning.
-  To check whether sharing a model inflates the verdicts, the full matrix was re-run with a genuinely
-  different actor, **gpt-5.4-nano judged by gpt-5.4-mini**, and compared against the primary
-  **gpt-5.4-mini judged by gpt-5.4-mini** results. Every bucket in every system landed within one
-  question of the primary run (RAG 2/15 aggregation on both; agent + dense 15/15 on both; agent +
-  hybrid 14/15 versus 15/15), and PII leakage stayed at zero throughout. If the judge preferred
-  answers from its own model, the mini actor should have outscored the nano actor under that same
-  judge. It did not, which is evidence against self-preference bias, though not proof of its absence:
-  the cross-model configuration swaps in a **weaker** actor, not a stronger judge, and the nano matrix
-  was run once against a three-run median. The result that remains beyond reach is a judge more
-  capable than the system it grades.
-- **Actor model size barely moves accuracy, which is a feature of the design.** The same nano
-  comparison doubles as a capability ablation. Nano matched mini on aggregation because the agent's
-  numbers come from SQL rather than from the model, and vanilla RAG scored 2 of 15 on **both** models,
-  confirming that the baseline's failure is structural and not a model deficiency. Nano is not adopted
-  as the default on this evidence: its single hybrid run fell to 14 of 15 aggregation, below the 95%
-  threshold, and one run is not enough to promote it.
+- **Judge/actor separation is prompt-level, and was tested rather than assumed.** The key allows only
+  the gpt-5.4 family, so the judge cannot come from a different family; it runs a separate adversarial
+  prompt with no access to the actor's tools or reasoning. To check whether a shared model inflates
+  verdicts, the matrix was re-run with a genuinely different actor (**nano judged by mini**) against
+  the primary **mini judged by mini**. Every bucket landed within one question, with zero leaks
+  throughout. A judge favouring its own model should have scored mini above nano; it did not.
+  Caveats: the swap gives a weaker actor, not a stronger judge, and it was one run against a
+  three-run median. A judge more capable than the system it grades remains out of reach.
+- **Actor model size barely moves accuracy**, which the design predicts: nano matched mini on
+  aggregation because SQL computes the numbers, and RAG scored 2 of 15 on both, confirming the
+  baseline fails structurally rather than for want of a better model. Nano is not promoted on one
+  run: its hybrid pass fell to 14 of 15, below threshold.
 - **PII detection recall is bounded by the regex set.** The leakage guarantee is precise ("no mapped
   value leaked") and is not overstated into "no PII can possibly leak". Free-text names are out of scope.
 
@@ -277,25 +270,12 @@ Failure Analysis section.
 
 ## 8. How to run
 
-**Repository:** https://github.com/CraftMyMoney/finquery
-
 ```bash
-git clone https://github.com/CraftMyMoney/finquery.git
-cd finquery
+git clone https://github.com/CraftMyMoney/finquery.git && cd finquery
 docker compose up            # Postgres (pgvector) + app on :8000
 ```
 
-Full setup instructions are in the repository README:
-
-- **Quickstart:** https://github.com/CraftMyMoney/finquery#quickstart
-- **Cold-start data pipeline** (schema, synthetic seed, KB ingest, transaction serialization,
-  embedding backfill), with the expected row count at every step so a mismatch is caught immediately:
-  https://github.com/CraftMyMoney/finquery#data-layer-setup-from-scratch
-- **Evaluation** (how to run the harness and reproduce the tables above):
-  https://github.com/CraftMyMoney/finquery#evaluation
-- **Failure Analysis** (attempted approaches, failures and pivots):
-  https://github.com/CraftMyMoney/finquery#failure-analysis
-
-Everything is reproducible from scratch: the database is synthetic and seeded by committed scripts,
-so no external data source or account is needed beyond an OpenAI API key in `.env`. The evaluation
-harness and its committed per-run outputs, including the nano ablation, live under `eval/`.
+The database is synthetic and seeded by committed scripts, so nothing is needed beyond an OpenAI key
+in `.env`. The **[repository README](https://github.com/CraftMyMoney/finquery)** covers the
+cold-start pipeline with expected row counts, reproducing the tables above, and the Failure Analysis
+log.
