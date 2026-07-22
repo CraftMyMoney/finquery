@@ -25,7 +25,9 @@ services:
       # inside the compose network the db is reachable by service name on 5432
       DATABASE_URL: postgresql://finquery:finquery@db:5432/finquery
     ports:
-      - "8000:8000"
+      # 8001 on the host to avoid clashing with anything already on 8000;
+      # inside the container uvicorn stays on the default 8000
+      - "8001:8000"
     depends_on:
       db:
         condition: service_healthy

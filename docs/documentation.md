@@ -272,7 +272,7 @@ Failure Analysis section.
 
 ```bash
 git clone https://github.com/CraftMyMoney/finquery.git && cd finquery
-docker compose up            # Postgres (pgvector) + app on :8000
+docker compose up            # Postgres (pgvector) + UI on http://localhost:8001
 ```
 
 The database is synthetic and seeded by committed scripts, so nothing is needed beyond an OpenAI key

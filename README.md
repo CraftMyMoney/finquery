@@ -40,9 +40,13 @@ for the healthy-ratio guideline, then writes one grounded answer.
 
 ```bash
 cp .env.example .env          # add OPENAI_API_KEY
-docker compose up             # Postgres (pgvector) + app on :8000
-# UI at http://localhost:8000  API docs at http://localhost:8000/docs
+docker compose up             # Postgres (pgvector) + app on host port 8001
+# UI at http://localhost:8001  API docs at http://localhost:8001/docs
 ```
+
+Host port 8001 keeps the stack clear of anything already bound to 8000; uvicorn
+still listens on 8000 inside the container. Change the left-hand side of the
+`ports` mapping in `docker-compose.yml` if 8001 is taken too.
 
 Development mode:
 
