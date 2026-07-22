@@ -64,10 +64,18 @@ the system cold with no access to any real account.
   15% overlap, appropriate for short self-contained articles.
 
 **Two ingestion paths feed pgvector.** KB markdown is chunked and embedded directly.
-Transactions are serialized into monthly text chunks (144 chunks, 48 per user), and this
-path is where Approach A's PII masking happens: each chunk is pseudonymized **before**
-storage and embedding, so no real value is ever written to the vector store. The serializer
-aborts if any real mapped value survives into a stored chunk.
+Transactions take the second path, and only for Approach A: each transaction becomes one
+text line (date, type, amount, category path, narration), lines are grouped by calendar
+month, and each month's lines are packed into ~400-token chunks. A month therefore spans
+several chunks, not one: user1's 60 transactions per month pack into 8 chunks of roughly
+7 transactions each, giving 48 chunks per user and 144 in total, stored in
+`rag_transaction_chunks` with their `source_txn_ids` and embedding. Unlike the KB, this
+corpus is chunked with **no overlap**: overlapping windows would repeat transactions
+across chunks and inflate any total the baseline tries to compute. This path is also where
+Approach A's PII masking happens: each chunk is pseudonymized **before** storage and
+embedding, so no real value is ever written to the vector store. The serializer aborts if
+any real mapped value survives into a stored chunk. Approach B never reads these chunks;
+its tools query the `transactions` table directly in SQL.
 
 ---
 
@@ -85,9 +93,14 @@ Everything is a document. KB articles and serialized transaction rows are embedd
 pgvector. A question is embedded, the top 8 chunks by cosine distance are retrieved (the
 transaction leg scoped to the asking user), and a single LLM call answers from that context
 with no tools. **Hypothesis under test: this works for education questions and fails on
-aggregation**, because top-k retrieval returns at most k transaction chunks while the correct
-answer needs all N summed. The system has no "not found" branch: retrieval always returns k
-chunks, so refusals come from the prompt criteria, not from retrieval.
+aggregation.** The arithmetic makes the reason concrete: one month of this user's
+transactions occupies exactly 8 chunks, and k is 8. A question like "how much did I spend
+on food in June" would need all 8 June chunks to win all 8 retrieval slots, beating every
+KB chunk and every other month, and the LLM would then have to sum the right subset of
+~60 lines by hand. Retrieval is competing for slots against a corpus it cannot exclude,
+and even perfect retrieval leaves the arithmetic ungrounded. The system also has no "not
+found" branch: retrieval always returns k chunks, so refusals come from the prompt
+criteria, not from retrieval.
 
 ### Approach B: single tool-calling agent (ReAct)
 
