@@ -21,6 +21,12 @@ services:
     build: .
     container_name: finquery-app
     env_file: .env
+    volumes:
+      # The image already contains ui/; mounting it read-only means a static
+      # asset edit shows up on refresh instead of after a rebuild. Without
+      # this, editing ui/ and reloading silently serves the stale baked-in
+      # copy, which looks exactly like the edit not working.
+      - ./ui:/finquery/ui:ro
     environment:
       # inside the compose network the db is reachable by service name on 5432
       DATABASE_URL: postgresql://finquery:finquery@db:5432/finquery

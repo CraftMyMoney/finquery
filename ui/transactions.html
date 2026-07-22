@@ -27,6 +27,13 @@
   td.amount.credit { color: var(--credit); }
   td.cat { white-space: nowrap; color: var(--text-2); }
   td.cat .sub { display: block; font-size: .75rem; color: var(--muted); }
+  tfoot td { border-top: 2px solid var(--border); background: var(--bg-alt);
+             padding: 12px 14px; font-weight: 700; }
+  tfoot .total-label { font-size: .7rem; text-transform: uppercase;
+                       letter-spacing: .05em; color: var(--muted); }
+  tfoot .total-amount { text-align: right; white-space: nowrap; font-size: 1rem; }
+  tfoot .total-amount .split { display: block; font-size: .75rem;
+                               font-weight: 500; color: var(--text-2); }
   .empty { padding: 24px; text-align: center; color: var(--muted); }
   @media (max-width: 640px) { main { padding: 84px 16px 16px; } }
 </style>
@@ -53,6 +60,7 @@
   <div id="filters">
     <select id="month"><option value="">All months</option></select>
     <select id="category"><option value="">All categories</option></select>
+    <select id="subcategory"><option value="">All subcategories</option></select>
     <select id="type">
       <option value="">Credit + debit</option>
       <option value="debit">Debit only</option>
@@ -65,6 +73,15 @@
     <table>
       <thead><tr><th>Date</th><th>Description</th><th>Category</th><th style="text-align:right">Amount</th></tr></thead>
       <tbody id="rows"></tbody>
+      <!-- Totals live in the table, not just in the summary line above, so a
+           screenshot of the filtered ledger carries its own arithmetic. This
+           is what an answer from the agent is checked against. -->
+      <tfoot id="totals" hidden>
+        <tr>
+          <td colspan="3" class="total-label">Total for these filters</td>
+          <td class="total-amount" id="total-amount"></td>
+        </tr>
+      </tfoot>
     </table>
     <div class="empty" id="empty" hidden>No transactions match these filters.</div>
   </div>
@@ -73,11 +90,14 @@
 <script>
 const monthSel = document.getElementById("month");
 const catSel = document.getElementById("category");
+const subSel = document.getElementById("subcategory");
 const typeSel = document.getElementById("type");
 const search = document.getElementById("search");
 const tbody = document.getElementById("rows");
 const empty = document.getElementById("empty");
 const summary = document.getElementById("summary");
+const totals = document.getElementById("totals");
+const totalAmount = document.getElementById("total-amount");
 const MONTH_FMT = new Intl.DateTimeFormat("en-IN", { month: "long", year: "numeric" });
 
 let ALL = [];
@@ -90,12 +110,26 @@ function fillOptions(sel, values, label) {
   });
 }
 
+/* Subcategories are scoped to the chosen category so the list stays short and
+   cannot offer a combination that matches nothing. A selection that the new
+   category does not contain is dropped rather than silently kept. */
+function syncSubcategories() {
+  const chosen = subSel.value;
+  const pool = catSel.value ? ALL.filter(t => t.category === catSel.value) : ALL;
+  const subs = [...new Set(pool.map(t => t.subcategory).filter(Boolean))].sort();
+  subSel.innerHTML = '<option value="">All subcategories</option>';
+  fillOptions(subSel, subs);
+  subSel.value = subs.includes(chosen) ? chosen : "";
+}
+
 function render() {
   const month = monthSel.value, cat = catSel.value, type = typeSel.value;
+  const sub = subSel.value;
   const q = search.value.trim().toLowerCase();
   const rows = ALL.filter(t =>
     (!month || t.txn_date.startsWith(month)) &&
     (!cat || t.category === cat) &&
+    (!sub || t.subcategory === sub) &&
     (!type || t.txn_type === type) &&
     (!q || t.bank_description.toLowerCase().includes(q)));
 
@@ -125,11 +159,25 @@ function render() {
     tbody.appendChild(tr);
   });
   empty.hidden = rows.length > 0;
-  summary.innerHTML = "";
-  const parts = [`<b>${rows.length}</b> transactions`,
-                 `debits <b>${INR.format(debit)}</b>`,
-                 `credits <b>${INR.format(credit)}</b>`];
-  summary.innerHTML = parts.join(" &middot; ");
+
+  /* The summary line names what is being counted; the footer carries the
+     money. Keeping the totals in one place avoids two figures that could
+     ever disagree. */
+  const active = [monthSel, catSel, subSel, typeSel]
+    .filter(sel => sel.value)
+    .map(sel => sel.options[sel.selectedIndex].textContent);
+  if (search.value.trim()) active.push(`"${search.value.trim()}"`);
+  summary.innerHTML = [`<b>${rows.length}</b> transactions`, ...active]
+    .join(" &middot; ");
+
+  totals.hidden = rows.length === 0;
+  if (debit && credit) {
+    totalAmount.innerHTML =
+      `- ${INR.format(debit)}<span class="split">+ ${INR.format(credit)} credits`
+      + ` &middot; net ${INR.format(credit - debit)}</span>`;
+  } else {
+    totalAmount.textContent = (credit ? "+ " : "- ") + INR.format(credit || debit);
+  }
 }
 
 async function load() {
@@ -146,10 +194,12 @@ async function load() {
   const cats = [...new Set(ALL.map(t => t.category).filter(Boolean))].sort();
   fillOptions(monthSel, months, m => MONTH_FMT.format(new Date(m + "-01")));
   fillOptions(catSel, cats);
+  syncSubcategories();
   render();
 }
 
-[monthSel, catSel, typeSel].forEach(el => el.onchange = render);
+catSel.onchange = () => { syncSubcategories(); render(); };
+[monthSel, subSel, typeSel].forEach(el => el.onchange = render);
 search.oninput = render;
 load();
 </script>
